@@ -47,12 +47,12 @@ button:focus-visible{outline:3px solid var(--g);outline-offset:3px}
 /* ---- en-tête de jeu ---- */
 header{display:flex;align-items:center;gap:12px;padding:12px 16px 8px}
 header .hlogo{width:40px;height:40px;flex:none;border-radius:11px}
-header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
+header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .back{width:44px;height:44px;border-radius:50%;background:var(--plate);box-shadow:0 3px 0 #030a1f;display:grid;place-items:center;flex:none}
 .back:active{transform:translateY(2px);box-shadow:0 1px 0 #030a1f}
 .back svg{width:20px;height:20px}
 .chips{display:flex;gap:8px}
-.chip{background:var(--deep);border:1.5px solid var(--line);border-radius:12px;padding:4px 12px;text-align:right;min-width:68px;position:relative}
+.chip{background:var(--deep);border:1.5px solid var(--line);border-radius:12px;padding:4px 10px;text-align:right;min-width:58px;position:relative}
 .chip small{display:block;font-size:11px;color:var(--mut);font-weight:700}
 .chip b{font-weight:900;font-size:20px;line-height:1.1}
 .plus{position:absolute;right:10px;top:-4px;font-weight:900;color:var(--g);animation:plus .7s ease-out forwards;pointer-events:none}
@@ -176,6 +176,25 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 /* ---- duel ---- */
 #vDuel{--g:var(--sun)}
+/* ---- démineur ---- */
+#vMine{--g:var(--teal)}
+.mbar{display:flex;align-items:center;gap:8px;width:min(94vw,440px)}
+.seg{display:flex;background:var(--deep);border:1.5px solid var(--line);border-radius:12px;padding:3px;flex:1}
+.seg button{flex:1;padding:8px 4px;border-radius:9px;font-weight:800;font-size:14px;color:var(--mut)}
+.seg button.on{background:var(--g);color:var(--night)}
+#mineMode{width:48px;height:42px;border-radius:12px;background:var(--plate);box-shadow:0 3px 0 #030a1f;display:grid;place-items:center;flex:none}
+#mineMode.flag{background:var(--red);box-shadow:0 3px 0 #8a1020}
+#mineMode svg{width:24px;height:24px}
+#mine{display:grid;gap:3px;touch-action:manipulation;-webkit-touch-callout:none}
+#mine .m{width:var(--cs);height:var(--cs);border-radius:calc(var(--cs) * .22);display:grid;place-items:center;font-weight:900;font-size:calc(var(--cs) * .56);
+  background:linear-gradient(180deg,#24a59c,#1a7f78);box-shadow:inset 0 -3px 0 #0d4f4a;color:#fff}
+#mine .m.o{background:#0b1736;box-shadow:none;animation:mOpen .18s ease-out both}
+@keyframes mOpen{from{transform:scale(.7);opacity:.3}}
+#mine .m svg{width:70%;height:70%}
+#mine .m.boom{background:var(--red);color:#00071a}
+#mine .m.mn{background:#3a1430;color:#ff8a9a}
+#mine .m.bad{background:#3a1430}
+.n1{color:#5aa9ff}.n2{color:#2fe39a}.n3{color:#ff6f6f}.n4{color:#b26bff}.n5{color:#ff8a3d}.n6{color:#19d3c5}.n7{color:#eef2ff}.n8{color:#8a97c7}
 /* ---- memory ---- */
 #vMem{--g:var(--pink)}
 #mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(88vw,calc((100vh - 330px) * .8),380px)}
@@ -273,6 +292,10 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
         <button class="tile wide" data-go="vMot" style="--g:var(--volt);animation-delay:.15s">
           <img class="art" src="img/mot.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <span class="tx"><b>Mot du jour</b><span class="rec" id="hMot"></span></span>
+        </button>
+        <button class="tile" data-go="vMine" style="--g:var(--teal);animation-delay:.18s">
+          <img class="art" src="img/demineur.svg" alt="" width="160" height="160">
+          <b>Démineur</b><span class="rec" id="hMine"></span>
         </button>
       </div>
     </div>
@@ -372,6 +395,21 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
   </div>
 </section>
 
+<!-- DEMINEUR -->
+<section class="view" id="vMine">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/demineur.svg" alt="" width="40" height="40"><h1>Démineur</h1>
+    <div class="chips"><div class="chip"><small>mines</small><b id="mineN">0</b></div><div class="chip"><small>temps</small><b id="mineT">0</b></div></div></header>
+  <div class="main">
+    <div class="mbar">
+      <div class="seg" id="mineLvl"><button data-l="facile">Facile</button><button data-l="moyen">Moyen</button><button data-l="expert">Expert</button></div>
+      <button id="mineMode" aria-label="Mode drapeau"></button>
+    </div>
+    <div id="mine"></div>
+    <div class="msg" id="mineM">Appui long ou bouton drapeau pour marquer une mine</div>
+    <button class="btn" id="mineNew">Nouvelle partie</button>
+  </div>
+</section>
+
 <!-- MEMORY -->
 <section class="view" id="vMem">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.svg" alt="" width="40" height="40"><h1>Memory</h1></header>
@@ -406,7 +444,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.4.1';
+const APP_VERSION='1.4.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -504,6 +542,7 @@ function refreshHome(){
   $('hC4').innerHTML=(c[0]||c[1])?duo(c[0],c[1]):'Thomas contre Cindy';
   const tt=store.get('tttScore',[0,0]);$('hTtt').innerHTML=(tt[0]||tt[1])?duo(tt[0],tt[1]):'Trois à la suite';
   const mm=store.get('memScore',[0,0]);$('hMem').innerHTML=(mm[0]||mm[1])?duo(mm[0],mm[1]):'Retrouve les paires';
+  const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'Pas encore de record';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -842,6 +881,83 @@ refreshHome();
   $('tttNew').addEventListener('click',newRound);
   $('tttRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){sc=[0,0];store.set('tttScore',sc);turnUI()}});
   enterHooks.vTtt=()=>{if(!b)newRound();else turnUI()};
+})();
+
+/* ---------- DEMINEUR ---------- */
+(function(){
+  const LV={facile:{c:8,r:10,m:10},moyen:{c:10,r:14,m:22},expert:{c:12,r:17,m:40}};
+  const FLAG='<svg viewBox="0 0 24 24"><path d="M6 3v18" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/><path d="M7 4l12 5-12 5z" fill="#ff3b4e" stroke="#fff" stroke-width="1.2" stroke-linejoin="round"/></svg>';
+  const BOMB='<svg viewBox="0 0 24 24"><circle cx="12" cy="13" r="7" fill="currentColor"/><path d="M12 2v4M12 20v2M3 13h2M19 13h2M5.6 6.6l1.5 1.5M16.9 17.9l1.5 1.5M18.4 6.6l-1.5 1.5M7.1 17.9l-1.5 1.5" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/><circle cx="9.5" cy="10.5" r="2" fill="#fff"/></svg>';
+  const SHOVEL='<svg viewBox="0 0 24 24"><path d="M14 4l6 6M17 7l-8 8" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"/><path d="M9 15l-4 4 1 1 4-4z" fill="currentColor"/><path d="M4 20l2-6 4 4z" fill="currentColor"/></svg>';
+  const el=$('mine');let lvl=store.get('mineLvl','facile'),L,cells,started,over,t0,tick=null,flags,flagMode=false,opened;
+  function nb(i){const x=i%L.c,y=(i-x)/L.c,o=[];for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){if(!dx&&!dy)continue;const X=x+dx,Y=y+dy;if(X>=0&&Y>=0&&X<L.c&&Y<L.r)o.push(Y*L.c+X)}return o}
+  function size(){const cs=Math.floor(Math.min((Math.min(window.innerWidth,460)-32-(L.c-1)*3)/L.c,(window.innerHeight-300-(L.r-1)*3)/L.r,44));el.style.setProperty('--cs',Math.max(20,cs)+'px');el.style.gridTemplateColumns='repeat('+L.c+',var(--cs))'}
+  function modeUI(){const b=$('mineMode');b.className=flagMode?'flag':'';b.innerHTML=flagMode?FLAG:SHOVEL;b.setAttribute('aria-pressed',flagMode)}
+  function newGame(){
+    L=LV[lvl];clearInterval(tick);tick=null;started=false;over=false;flags=0;opened=0;
+    cells=Array.from({length:L.c*L.r},()=>({mine:false,n:0,open:false,flag:false}));
+    document.querySelectorAll('#mineLvl button').forEach(b=>b.classList.toggle('on',b.dataset.l===lvl));
+    el.innerHTML='';
+    cells.forEach((c,i)=>{const d=document.createElement('button');d.className='m';bind(d,i);el.appendChild(d)});
+    $('mineN').textContent=L.m;$('mineT').textContent=0;$('mineM').textContent='Appui long ou bouton drapeau pour marquer une mine';$('mineM').className='msg';size();
+  }
+  function bind(d,i){
+    let lt=null,long=false;
+    d.addEventListener('pointerdown',()=>{long=false;lt=setTimeout(()=>{long=true;toggleFlag(i);vibe(25)},420)});
+    const cancel=()=>clearTimeout(lt);
+    d.addEventListener('pointerup',cancel);d.addEventListener('pointerleave',cancel);d.addEventListener('pointercancel',cancel);
+    d.addEventListener('contextmenu',e=>e.preventDefault());
+    d.addEventListener('click',()=>{if(long){long=false;return}if(flagMode&&!cells[i].open)toggleFlag(i);else act(i)});
+  }
+  function place(safe){
+    const ban=new Set([safe,...nb(safe)]),pool=[];for(let i=0;i<cells.length;i++)if(!ban.has(i))pool.push(i);
+    for(let k=0;k<L.m;k++){const j=k+Math.floor(Math.random()*(pool.length-k));[pool[k],pool[j]]=[pool[j],pool[k]];cells[pool[k]].mine=true}
+    cells.forEach((c,i)=>{c.n=nb(i).filter(k=>cells[k].mine).length});
+    started=true;t0=Date.now();tick=setInterval(()=>{$('mineT').textContent=Math.floor((Date.now()-t0)/1000)},500);
+  }
+  function draw(i){
+    const c=cells[i],d=el.children[i];
+    if(c.open){d.className='m o'+(c.mine?' boom':'')+(c.n&&!c.mine?' n'+c.n:'');d.innerHTML=c.mine?BOMB:(c.n||'')}
+    else{d.className='m';d.innerHTML=c.flag?FLAG:''}
+  }
+  function toggleFlag(i){const c=cells[i];if(over||c.open)return;c.flag=!c.flag;flags+=c.flag?1:-1;$('mineN').textContent=L.m-flags;draw(i);sfx.play('key')}
+  function open(i){
+    const st=[i];let n=0;
+    while(st.length){const k=st.pop(),c=cells[k];if(c.open||c.flag)continue;c.open=true;opened++;n++;draw(k);if(!c.mine&&c.n===0)nb(k).forEach(j=>{if(!cells[j].open)st.push(j)})}
+    return n;
+  }
+  function act(i){
+    if(over)return;const c=cells[i];
+    if(c.flag)return;
+    if(!started)place(i);
+    if(c.open){ // ouverture rapide autour d'un chiffre
+      if(!c.n)return;const ns=nb(i);if(ns.filter(k=>cells[k].flag).length!==c.n)return;
+      let hit=-1;ns.forEach(k=>{if(!cells[k].open&&!cells[k].flag){if(cells[k].mine)hit=k;}});
+      if(hit>=0){cells[hit].open=true;draw(hit);return lose(hit)}
+      let n=0;ns.forEach(k=>{if(!cells[k].open&&!cells[k].flag)n+=open(k)});if(n)sfx.play(n>3?'merge':'tick',16);return check();
+    }
+    if(c.mine){c.open=true;draw(i);return lose(i)}
+    const n=open(i);sfx.play(n>3?'merge':'tick',16);check();
+  }
+  function lose(i){
+    over=true;clearInterval(tick);sfx.play('die');vibe([80,40,80]);
+    cells.forEach((c,k)=>{if(c.mine&&!c.flag&&k!==i){c.open=true;draw(k);el.children[k].classList.remove('boom');el.children[k].classList.add('mn')}else if(c.flag&&!c.mine)el.children[k].classList.add('bad')});
+    $('mineM').textContent='Boum ! Retente ta chance';$('mineM').className='msg hi';
+  }
+  function check(){
+    if(opened!==cells.length-L.m)return;
+    over=true;clearInterval(tick);const t=Math.max(1,Math.round((Date.now()-t0)/1000));$('mineT').textContent=t;
+    cells.forEach((c,k)=>{if(c.mine&&!c.flag){c.flag=true;draw(k)}});$('mineN').textContent=0;
+    const best=store.get('mineBest',{});const rec=!best[lvl]||t<best[lvl];if(rec){best[lvl]=t;store.set('mineBest',best)}
+    $('mineM').textContent=rec?'Nouveau record : '+t+' s !':'Gagné en '+t+' s (record '+best[lvl]+' s)';$('mineM').className='msg hi';sfx.play('win');vibe([40,30,40]);
+  }
+  document.querySelectorAll('#mineLvl button').forEach(b=>b.addEventListener('click',()=>{if(started&&!over&&!confirm('Abandonner la partie en cours ?'))return;lvl=b.dataset.l;store.set('mineLvl',lvl);newGame()}));
+  $('mineMode').addEventListener('click',()=>{flagMode=!flagMode;modeUI();sfx.play('tick')});
+  $('mineNew').addEventListener('click',()=>{if(started&&!over&&!confirm('Recommencer la partie ?'))return;newGame()});
+  enterHooks.vMine=()=>{modeUI();if(!cells)newGame();else size()};
+  if(location.hostname==='localhost')window.__mine=()=>cells; // aide aux tests locaux uniquement
+  leaveHooks.vMine=()=>{};
+  window.addEventListener('resize',()=>{if(current==='vMine')size()});
 })();
 
 /* ---------- MEMORY ---------- */
