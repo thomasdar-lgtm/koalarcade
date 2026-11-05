@@ -516,7 +516,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.7.0';
+const APP_VERSION='1.7.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1591,10 +1591,10 @@ $('mUpd').addEventListener('click',()=>{
 
 /* ---------- service worker ---------- */
 if('serviceWorker' in navigator){
-  let waiting=null,reloading=false,regRef=null;
+  let waiting=null,reloading=false,regRef=null,asked=false;
   const offer=w=>{waiting=w;$('upd').hidden=false;$('toast').hidden=true};
-  $('updGo').addEventListener('click',()=>{if(!waiting)return;$('updGo').textContent='Installation…';waiting.postMessage('SKIP_WAITING')});
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;reloading=true;location.reload()});
+  $('updGo').addEventListener('click',()=>{if(!waiting)return;asked=true;$('updGo').textContent='Installation…';waiting.postMessage('SKIP_WAITING')});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading||!asked)return;reloading=true;location.reload()}); // pas de rechargement à la toute première installation
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('sw.js').then(reg=>{
       regRef=reg;
