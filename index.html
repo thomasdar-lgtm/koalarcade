@@ -178,6 +178,17 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 .dmid{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--night);border-block:2px solid var(--line)}
 .dmid .btn{flex:1}
 
+/* ---- bannière de mise à jour ---- */
+#upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:12px;
+  padding:12px 12px 12px 16px;border-radius:18px;background:var(--plate);border:2px solid var(--sun);box-shadow:0 10px 30px #000a;max-width:500px;margin:0 auto;
+  animation:updIn .35s cubic-bezier(.2,.9,.3,1.2) both}
+#upd[hidden]{display:none}
+#upd svg{width:34px;height:34px;flex:none}
+#upd div{flex:1}
+#upd b{display:block;font-weight:900;font-size:16px}
+#upd small{color:var(--mut);font-weight:700;font-size:13px}
+#upd .btn{--g:var(--sun);padding:11px 16px}
+@keyframes updIn{from{transform:translateY(130%)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
 </style>
 </head>
@@ -305,9 +316,11 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
   </div>
 </section>
 
+<div id="upd" hidden role="status"><svg><use href="#koala"/></svg><div><b>Mise à jour disponible</b><small>Installe-la quand tu veux</small></div><button class="btn" id="updGo">Installer</button></div>
+
 <script>
 'use strict';
-const APP_VERSION='1.1.0';
+const APP_VERSION='1.1.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 
 /* ---------- utilitaires ---------- */
@@ -692,7 +705,22 @@ refreshHome();
 
 /* ---------- service worker ---------- */
 if('serviceWorker' in navigator){
-  window.addEventListener('load',()=>navigator.serviceWorker.register('sw.js').catch(()=>{}));
+  let waiting=null,reloading=false;
+  const offer=w=>{waiting=w;$('upd').hidden=false};
+  $('updGo').addEventListener('click',()=>{if(!waiting)return;$('updGo').textContent='Installation…';waiting.postMessage('SKIP_WAITING')});
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{if(reloading)return;reloading=true;location.reload()});
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      if(reg.waiting&&navigator.serviceWorker.controller)offer(reg.waiting);
+      reg.addEventListener('updatefound',()=>{
+        const nw=reg.installing;if(!nw)return;
+        nw.addEventListener('statechange',()=>{if(nw.state==='installed'&&navigator.serviceWorker.controller)offer(nw)});
+      });
+      const check=()=>{reg.update().catch(()=>{})};
+      document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='visible')check()});
+      setInterval(check,30*60*1000);
+    }).catch(()=>{});
+  });
 }
 </script>
 </body>
