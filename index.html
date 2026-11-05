@@ -219,7 +219,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .n1{color:#5aa9ff}.n2{color:#2fe39a}.n3{color:#ff6f6f}.n4{color:#b26bff}.n5{color:#ff8a3d}.n6{color:#19d3c5}.n7{color:#eef2ff}.n8{color:#8a97c7}
 /* ---- memory ---- */
 #vMem{--g:var(--pink)}
-#mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(88vw,calc((100vh - 330px) * .8),380px)}
+#mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(88vw,calc((100vh - 440px) * .8),380px)}
 .card{aspect-ratio:4/5;perspective:600px;position:relative}
 .card .in{position:absolute;inset:0;transition:transform .35s ease;transform-style:preserve-3d}
 .card.up .in{transform:rotateY(180deg)}
@@ -474,6 +474,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <section class="view" id="vMem">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.svg" alt="" width="40" height="40"><h1>Memory</h1></header>
   <div class="main">
+    <div class="mbar"><div class="seg" id="memMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="memNet" hidden></div>
     <div class="players">
       <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
       <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b>Cindy</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
@@ -509,7 +511,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.6.1';
+const APP_VERSION='1.6.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1412,51 +1414,78 @@ refreshHome();
 
 /* ---------- MEMORY ---------- */
 (function(){
-  const el=$('mem'),names=['Thomas','Cindy'],pcs=['var(--red)','var(--sun)'];
+  const el=$('mem'),pcs=['var(--red)','var(--sun)'],N=20,BACK=950;
   const FACES=['🐨','🍓','🎲','🚀','🌈','🍕','🎸','🐙','⭐','🦊','🍩','⚽'];
-  let deck=[],pairs,turn,first,lock,done,starter=store.get('memStarter',0),wins=store.get('memScore',[0,0]);
-  function ui(){
-    [0,1].forEach(p=>{$('memP'+p).classList.toggle('on',!done&&turn===p);$('memT'+p).textContent=!done&&turn===p?'À toi de jouer':'Victoires '+wins[p]});
-    $('memA').textContent=pairs[0];$('memB').textContent=pairs[1];
+  function fresh(prev){
+    const f=FACES.slice().sort(()=>Math.random()-.5).slice(0,N/2),d=f.concat(f);
+    for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}
+    const st=prev?prev.starter:0;
+    return{deck:d.join(','),ok:'-'.repeat(N),up:'',turn:st,starter:st,pairs:[0,0],wins:prev?prev.wins:[0,0],over:false,g:prev?prev.g+1:0,mv:0,ev:''};
   }
-  function newGame(){
-    const f=FACES.slice().sort(()=>Math.random()-.5).slice(0,10);
-    deck=f.concat(f).map(v=>({v,up:false,ok:false}));
-    for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
-    pairs=[0,0];turn=starter;first=null;lock=false;done=false;$('memM').textContent='';
-    el.innerHTML='';
-    deck.forEach((c,i)=>{
-      const d=document.createElement('button');d.className='card';d.setAttribute('aria-label','Carte '+(i+1));
-      d.innerHTML='<div class="in"><div class="fc bk"><img src="logo.webp" alt=""></div><div class="fc ft">'+c.v+'</div></div>';
-      d.addEventListener('click',()=>flip(i));el.appendChild(d);
-    });
-    ui();
-  }
-  function flip(i){
-    const c=deck[i];if(lock||done||c.up||c.ok)return;
-    c.up=true;el.children[i].classList.add('up');sfx.play('key');
-    if(first===null){first=i;return}
-    const a=deck[first],j=first;first=null;
-    if(a.v===c.v){
-      a.ok=c.ok=true;pairs[turn]++;
-      [j,i].forEach(k=>{el.children[k].style.setProperty('--pc',pcs[turn]);setTimeout(()=>el.children[k].classList.add('ok'),300)});
-      setTimeout(()=>sfx.play('merge',8<<pairs[turn]),300);vibe(15);
-      if(pairs[0]+pairs[1]===deck.length/2)return end();
-      ui();
-    }else{
-      lock=true;
-      setTimeout(()=>{a.up=c.up=false;el.children[j].classList.remove('up');el.children[i].classList.remove('up');turn=1-turn;lock=false;sfx.play('tick');ui()},950);
+  const ups=S=>S.up?S.up.split(',').map(Number):[];
+  const faces=S=>S.deck.split(',');
+  function flip(S,i,p){
+    const u=ups(S);
+    if(S.over||S.turn!==p||S.ok[i]!=='-'||u.includes(i)||u.length>=2)return null;
+    u.push(i);S.mv++;S.ev='flip';S.up=u.join(',');
+    if(u.length===2){
+      const F=faces(S);
+      if(F[u[0]]===F[u[1]]){
+        const ch=String(p);u.forEach(k=>{S.ok=S.ok.slice(0,k)+ch+S.ok.slice(k+1)});S.up='';S.pairs=[S.pairs[0],S.pairs[1]];S.pairs[p]++;S.ev='match';
+        if(!S.ok.includes('-')){
+          S.over=true;S.ev='end';S.starter=1-S.starter;S.wins=[S.wins[0],S.wins[1]];
+          if(S.pairs[0]!==S.pairs[1])S.wins[S.pairs[0]>S.pairs[1]?0:1]++;
+        }
+      }else S.ev='miss';
     }
+    return S;
   }
-  function end(){
-    done=true;starter=1-starter;store.set('memStarter',starter);
-    if(pairs[0]===pairs[1]){$('memM').textContent='Égalité, '+pairs[0]+' paires chacun';setTimeout(()=>sfx.play('draw'),400)}
-    else{const w=pairs[0]>pairs[1]?0:1;wins[w]++;store.set('memScore',wins);$('memM').textContent=names[w]+' gagne avec '+pairs[w]+' paires !';setTimeout(()=>sfx.play('win'),400);vibe([40,30,40])}
-    ui();
+  function back(S,mv){if(S.mv!==mv||ups(S).length!==2)return null;S.up='';S.turn=1-S.turn;S.mv++;S.ev='back';return S}
+  let built=-1,backT=null;
+  function build(S){
+    el.innerHTML='';faces(S).forEach((v,i)=>{
+      const d=document.createElement('button');d.className='card';d.setAttribute('aria-label','Carte '+(i+1));
+      d.innerHTML='<div class="in"><div class="fc bk"><img src="logo.webp" alt=""></div><div class="fc ft">'+v+'</div></div>';
+      d.addEventListener('click',()=>tap(i));el.appendChild(d);
+    });built=S.g;
   }
-  $('memNew').addEventListener('click',()=>{if(done||(pairs[0]+pairs[1])===0||confirm('Recommencer la partie ?'))newGame()});
-  $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){wins=[0,0];store.set('memScore',wins);ui()}});
-  enterHooks.vMem=()=>{if(!deck.length)newGame();else ui()};
+  function render(S,prev,ctx){
+    if(built!==S.g||el.children.length!==N)build(S);
+    const u=ups(S),evt=prev&&prev.g===S.g&&prev.mv!==S.mv?S.ev:'';
+    for(let i=0;i<N;i++){
+      const c=el.children[i],own=S.ok[i];
+      c.classList.toggle('up',own!=='-'||u.includes(i));
+      if(own!=='-'){c.style.setProperty('--pc',pcs[+own]);if(!c.classList.contains('ok')){if(evt)setTimeout(()=>c.classList.add('ok'),300);else c.classList.add('ok')}}
+      else c.classList.remove('ok');
+    }
+    if(evt==='flip'||evt==='miss')sfx.play('key');
+    if(evt==='match'){sfx.play('key');setTimeout(()=>sfx.play('merge',8<<Math.max(...S.pairs)),300);vibe(15)}
+    if(evt==='back')sfx.play('tick');
+    if(evt==='end'){sfx.play('key');setTimeout(()=>sfx.play(S.pairs[0]===S.pairs[1]?'draw':'win'),400);vibe([40,30,40])}
+    clearTimeout(backT);
+    if(S.ev==='miss'&&u.length===2){
+      const mv=S.mv,mineTurn=ctx.mine(S.turn);
+      backT=setTimeout(()=>ctx.act(s=>back(s,mv)),mineTurn?BACK:BACK+1800);
+    }
+    $('memA').textContent=S.pairs[0];$('memB').textContent=S.pairs[1];
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('memP'+p).classList.toggle('on',on);$('memT'+p).textContent=on?(ctx.online&&p!==ctx.me?'Cherche une paire…':'À toi de jouer'):'Victoires '+S.wins[p]});
+    $('memM').textContent=S.over?(S.pairs[0]===S.pairs[1]?'Égalité, '+S.pairs[0]+' paires chacun':NAMES[S.pairs[0]>S.pairs[1]?0:1]+' gagne avec '+Math.max(...S.pairs)+' paires !'):(ctx.online&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
+  }
+  const game=twoPlayer({
+    key:'mem',fresh,render,
+    loadLocal(){const S=fresh({starter:store.get('memStarter',0),wins:store.get('memScore',[0,0]),g:Date.now()%100000});return S},
+    saveLocal(S){store.set('memScore',S.wins);store.set('memStarter',S.starter)}
+  });
+  const ctx=game.ctx;
+  function tap(i){
+    const S=ctx.state;if(!S||S.over)return;
+    if(!ctx.mine(S.turn)){$('memM').textContent='Attends ton tour, '+NAMES[S.turn]+' joue';sfx.play('error');return}
+    ctx.act(s=>flip(s,i,ctx.online?ctx.me:s.turn));
+  }
+  $('memNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.ok.replace(/-/g,'').length&&!confirm('Recommencer la partie ?'))return;ctx.act(s=>fresh(s))});
+  $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,wins:[0,0]}))});
+  enterHooks.vMem=()=>game.enter();
+  leaveHooks.vMem=()=>game.leave();
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
