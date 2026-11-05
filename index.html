@@ -230,6 +230,25 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .card.ok .ft{background:color-mix(in srgb,var(--pc) 35%,#fff);box-shadow:0 0 0 3px var(--pc),0 4px 0 #0005}
 .card.ok .in{animation:okPop .35s ease-out}
 @keyframes okPop{50%{transform:rotateY(180deg) scale(1.1)}}
+/* ---- pendu ---- */
+#vPd{--g:var(--volt)}
+#pdScene{width:min(70vw,260px,calc(100vh - 560px + 120px));flex:none}
+#pdScene svg{display:block;width:100%;height:auto;overflow:visible}
+#pdScene .bl{transform-box:fill-box;transform-origin:center;transition:transform .25s,opacity .25s}
+#pdScene .bl.pop{transform:scale(1.5);opacity:0}
+#pdScene #pdK{transition:transform .9s cubic-bezier(.5,0,1,.6)}
+#pdScene.fall #pdK{transform:translateY(160px) rotate(25deg)}
+#pdScene.happy #pdK{animation:hop .5s ease-out 2}
+#pdWord{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;min-height:46px}
+#pdWord span{width:30px;height:42px;border-bottom:4px solid var(--line);display:grid;place-items:center;font-weight:900;font-size:26px}
+#pdWord span.on{border-color:var(--g);animation:pop .2s ease-out}
+#pdWord span.miss{color:var(--red);border-color:var(--red)}
+#pdKb{display:flex;flex-direction:column;gap:7px;width:100%;max-width:500px;margin-top:auto}
+#pdKb .kr{display:flex;gap:5px;justify-content:center}
+#pdGame,#pdSet{display:contents}#pdGame[hidden],#pdSet[hidden]{display:none}
+.pdSet{width:min(92vw,400px);display:flex;flex-direction:column;gap:10px;background:var(--plate);border:1.5px solid var(--line);border-radius:18px;padding:16px}
+.pdSet input,.pdSet select{font:inherit;font-weight:800;font-size:20px;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--deep);color:var(--ink);text-transform:uppercase}
+.pdSet input{-webkit-text-security:disc;letter-spacing:4px}
 /* ---- flappy koala ---- */
 #vFl{--g:var(--sky)}
 #flCv{display:block;touch-action:none}
@@ -399,6 +418,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <img class="art" src="img/flappy.svg" alt="" width="160" height="160">
           <b>Flappy Koala</b><span class="rec" id="hFl"></span>
         </button>
+        <button class="tile" data-go="vPd" style="--g:var(--volt);animation-delay:.26s">
+          <img class="art" src="img/pendu.svg" alt="" width="160" height="160">
+          <b>Pendu</b><span class="rec" id="hPd"></span>
+        </button>
       </div>
     </div>
 
@@ -556,6 +579,31 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PENDU -->
+<section class="view" id="vPd">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/pendu.svg" alt="" width="40" height="40"><h1>Pendu</h1>
+    <div class="chips"><div class="chip"><small>trouvés</small><b id="pdW">0</b></div><div class="chip"><small>série</small><b id="pdSs">0</b></div></div></header>
+  <div class="main">
+    <div id="pdGame">
+      <div id="pdScene"></div>
+      <div id="pdWord"></div>
+      <div class="msg" id="pdM"></div>
+      <div class="msg" id="pdLeft" style="min-height:0;margin-top:-8px"></div>
+      <div id="pdKb"></div>
+      <div class="row"><button class="btn" id="pdNew">Nouveau mot</button><button class="btn ghost" id="pdDuo">Défi à deux</button></div>
+    </div>
+    <div id="pdSet" hidden>
+      <div class="pdSet">
+        <b>Défi à deux</b><small class="msg" id="pdSetM" style="text-align:left"></small>
+        <label class="msg" style="text-align:left">Qui choisit le mot ?</label>
+        <select id="pdWho"><option value="0">Thomas</option><option value="1">Cindy</option></select>
+        <input id="pdIn" type="text" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="14" placeholder="MOT SECRET">
+        <div class="row"><button class="btn" id="pdOk">Valider</button><button class="btn ghost" id="pdCancel">Annuler</button></div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <!-- FLAPPY KOALA -->
 <section class="view" id="vFl">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/flappy.svg" alt="" width="40" height="40"><h1>Flappy</h1>
@@ -634,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.8.2';
+const APP_VERSION='1.8.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -852,6 +900,7 @@ function refreshHome(){
   const bns=store.get('bnScore',[0,0]);$('hBn').innerHTML=(bns[0]||bns[1])?duo(bns[0],bns[1]):'Coule la flotte adverse';
   const sdd=store.get('sdkDailyDone',0),sdn=new Date(),sdk=sdn.getFullYear()*10000+(sdn.getMonth()+1)*100+sdn.getDate();$('hSdk').textContent=sdd===sdk?'Grille du jour terminée':'Une grille du jour t\'attend';
   const flb=store.get('flBest',0);$('hFl').textContent=flb?'Record '+flb:'Pas encore de record';
+  const pds=store.get('pdStats',{p:0,w:0});$('hPd').textContent=pds.p?pds.w+' mot'+(pds.w>1?'s':'')+' trouvé'+(pds.w>1?'s':''):'Sauve le koala';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -1615,6 +1664,58 @@ refreshHome();
   $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,wins:[0,0]}))});
   enterHooks.vMem=()=>game.enter();
   leaveHooks.vMem=()=>game.leave();
+})();
+
+/* ---------- PENDU (le koala et ses ballons) ---------- */
+(function(){
+  const MAX=7,COLS=['#ff3b4e','#ffc93c','#2fe39a','#5aa9ff','#b26bff','#ff8a3d','#ff6fb5'];
+  const kb=$('pdKb'),wordEl=$('pdWord'),scene=$('pdScene');
+  let word='',found=new Set(),tried=new Set(),errs=0,done=false,mode='solo',setter=-1;
+  // scène : 7 ballons attachés au koala
+  const POS=[[60,58],[92,40],[124,32],[156,38],[188,48],[216,66],[134,70]];
+  scene.innerHTML='<svg viewBox="0 0 280 260">'+
+    POS.map(([x,y],i)=>'<g class="bl" id="pdB'+i+'"><path d="M140 168Q'+((x+140)/2)+' '+(y+70)+' '+x+' '+(y+24)+'" stroke="#eef2ff" stroke-opacity=".6" stroke-width="1.5" fill="none"/><ellipse cx="'+x+'" cy="'+y+'" rx="17" ry="21" fill="'+COLS[i]+'"/><ellipse cx="'+(x-6)+'" cy="'+(y-8)+'" rx="5" ry="7" fill="#fff" opacity=".45"/><path d="M'+(x-3)+' '+(y+21)+'h6l-3 5z" fill="'+COLS[i]+'"/></g>').join('')+
+    '<g id="pdK"><circle cx="122" cy="178" r="13" fill="#a9b3e0"/><circle cx="158" cy="178" r="13" fill="#a9b3e0"/><circle cx="122" cy="178" r="7" fill="#e6e9ff"/><circle cx="158" cy="178" r="7" fill="#e6e9ff"/>'+
+    '<circle cx="140" cy="196" r="26" fill="#c3cbec"/><g id="pdEyes"><circle cx="131" cy="191" r="3.5" fill="#00071a"/><circle cx="149" cy="191" r="3.5" fill="#00071a"/></g><rect x="134" y="195" width="12" height="15" rx="6" fill="#00071a"/>'+
+    '<path d="M118 214q-8 10 4 14M162 214q8 10-4 14" stroke="#a9b3e0" stroke-width="7" stroke-linecap="round" fill="none"/></g></svg>';
+  const KEYS=['AZERTYUIOP','QSDFGHJKLM','WXCVBN'];
+  KEYS.forEach(r=>{const rw=document.createElement('div');rw.className='kr';[...r].forEach(ch=>{const k=document.createElement('button');k.className='k';k.textContent=ch;k.dataset.k=ch;k.addEventListener('click',()=>guess(ch));rw.appendChild(k)});kb.appendChild(rw)});
+  function stats(){const s=store.get('pdStats',{p:0,w:0,s:0});$('pdW').textContent=s.w;$('pdSs').textContent=s.s}
+  function render(){
+    wordEl.innerHTML=[...word].map(c=>'<span class="'+(found.has(c)?'on':done?'miss':'')+'">'+(found.has(c)||done?c:'')+'</span>').join('');
+    kb.querySelectorAll('.k').forEach(k=>{const c=k.dataset.k;k.className='k'+(tried.has(c)?(word.includes(c)?' g':' x'):'')});
+    for(let i=0;i<MAX;i++)$('pdB'+i).classList.toggle('pop',i<errs);
+    $('pdLeft').textContent=done?'':(MAX-errs)+' ballon'+(MAX-errs>1?'s':'')+' restant'+(MAX-errs>1?'s':'');
+    scene.classList.toggle('fall',done&&errs>=MAX);scene.classList.toggle('happy',done&&errs<MAX);
+  }
+  function start(w,m,who){
+    word=w;found=new Set();tried=new Set();errs=0;done=false;mode=m;setter=who;
+    $('pdM').textContent=m==='duo'?NAMES[1-who]+', trouve le mot choisi par '+NAMES[who]:'Trouve le mot avant que le koala ne perde tous ses ballons';$('pdM').className='msg';
+    $('pdSet').hidden=true;$('pdGame').hidden=false;render();
+  }
+  function guess(c){
+    if(done||tried.has(c))return;tried.add(c);
+    if(word.includes(c)){found.add(c);sfx.play('key');if([...word].every(x=>found.has(x)))return end(true)}
+    else{errs++;sfx.play('buzz');vibe(40);if(errs>=MAX)return end(false)}
+    render();
+  }
+  function end(win){
+    done=true;
+    if(mode==='solo'){const s=store.get('pdStats',{p:0,w:0,s:0});s.p++;if(win){s.w++;s.s++}else s.s=0;store.set('pdStats',s);stats()}
+    $('pdM').textContent=win?'Bravo, le koala est sauvé !':'Raté, le mot était '+word;$('pdM').className='msg hi';
+    sfx.play(win?'win':'lose');vibe(win?[40,30,40]:120);render();
+  }
+  $('pdNew').addEventListener('click',()=>{let w;do{w=MOTS_PENDU[Math.floor(Math.random()*MOTS_PENDU.length)]}while(w===word);start(w,'solo',-1)});
+  $('pdDuo').addEventListener('click',()=>{$('pdGame').hidden=true;$('pdSet').hidden=false;$('pdIn').value='';$('pdSetM').textContent='Choisis un mot en cachette, puis passe le téléphone';$('pdIn').focus()});
+  $('pdCancel').addEventListener('click',()=>{$('pdSet').hidden=true;$('pdGame').hidden=false});
+  $('pdOk').addEventListener('click',()=>{
+    const w=$('pdIn').value.normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/Œ/g,'OE').replace(/[^A-Z]/g,'');
+    if(w.length<3){$('pdSetM').textContent='Au moins 3 lettres';sfx.play('error');return}
+    const who=$('pdWho').value==='1'?1:0;$('pdIn').blur();start(w,'duo',who);
+  });
+  document.addEventListener('keydown',e=>{if(current!=='vPd'||!$('pdSet').hidden)return;if(/^[a-zA-Z]$/.test(e.key))guess(e.key.toUpperCase())});
+  enterHooks.vPd=()=>{stats();if(!word)$('pdNew').click();else render()};
+  if(location.hostname==='localhost')window.__pd=()=>({word,errs,done}); // aide aux tests locaux uniquement
 })();
 
 /* ---------- FLAPPY KOALA ---------- */
