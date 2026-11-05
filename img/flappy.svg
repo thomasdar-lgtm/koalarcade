@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#3a8fe0"/><stop offset="1" stop-color="#a6e0ff"/></linearGradient></defs>
+<rect x="3" y="3" width="154" height="154" rx="32" fill="url(#bg)" stroke="#5aa9ff" stroke-width="5"/>
+<rect x="104" y="6" width="30" height="46" fill="#2fbf71"/><rect x="100" y="44" width="38" height="12" rx="4" fill="#25a862"/>
+<rect x="104" y="108" width="30" height="46" fill="#2fbf71"/><rect x="100" y="104" width="38" height="12" rx="4" fill="#25a862"/>
+<ellipse cx="44" cy="70" rx="13" ry="8" fill="#2fe39a" transform="rotate(-30 44 70)"/>
+<circle cx="46" cy="58" r="11" fill="#a9b3e0"/><circle cx="82" cy="58" r="11" fill="#a9b3e0"/><circle cx="46" cy="58" r="6" fill="#e6e9ff"/><circle cx="82" cy="58" r="6" fill="#e6e9ff"/>
+<circle cx="64" cy="76" r="22" fill="#c3cbec"/><circle cx="56" cy="72" r="3.5" fill="#00071a"/><circle cx="74" cy="72" r="3.5" fill="#00071a"/><rect x="59" y="76" width="11" height="13" rx="5.5" fill="#00071a"/>
+<path d="M30 120c10-8 20-8 30 0" stroke="#fff" stroke-width="5" fill="none" stroke-linecap="round" opacity=".7"/>
+</svg>
