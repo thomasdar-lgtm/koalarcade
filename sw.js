@@ -1,6 +1,6 @@
-const CACHE_VERSION = 'koalarcade-1.7.1';
+const CACHE_VERSION = 'koalarcade-1.8.0';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp', './mots.js', './firebase-config.js', './lib/firebase-app.js', './lib/firebase-database.js',
-  './img/snake.webp', './img/2048.webp', './img/mot.webp', './img/p4.webp', './img/duel.webp', './img/morpion.webp', './img/memory.webp', './img/demineur.webp', './img/briques.webp',
+  './img/snake.webp', './img/2048.webp', './img/mot.webp', './img/p4.webp', './img/duel.webp', './img/morpion.webp', './img/memory.webp', './img/bataille.svg', './img/demineur.webp', './img/briques.webp',
   './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 
 // Pas d'activation automatique : la nouvelle version attend le bouton « Installer »

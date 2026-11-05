@@ -19,7 +19,7 @@
 :root{
   --night:#00071a;--deep:#07112b;--plate:#0e1b40;--line:#1b2a5c;
   --ink:#eef2ff;--mut:#8a97c7;
-  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;
+  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;
   --g:var(--sun);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -230,6 +230,31 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .card.ok .ft{background:color-mix(in srgb,var(--pc) 35%,#fff);box-shadow:0 0 0 3px var(--pc),0 4px 0 #0005}
 .card.ok .in{animation:okPop .35s ease-out}
 @keyframes okPop{50%{transform:rotateY(180deg) scale(1.1)}}
+/* ---- bataille navale ---- */
+#vBn{--g:var(--ocean)}
+.bnGrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));aspect-ratio:1;flex:none;gap:3px;padding:6px;border-radius:16px;background:linear-gradient(180deg,#0b3560,#07203f);box-shadow:0 0 0 2px #1a4d80,0 10px 26px #0008}
+#bnBig{--w:min(92vw,calc(100vh - 430px),400px);width:var(--w);height:var(--w)}
+#bnSmall{--w:min(46vw,170px);width:var(--w);height:var(--w);gap:2px;padding:4px;border-radius:12px}
+.bnGrid .c{padding:0;min-width:0;min-height:0;border-radius:6px;background:radial-gradient(circle at 50% 35%,#13497f,#0d3866);position:relative;display:grid;place-items:center}
+#bnSmall .c{border-radius:3px}
+.bnGrid .c.s{background:linear-gradient(180deg,#c2cee8,#8b9cc4);box-shadow:inset 0 -3px 0 #0003}
+.bnGrid .c.s.k{background:linear-gradient(180deg,#7a2433,#4a1220)}
+.bnGrid .c.o::after{content:"";position:absolute;inset:36%;border-radius:50%;background:#cfe6ff;opacity:.8}
+.bnGrid .c.x::after{content:"";position:absolute;inset:21%;border-radius:50%;background:radial-gradient(circle,#ffe58a 0 25%,#ff8a3d 45%,#ff3b4e 75%);box-shadow:0 0 10px #ff6a3d}
+.bnGrid .c.nw::before{content:"";position:absolute;inset:-2px;border-radius:inherit;border:2px solid #fff;animation:ping .7s ease-out both}
+.bnGrid .c.nw.x::after{animation:boom .35s ease-out both}
+@keyframes ping{from{transform:scale(1.6);opacity:0}to{opacity:1}}
+@keyframes boom{from{transform:scale(.2)}60%{transform:scale(1.25)}}
+#bnBig .c:active{filter:brightness(1.3)}
+#bnBig .c{cursor:pointer}
+.bnRow{display:flex;align-items:flex-start;gap:14px;width:min(92vw,400px)}
+.bnRow .info{flex:1;display:flex;flex-direction:column;gap:6px;font-weight:700;font-size:13px;color:var(--mut)}
+.bnRow .info b{color:var(--ink);font-size:15px}
+#bnCover{position:fixed;inset:0;z-index:30;background:radial-gradient(circle at 50% 40%,#0d3866,#00071a 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
+#bnCover[hidden]{display:none}
+#bnPlace,#bnPlay{display:contents}#bnPlace[hidden],#bnPlay[hidden]{display:none}
+#bnCover h3{font-weight:900;font-size:26px}
+#bnCover p{color:var(--mut);font-weight:700}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -357,6 +382,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vMem" style="--g:var(--pink);animation-delay:.35s">
           <img class="art" src="img/memory.webp" alt="" width="160" height="160">
           <b>Memory</b><span class="rec" id="hMem"></span>
+        </button>
+        <button class="tile" data-go="vBn" style="--g:var(--ocean);animation-delay:.4s">
+          <img class="art" src="img/bataille.svg" alt="" width="160" height="160">
+          <b>Bataille navale</b><span class="rec" id="hBn"></span>
         </button>
       </div>
     </div>
@@ -489,6 +518,28 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- BATAILLE NAVALE -->
+<section class="view" id="vBn">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/bataille.svg" alt="" width="40" height="40"><h1>Bataille</h1>
+    <div class="chips"><div class="chip"><small>Thomas</small><b id="bnA">0</b></div><div class="chip"><small>Cindy</small><b id="bnB">0</b></div></div></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="bnMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="bnNet" hidden></div>
+    <div id="bnPlace">
+      <div class="msg hi" id="bnTitle"></div>
+    </div>
+    <div class="msg" id="bnStatus"></div>
+    <div class="bnGrid" id="bnBig"></div>
+    <div id="bnPlay">
+      <div class="bnRow"><div class="bnGrid" id="bnSmall"></div><div class="info"><b id="bnLeft"></b><span id="bnMine"></span><span>Touché : tu rejoues</span></div></div>
+    </div>
+    <div class="msg" id="bnM"></div>
+    <div class="row"><button class="btn ghost" id="bnShuffle">Mélanger</button><button class="btn" id="bnReady">Prêt</button></div>
+    <div class="row"><button class="btn ghost" id="bnNew">Nouvelle partie</button><button class="btn ghost" id="bnRst">Scores à zéro</button></div>
+  </div>
+  <div id="bnCover" hidden><img src="img/bataille.svg" alt="" width="90" height="90"><h3 id="bnCoverT"></h3><p>L'autre joueur ne doit pas regarder l'écran</p><button class="btn" id="bnCoverB"></button></div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -516,7 +567,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.7.1';
+const APP_VERSION='1.8.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -731,6 +782,7 @@ function refreshHome(){
   const mm=store.get('memScore',[0,0]);$('hMem').innerHTML=(mm[0]||mm[1])?duo(mm[0],mm[1]):'Retrouve les paires';
   const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'Pas encore de record';
   const bbb=store.get('bbBest',0);$('hBb').textContent=bbb?'Record '+bbb:'Pas encore de record';
+  const bns=store.get('bnScore',[0,0]);$('hBn').innerHTML=(bns[0]||bns[1])?duo(bns[0],bns[1]):'Coule la flotte adverse';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -1494,6 +1546,134 @@ refreshHome();
   $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,wins:[0,0]}))});
   enterHooks.vMem=()=>game.enter();
   leaveHooks.vMem=()=>game.leave();
+})();
+
+/* ---------- BATAILLE NAVALE ---------- */
+(function(){
+  const N=8,SZ=N*N,FLEET=[4,3,3,2,2],IDS='abcde';
+  const big=$('bnBig'),small=$('bnSmall'),cover=$('bnCover');
+  function randomFleet(){
+    for(let tries=0;tries<500;tries++){
+      const g=Array(SZ).fill('.');let ok=true;
+      for(let k=0;k<FLEET.length&&ok;k++){
+        const L=FLEET[k];let placed=false;
+        for(let t=0;t<200&&!placed;t++){
+          const hz=Math.random()<.5,x=Math.floor(Math.random()*(hz?N-L+1:N)),y=Math.floor(Math.random()*(hz?N:N-L+1));
+          const cells=[];for(let i=0;i<L;i++)cells.push((y+(hz?0:i))*N+x+(hz?i:0));
+          const clear=cells.every(c=>{const cx=c%N,cy=(c-cx)/N;for(let dy=-1;dy<=1;dy++)for(let dx=-1;dx<=1;dx++){const X=cx+dx,Y=cy+dy;if(X>=0&&Y>=0&&X<N&&Y<N&&g[Y*N+X]!=='.')return false}return true});
+          if(clear){cells.forEach(c=>g[c]=IDS[k]);placed=true}
+        }
+        if(!placed)ok=false;
+      }
+      if(ok)return g.join('');
+    }
+    return null;
+  }
+  const fresh=prev=>{const st=prev?prev.starter:0;return{phase:'place',ships:['',''],ready:[false,false],shots:['.'.repeat(SZ),'.'.repeat(SZ)],turn:st,starter:st,win:-1,sc:prev?prev.sc:[0,0],mv:0,last:{p:-1,i:-1,r:''}}};
+  const sunkSet=(ships,shots)=>{const out=new Set();for(const id of IDS){let all=true,any=false;for(let i=0;i<SZ;i++)if(ships[i]===id){any=true;if(shots[i]!=='x')all=false}if(any&&all)out.add(id)}return out};
+  function fire(S,p,i){
+    if(S.phase!=='play'||S.turn!==p||S.win!==-1||S.shots[p][i]!=='.')return null;
+    const tgt=S.ships[1-p],hit=tgt[i]!=='.';
+    S.shots=[S.shots[0],S.shots[1]];S.shots[p]=S.shots[p].slice(0,i)+(hit?'x':'o')+S.shots[p].slice(i+1);
+    S.mv++;let r=hit?'hit':'miss';
+    if(hit){const sk=sunkSet(tgt,S.shots[p]);if(sk.has(tgt[i]))r='sunk';if(sk.size===FLEET.length){r='win';S.phase='over';S.win=p;S.sc=[S.sc[0],S.sc[1]];S.sc[p]++;S.starter=1-S.starter}}
+    else S.turn=1-p;
+    S.last={p,i,r};return S;
+  }
+  let draft=null,draftFor=-1,revealed=-1,hold=-1,holdT=null;
+  function cells(el,n){if(el.children.length!==n){el.innerHTML='';for(let i=0;i<n;i++){const d=document.createElement('div');d.className='c';if(el===big){d.setAttribute('role','button');d.addEventListener('click',()=>tapBig(i))}el.appendChild(d)}}}
+  function shipShape(d,ships,i){
+    const id=ships[i],x=i%N,y=(i-x)/N,same=(X,Y)=>X>=0&&Y>=0&&X<N&&Y<N&&ships[Y*N+X]===id;
+    const l=same(x-1,y),r=same(x+1,y),u=same(x,y-1),b=same(x,y+1),R='10px',Q='3px';
+    d.style.borderRadius=[(!l&&!u)?R:Q,(!r&&!u)?R:Q,(!r&&!b)?R:Q,(!l&&!b)?R:Q].join(' ');
+  }
+  function paintGrid(el,ships,shots,showShips,sunk,lastI){
+    for(let i=0;i<SZ;i++){
+      const d=el.children[i],s=ships?ships[i]:'.',sh=shots?shots[i]:'.',isShip=s!=='.';
+      let c='c';
+      if(isShip&&(showShips||sunk.has(s))){c+=' s';if(sunk.has(s))c+=' k'}
+      if(sh==='x')c+=' x';else if(sh==='o')c+=' o';
+      if(i===lastI)c+=' nw';
+      if(d.className!==c)d.className=c;
+      if(c.includes(' s'))shipShape(d,ships,i);else d.style.borderRadius='';
+    }
+  }
+  function viewer(S,ctx){
+    if(ctx.online)return ctx.me;
+    if(hold>=0)return hold;
+    if(S.phase==='place')return S.ready[0]?1:0;
+    return S.turn;
+  }
+  function render(S,prev,ctx){
+    const newShot=prev&&prev.mv!==S.mv&&S.last&&S.last.i>=0&&S.phase!=='place';
+    // en local, après un tir raté, on laisse le tireur voir le résultat avant de cacher l'écran
+    if(!ctx.online&&newShot&&S.phase==='play'&&prev.turn!==S.turn){hold=prev.turn;clearTimeout(holdT);holdT=setTimeout(()=>{hold=-1;if(ctx.state)render(ctx.state,ctx.state,ctx)},1100)}
+    const v=viewer(S,ctx);
+    cells(big,SZ);cells(small,SZ);
+    // écran « passe le téléphone » en local
+    const needCover=!ctx.online&&S.phase!=='over'&&hold<0&&revealed!==v;
+    cover.hidden=!needCover;if(needCover){$('bnCoverT').textContent='Passe le téléphone à '+NAMES[v];$('bnCoverB').textContent='Je suis '+NAMES[v]}
+    $('bnA').textContent=S.sc[0];$('bnB').textContent=S.sc[1];
+    if(S.phase==='place'){
+      $('bnPlace').hidden=false;$('bnPlay').hidden=true;$('bnStatus').textContent='';
+      if(S.ready[v]){
+        paintGrid(big,S.ships[v],null,true,new Set(),-1);
+        $('bnTitle').textContent='Ta flotte est prête';$('bnM').textContent='En attente de '+NAMES[1-v]+'…';
+        $('bnShuffle').hidden=true;$('bnReady').hidden=true;
+      }else{
+        if(draftFor!==v||!draft){draft=randomFleet();draftFor=v}
+        paintGrid(big,draft,null,true,new Set(),-1);
+        $('bnTitle').textContent=NAMES[v]+', place ta flotte';$('bnM').textContent='Mélange jusqu\'à ce que la position te plaise';
+        $('bnShuffle').hidden=false;$('bnReady').hidden=false;
+      }
+      return;
+    }
+    $('bnPlace').hidden=true;$('bnPlay').hidden=false;$('bnShuffle').hidden=true;$('bnReady').hidden=true;$('bnM').textContent='';
+    const o=1-v,sunkO=sunkSet(S.ships[o],S.shots[v]),sunkMine=sunkSet(S.ships[v],S.shots[o]);
+    const lastBig=S.last&&S.last.p===v?S.last.i:-1,lastSmall=S.last&&S.last.p===o?S.last.i:-1;
+    paintGrid(big,S.ships[o],S.shots[v],S.phase==='over',sunkO,lastBig);
+    paintGrid(small,S.ships[v],S.shots[o],true,sunkMine,lastSmall);
+    $('bnLeft').textContent=(FLEET.length-sunkO.size)+' navire'+(FLEET.length-sunkO.size>1?'s':'')+' ennemi'+(FLEET.length-sunkO.size>1?'s':'')+' à couler';
+    $('bnMine').textContent='Ta flotte · '+(FLEET.length-sunkMine.size)+'/'+FLEET.length+' à flot';
+    const R={miss:'À l\'eau',hit:'Touché !',sunk:'Touché, coulé !',win:'Touché, coulé !'};
+    let m;
+    if(S.phase==='over')m=ctx.online?(S.win===v?'Victoire ! Toute la flotte de '+NAMES[o]+' est coulée':'Défaite… '+NAMES[S.win]+' a coulé ta flotte'):NAMES[S.win]+' gagne ! La flotte de '+NAMES[1-S.win]+' est coulée';
+    else if(S.turn===v)m=(S.last&&S.last.p===v&&S.last.r!=='miss'?R[S.last.r]+' Rejoue. ':'')+'À toi de tirer';
+    else m=(S.last&&S.last.p===v?R[S.last.r]+' ':'')+(ctx.online?NAMES[o]+' vise…':'');
+    if(ctx.online&&S.phase==='play'&&S.last&&S.last.p===o&&S.last.r!=='miss')m=NAMES[o]+' : '+R[S.last.r].toLowerCase()+' '+m;
+    $('bnStatus').textContent=m;$('bnStatus').className='msg'+(S.turn===v||S.phase==='over'?' hi':'');
+    if(newShot){
+      const r=S.last.r;
+      if(r==='miss')sfx.play('tick');else if(r==='hit'){sfx.play('merge',64);vibe(30)}else{sfx.play('die');vibe([60,30,60])}
+      if(S.phase==='over')setTimeout(()=>sfx.play(ctx.online&&S.win!==ctx.me?'lose':'win'),500);
+    }
+  }
+  const game=twoPlayer({
+    key:'bn',fresh,render,
+    loadLocal(){const st=store.get('bnStarter',0);return{...fresh(null),sc:store.get('bnScore',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('bnScore',S.sc);store.set('bnStarter',S.starter)}
+  });
+  const ctx=game.ctx;
+  function tapBig(i){
+    const S=ctx.state;if(!S||S.phase!=='play')return;
+    const v=viewer(S,ctx);
+    if(S.turn!==v||!ctx.mine(v)){$('bnStatus').textContent='Attends ton tour';sfx.play('error');return}
+    if(S.shots[v][i]!=='.')return;
+    ctx.act(s=>fire(s,ctx.online?ctx.me:s.turn,i));
+  }
+  $('bnShuffle').addEventListener('click',()=>{const S=ctx.state;if(!S)return;draft=randomFleet();draftFor=viewer(S,ctx);sfx.play('move');paintGrid(big,draft,null,true,new Set(),-1)});
+  $('bnReady').addEventListener('click',()=>{
+    const S=ctx.state;if(!S||S.phase!=='place')return;const v=viewer(S,ctx),fleet=draft;
+    if(!ctx.mine(v))return;sfx.play('start');
+    ctx.act(s=>{if(s.phase!=='place'||s.ready[v])return null;s.ships=[s.ships[0],s.ships[1]];s.ships[v]=fleet;s.ready=[s.ready[0],s.ready[1]];s.ready[v]=true;if(s.ready[0]&&s.ready[1])s.phase='play';s.mv++;return s});
+    draft=null;draftFor=-1;
+  });
+  $('bnCoverB').addEventListener('click',()=>{const S=ctx.state;if(!S)return;revealed=viewer(S,ctx);sfx.play('tick');render(S,S,ctx)});
+  $('bnNew').addEventListener('click',()=>{const S=ctx.state;if(S&&S.phase==='play'&&!confirm('Recommencer la partie ?'))return;revealed=-1;draft=null;ctx.act(s=>fresh(s))});
+  $('bnRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,sc:[0,0]}))});
+  enterHooks.vBn=()=>{revealed=-1;hold=-1;game.enter()};
+  leaveHooks.vBn=()=>{clearTimeout(holdT);hold=-1;game.leave()};
+  if(location.hostname==='localhost')window.__bn=()=>ctx.state; // aide aux tests locaux uniquement
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
