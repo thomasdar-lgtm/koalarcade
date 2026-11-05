@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'koalarcade-1.2.0';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp',
+const CACHE_VERSION = 'koalarcade-1.3.0';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp', './mots.js',
   './img/snake.webp', './img/2048.webp', './img/mot.webp', './img/p4.webp', './img/duel.webp',
   './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 
