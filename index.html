@@ -176,6 +176,19 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 /* ---- duel ---- */
 #vDuel{--g:var(--sun)}
+/* ---- memory ---- */
+#vMem{--g:var(--pink)}
+#mem{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:min(88vw,calc((100vh - 330px) * .8),380px)}
+.card{aspect-ratio:4/5;perspective:600px;position:relative}
+.card .in{position:absolute;inset:0;transition:transform .35s ease;transform-style:preserve-3d}
+.card.up .in{transform:rotateY(180deg)}
+.card .fc{position:absolute;inset:0;border-radius:14px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:grid;place-items:center}
+.card .bk{background:linear-gradient(160deg,#3a1846,#160d33);border:2px solid color-mix(in srgb,var(--pink) 55%,transparent);box-shadow:0 4px 0 #0a0518}
+.card .bk img{width:52%;opacity:.55;border-radius:10px}
+.card .ft{background:#fff4fa;transform:rotateY(180deg);font-size:clamp(26px,9vw,40px);box-shadow:0 4px 0 #b9a3b3}
+.card.ok .ft{background:color-mix(in srgb,var(--pc) 35%,#fff);box-shadow:0 0 0 3px var(--pc),0 4px 0 #0005}
+.card.ok .in{animation:okPop .35s ease-out}
+@keyframes okPop{50%{transform:rotateY(180deg) scale(1.1)}}
 /* ---- morpion ---- */
 #vTtt{--g:var(--sky)}
 #ttt{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:min(84vw,360px);aspect-ratio:1}
@@ -279,6 +292,10 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
           <img class="art" src="img/morpion.svg" alt="" width="160" height="160">
           <b>Morpion</b><span class="rec" id="hTtt"></span>
         </button>
+        <button class="tile" data-go="vMem" style="--g:var(--pink);animation-delay:.35s">
+          <img class="art" src="img/memory.svg" alt="" width="160" height="160">
+          <b>Memory</b><span class="rec" id="hMem"></span>
+        </button>
       </div>
     </div>
     <div class="ver" id="ver"></div>
@@ -355,6 +372,20 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
   </div>
 </section>
 
+<!-- MEMORY -->
+<section class="view" id="vMem">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.svg" alt="" width="40" height="40"><h1>Memory</h1></header>
+  <div class="main">
+    <div class="players">
+      <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
+      <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b>Cindy</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
+    </div>
+    <div id="mem"></div>
+    <div class="msg hi" id="memM"></div>
+    <div class="row"><button class="btn" id="memNew">Nouvelle partie</button><button class="btn ghost" id="memRst">Scores à zéro</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -375,7 +406,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.4.0';
+const APP_VERSION='1.4.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -472,6 +503,7 @@ function refreshHome(){
   else $('hMot').textContent='Un nouveau mot t\'attend';
   $('hC4').innerHTML=(c[0]||c[1])?duo(c[0],c[1]):'Thomas contre Cindy';
   const tt=store.get('tttScore',[0,0]);$('hTtt').innerHTML=(tt[0]||tt[1])?duo(tt[0],tt[1]):'Trois à la suite';
+  const mm=store.get('memScore',[0,0]);$('hMem').innerHTML=(mm[0]||mm[1])?duo(mm[0],mm[1]):'Retrouve les paires';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -810,6 +842,55 @@ refreshHome();
   $('tttNew').addEventListener('click',newRound);
   $('tttRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){sc=[0,0];store.set('tttScore',sc);turnUI()}});
   enterHooks.vTtt=()=>{if(!b)newRound();else turnUI()};
+})();
+
+/* ---------- MEMORY ---------- */
+(function(){
+  const el=$('mem'),names=['Thomas','Cindy'],pcs=['var(--red)','var(--sun)'];
+  const FACES=['🐨','🍓','🎲','🚀','🌈','🍕','🎸','🐙','⭐','🦊','🍩','⚽'];
+  let deck=[],pairs,turn,first,lock,done,starter=store.get('memStarter',0),wins=store.get('memScore',[0,0]);
+  function ui(){
+    [0,1].forEach(p=>{$('memP'+p).classList.toggle('on',!done&&turn===p);$('memT'+p).textContent=!done&&turn===p?'À toi de jouer':'Victoires '+wins[p]});
+    $('memA').textContent=pairs[0];$('memB').textContent=pairs[1];
+  }
+  function newGame(){
+    const f=FACES.slice().sort(()=>Math.random()-.5).slice(0,10);
+    deck=f.concat(f).map(v=>({v,up:false,ok:false}));
+    for(let i=deck.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[deck[i],deck[j]]=[deck[j],deck[i]]}
+    pairs=[0,0];turn=starter;first=null;lock=false;done=false;$('memM').textContent='';
+    el.innerHTML='';
+    deck.forEach((c,i)=>{
+      const d=document.createElement('button');d.className='card';d.setAttribute('aria-label','Carte '+(i+1));
+      d.innerHTML='<div class="in"><div class="fc bk"><img src="logo.webp" alt=""></div><div class="fc ft">'+c.v+'</div></div>';
+      d.addEventListener('click',()=>flip(i));el.appendChild(d);
+    });
+    ui();
+  }
+  function flip(i){
+    const c=deck[i];if(lock||done||c.up||c.ok)return;
+    c.up=true;el.children[i].classList.add('up');sfx.play('key');
+    if(first===null){first=i;return}
+    const a=deck[first],j=first;first=null;
+    if(a.v===c.v){
+      a.ok=c.ok=true;pairs[turn]++;
+      [j,i].forEach(k=>{el.children[k].style.setProperty('--pc',pcs[turn]);setTimeout(()=>el.children[k].classList.add('ok'),300)});
+      setTimeout(()=>sfx.play('merge',8<<pairs[turn]),300);vibe(15);
+      if(pairs[0]+pairs[1]===deck.length/2)return end();
+      ui();
+    }else{
+      lock=true;
+      setTimeout(()=>{a.up=c.up=false;el.children[j].classList.remove('up');el.children[i].classList.remove('up');turn=1-turn;lock=false;sfx.play('tick');ui()},950);
+    }
+  }
+  function end(){
+    done=true;starter=1-starter;store.set('memStarter',starter);
+    if(pairs[0]===pairs[1]){$('memM').textContent='Égalité, '+pairs[0]+' paires chacun';setTimeout(()=>sfx.play('draw'),400)}
+    else{const w=pairs[0]>pairs[1]?0:1;wins[w]++;store.set('memScore',wins);$('memM').textContent=names[w]+' gagne avec '+pairs[w]+' paires !';setTimeout(()=>sfx.play('win'),400);vibe([40,30,40])}
+    ui();
+  }
+  $('memNew').addEventListener('click',()=>{if(done||(pairs[0]+pairs[1])===0||confirm('Recommencer la partie ?'))newGame()});
+  $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){wins=[0,0];store.set('memScore',wins);ui()}});
+  enterHooks.vMem=()=>{if(!deck.length)newGame();else ui()};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
