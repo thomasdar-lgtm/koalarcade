@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'koalarcade-1.1.2';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
+const CACHE_VERSION = 'koalarcade-1.1.3';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp',
   './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 
 // Pas d'activation automatique : la nouvelle version attend le bouton « Installer »
