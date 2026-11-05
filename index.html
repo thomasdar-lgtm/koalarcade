@@ -270,6 +270,9 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .half.lose{background:#060d24;color:#46527d}
 .dmid{display:flex;align-items:center;gap:10px;padding:10px 14px;background:var(--night);border-block:2px solid var(--line)}
 .dmid .btn{flex:1}
+.seg.mini{flex:none;padding:3px}.seg.mini button{padding:7px 9px;display:grid;place-items:center}.seg.mini svg{width:20px;height:20px}
+.half.opp{flex:.55}.half.opp .sc{font-size:min(16vw,72px)}
+.half .netst{margin-top:6px;width:auto}
 
 /* ---- bannière de mise à jour ---- */
 #upd{position:fixed;left:12px;right:12px;bottom:calc(12px + env(safe-area-inset-bottom));z-index:50;display:flex;align-items:center;gap:12px;
@@ -489,9 +492,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
-    <div class="half top idle" id="dA"><span class="sc" id="dAs">0</span><span class="nm">Cindy</span><span class="ms" id="dAm"></span></div>
-    <div class="dmid"><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><button class="btn" id="dGo">Lancer</button><button class="btn ghost" id="dRst">Scores à zéro</button></div>
-    <div class="half idle" id="dB"><span class="sc" id="dBs">0</span><span class="nm">Thomas</span><span class="ms" id="dBm"></span></div>
+    <div class="half top idle" id="dA"><span class="sc" id="dAs">0</span><span class="nm" id="dAn">Cindy</span><span class="ms" id="dAm"></span><span class="netst" id="duelNet" hidden></span></div>
+    <div class="dmid"><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><button class="btn" id="dGo">Lancer</button>
+      <div class="seg mini" id="duelMode"><button data-m="local" aria-label="Sur ce téléphone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="online" aria-label="En ligne"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
+      <button class="back noback" id="dRst" aria-label="Scores à zéro"><svg viewBox="0 0 24 24" style="width:22px;height:22px"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
+    <div class="half idle" id="dB"><span class="sc" id="dBs">0</span><span class="nm" id="dBn">Thomas</span><span class="ms" id="dBm"></span></div>
   </div>
 </section>
 
@@ -511,7 +516,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.6.4';
+const APP_VERSION='1.7.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -710,7 +715,7 @@ function show(id){
   if(enterHooks[id])enterHooks[id]();
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.go);history.pushState({v:b.dataset.go},'')}));
-document.querySelectorAll('.back').forEach(b=>b.addEventListener('click',()=>history.back()));
+document.querySelectorAll('.back:not(.noback)').forEach(b=>b.addEventListener('click',()=>history.back()));
 window.addEventListener('popstate',()=>{if(current!=='vHome')show('vHome')});
 setTimeout(()=>$('homeMain').classList.remove('intro'),900);
 function duo(a,b){return '<i style="background:var(--red)"></i>'+a+' – '+b+'<i style="background:var(--sun)"></i>'}
@@ -1493,29 +1498,79 @@ refreshHome();
 
 /* ---------- DUEL REFLEXES ---------- */
 (function(){
-  // index 0 = Thomas (bas, dB) · index 1 = Cindy (haut, dA)
-  const halves=[$('dB'),$('dA')],msgs=[$('dBm'),$('dAm')],scs=[$('dBs'),$('dAs')];
-  let state='idle',t0=0,timer=null,sc=store.get('duelScore',[0,0]);
-  function setAll(c,m){halves.forEach((h,i)=>{h.className='half'+(i===1?' top':'')+' '+c;if(m!==undefined)msgs[i].textContent=m})}
-  function upd(){scs[0].textContent=sc[0];scs[1].textContent=sc[1]}
-  function arm(){
-    sfx.play('tick');clearTimeout(timer);state='wait';setAll('wait','Attends le vert…');$('dGo').textContent='Prêts…';
-    timer=setTimeout(()=>{state='go';t0=performance.now();setAll('go','Touche !');vibe(20);sfx.play('go')},1500+Math.random()*2500);
+  // local : Thomas en bas (dB), Cindy en haut retournée (dA) · en ligne : moi en bas, l'autre en haut
+  const H={b:$('dB'),a:$('dA')},PC=['var(--red)','var(--sun)'];
+  let goT=null,slowT=null,lastRound=-1,localNow=()=>Date.now();
+  const fresh=prev=>({phase:'idle',goAt:0,r:[-2,-2],win:-1,why:'',round:prev?prev.round+1:0,sc:prev?prev.sc:[0,0]});
+  const NOW=ctx=>ctx.online?net.now():localNow();
+  function finish(s,w,why){s.win=w;s.why=why;s.phase='done';s.sc=[s.sc[0],s.sc[1]];s.sc[w]++;return s}
+  function seat(ctx){ // quel joueur occupe chaque moitié
+    const bottom=ctx.online?ctx.me:0;return{b:bottom,a:1-bottom};
   }
-  function end(w,why){
-    clearTimeout(timer);state='done';sc[w]++;store.set('duelScore',sc);upd();vibe([40,30,40]);sfx.play(why==='Faux départ'?'buzz':'win');
-    halves.forEach((h,i)=>{h.className='half'+(i===1?' top':'')+' '+(i===w?'win':'lose');msgs[i].textContent=i===w?'Gagné ! '+why:'Perdu… '+why});
+  function paint(cls,S,ctx,msg){
+    const st=seat(ctx);
+    ['a','b'].forEach(k=>{
+      const p=st[k],h=H[k],top=k==='a';
+      let c=typeof cls==='function'?cls(p):cls;
+      h.className='half'+(top&&!ctx.online?' top':'')+(top&&ctx.online?' opp':'')+' '+c;
+      h.style.setProperty('--pc',PC[p]);
+      $('d'+k.toUpperCase()+'n').textContent=NAMES[p]+(ctx.online&&p===ctx.me?' (toi)':'');
+      $('d'+k.toUpperCase()+'s').textContent=S.sc[p];
+      $('d'+k.toUpperCase()+'m').textContent=typeof msg==='function'?msg(p):msg;
+    });
+  }
+  function render(S,prev,ctx){
+    clearTimeout(goT);
+    const fr=prev&&prev.round===S.round&&prev.phase===S.phase&&prev.win===S.win;
+    if(S.phase==='idle'){paint('idle',S,ctx,ctx.online?'Appuie sur Lancer quand vous êtes prêts':'Pose ton doigt près de ta zone');$('dGo').textContent='Lancer';return}
+    if(S.phase==='wait'&&S.win===-1){
+      const left=S.goAt-NOW(ctx),mine=p=>S.r[p]>=0;
+      const goNow=()=>{paint(p=>mine(p)?'wait':'go',S,ctx,p=>mine(p)?S.r[p]+' ms, on attend '+NAMES[1-p]:'Touche !');if(!fr){vibe(20);sfx.play('go')}};
+      if(left>0){
+        paint('wait',S,ctx,'Attends le vert…');$('dGo').textContent='Prêts…';
+        if(!fr||!prev)sfx.play('tick');
+        goT=setTimeout(()=>{paint(p=>S.r[p]>=0?'wait':'go',S,ctx,p=>S.r[p]>=0?S.r[p]+' ms, on attend '+NAMES[1-p]:'Touche !');vibe(20);sfx.play('go')},left);
+      }else{paint(p=>S.r[p]>=0?'wait':'go',S,ctx,p=>S.r[p]>=0?S.r[p]+' ms, on attend '+NAMES[1-p]:'Touche !');$('dGo').textContent='Prêts…'}
+      return;
+    }
+    // manche terminée
+    const w=S.win;
+    paint(p=>p===w?'win':'lose',S,ctx,p=>(p===w?'Gagné ! ':'Perdu… ')+S.why);
     $('dGo').textContent='Rejouer';
+    if(prev&&prev.win===-1&&lastRound!==S.round){lastRound=S.round;vibe([40,30,40]);sfx.play(S.why.startsWith('Faux')?'buzz':(ctx.online&&w!==ctx.me?'lose':'win'))}
   }
-  halves.forEach((h,i)=>h.addEventListener('pointerdown',e=>{
-    e.preventDefault();
-    if(state==='wait')end(1-i,'Faux départ');
-    else if(state==='go')end(i,Math.round(performance.now()-t0)+' ms');
-  }));
-  $('dGo').addEventListener('click',()=>{if(state!=='wait'&&state!=='go')arm()});
-  $('dRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){sc=[0,0];store.set('duelScore',sc);upd()}});
-  enterHooks.vDuel=()=>{upd();state='idle';setAll('idle','Pose ton doigt près de ta zone');$('dGo').textContent='Lancer'};
-  leaveHooks.vDuel=()=>{clearTimeout(timer);state='idle'};
+  const game=twoPlayer({
+    key:'duel',fresh,render,
+    loadLocal(){return{...fresh(null),sc:store.get('duelScore',[0,0])}},
+    saveLocal(S){store.set('duelScore',S.sc)}
+  });
+  const ctx=game.ctx;
+  function arm(){
+    const S=ctx.state;if(!S)return;
+    const busy=s=>s.phase==='wait'&&s.win===-1&&NOW(ctx)-s.goAt<5000; // une manche abandonnée se relance
+    if(busy(S))return;
+    const delay=1500+Math.random()*2500+(ctx.online?700:0),at=NOW(ctx)+delay;
+    ctx.act(s=>busy(s)?null:{...s,phase:'wait',goAt:at,r:[-2,-2],win:-1,why:'',round:s.round+1});
+  }
+  function tap(p){
+    const S=ctx.state;if(!S||!ctx.mine(p)||S.phase!=='wait'||S.win!==-1||S.r[p]!==-2)return;
+    const R=S.round,t=NOW(ctx)-S.goAt;
+    if(t<0){ctx.act(s=>(s.round!==R||s.win!==-1)?null:finish(s,1-p,'Faux départ de '+NAMES[p]));return}
+    const ms=Math.round(t);
+    ctx.act(s=>{
+      if(s.round!==R||s.win!==-1||s.r[p]!==-2)return null;
+      s.r=[s.r[0],s.r[1]];s.r[p]=ms;const o=s.r[1-p];
+      if(!ctx.online)return finish(s,p,ms+' ms');
+      if(o>=0){const w=ms<=o?p:1-p;return finish(s,w,NAMES[0]+' '+s.r[0]+' ms, '+NAMES[1]+' '+s.r[1]+' ms')}
+      return s;
+    });
+    if(ctx.online){clearTimeout(slowT);slowT=setTimeout(()=>ctx.act(s=>(s.round===R&&s.win===-1&&s.r[p]>=0&&s.r[1-p]===-2)?finish(s,p,s.r[p]+' ms, '+NAMES[1-p]+' trop lent'):null),2500)}
+  }
+  ['b','a'].forEach(k=>H[k].addEventListener('pointerdown',e=>{e.preventDefault();const S=ctx.state;if(!S)return;tap(seat(ctx)[k])}));
+  $('dGo').addEventListener('click',arm);
+  $('dRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,sc:[0,0]}))});
+  enterHooks.vDuel=()=>{game.enter();const S=ctx.state;if(!ctx.online&&S&&S.phase==='wait'&&S.win===-1)ctx.act(s=>({...s,phase:'idle'}))};
+  leaveHooks.vDuel=()=>{clearTimeout(goT);clearTimeout(slowT);game.leave()};
 })();
 
 /* ---------- menu ---------- */
