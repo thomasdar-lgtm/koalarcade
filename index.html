@@ -326,11 +326,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <span class="tx"><b>Mot du jour</b><span class="rec" id="hMot"></span></span>
         </button>
         <button class="tile" data-go="vMine" style="--g:var(--teal);animation-delay:.18s">
-          <img class="art" src="img/demineur.svg" alt="" width="160" height="160">
+          <img class="art" src="img/demineur.webp" alt="" width="160" height="160">
           <b>Démineur</b><span class="rec" id="hMine"></span>
         </button>
         <button class="tile" data-go="vBb" style="--g:var(--lime);animation-delay:.2s">
-          <img class="art" src="img/briques.svg" alt="" width="160" height="160">
+          <img class="art" src="img/briques.webp" alt="" width="160" height="160">
           <b>Casse-briques</b><span class="rec" id="hBb"></span>
         </button>
       </div>
@@ -348,11 +348,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <b>Duel réflexes</b><span class="rec" id="hDuel"></span>
         </button>
         <button class="tile" data-go="vTtt" style="--g:var(--sky);animation-delay:.3s">
-          <img class="art" src="img/morpion.svg" alt="" width="160" height="160">
+          <img class="art" src="img/morpion.webp" alt="" width="160" height="160">
           <b>Morpion</b><span class="rec" id="hTtt"></span>
         </button>
         <button class="tile" data-go="vMem" style="--g:var(--pink);animation-delay:.35s">
-          <img class="art" src="img/memory.svg" alt="" width="160" height="160">
+          <img class="art" src="img/memory.webp" alt="" width="160" height="160">
           <b>Memory</b><span class="rec" id="hMem"></span>
         </button>
       </div>
@@ -428,7 +428,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 
 <!-- MORPION -->
 <section class="view" id="vTtt">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/morpion.svg" alt="" width="40" height="40"><h1>Morpion</h1></header>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/morpion.webp" alt="" width="40" height="40"><h1>Morpion</h1></header>
   <div class="main">
     <div class="mbar"><div class="seg" id="tttMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="tttNet" hidden></div>
@@ -444,7 +444,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 
 <!-- CASSE-BRIQUES -->
 <section class="view" id="vBb">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/briques.svg" alt="" width="40" height="40"><h1>Briques</h1>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/briques.webp" alt="" width="40" height="40"><h1>Briques</h1>
     <div class="chips"><div class="chip" id="bbChip"><small>score</small><b id="bbS">0</b></div><div class="chip"><small>niveau</small><b id="bbL">1</b></div></div></header>
   <div class="main">
     <div class="snkWrap">
@@ -457,7 +457,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 
 <!-- DEMINEUR -->
 <section class="view" id="vMine">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/demineur.svg" alt="" width="40" height="40"><h1>Démineur</h1>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/demineur.webp" alt="" width="40" height="40"><h1>Démineur</h1>
     <div class="chips"><div class="chip"><small>mines</small><b id="mineN">0</b></div><div class="chip"><small>temps</small><b id="mineT">0</b></div></div></header>
   <div class="main">
     <div class="mbar">
@@ -472,7 +472,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 
 <!-- MEMORY -->
 <section class="view" id="vMem">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.svg" alt="" width="40" height="40"><h1>Memory</h1></header>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.webp" alt="" width="40" height="40"><h1>Memory</h1></header>
   <div class="main">
     <div class="mbar"><div class="seg" id="memMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="memNet" hidden></div>
@@ -511,7 +511,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.6.3';
+const APP_VERSION='1.6.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
