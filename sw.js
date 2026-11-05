@@ -1,4 +1,4 @@
-const CACHE_VERSION = 'koalarcade-1.1.1';
+const CACHE_VERSION = 'koalarcade-1.1.2';
 const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
   './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 
