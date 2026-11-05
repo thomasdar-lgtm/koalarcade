@@ -113,12 +113,20 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .ov[hidden]{display:none}
 .ov h3{font-weight:900;font-size:30px;color:var(--g)}
 .ov p{color:var(--mut);font-weight:700}
-.pad{display:grid;grid-template-columns:repeat(3,68px);grid-template-rows:repeat(2,58px);gap:8px}
-.pad button{background:var(--plate);border-radius:16px;box-shadow:0 4px 0 #030a1f;display:grid;place-items:center}
-.pad button:active{transform:translateY(3px);box-shadow:0 1px 0 #030a1f;background:color-mix(in srgb,var(--g) 30%,var(--plate))}
-.pad svg{width:24px;height:24px}
-.pad .u{grid-column:2}.pad .l{grid-column:1;grid-row:2}.pad .d{grid-column:2;grid-row:2}.pad .r{grid-column:3;grid-row:2}
-.pad .u svg{transform:rotate(-90deg)}.pad .d svg{transform:rotate(90deg)}.pad .l svg{transform:rotate(180deg)}
+/* croix directionnelle */
+.pad{--s:min(210px,52vw);position:relative;width:var(--s);height:var(--s);margin-top:auto;flex:none;touch-action:none;
+  border-radius:50%;background:radial-gradient(circle,#0a1533 0 58%,transparent 72%)}
+.pad .arm{position:absolute;width:34%;height:34%;display:grid;place-items:center;
+  background:linear-gradient(180deg,#1a2a5e,#101d47);box-shadow:inset 0 2px 0 #ffffff1a,0 5px 0 #030a1f;transition:background .08s,box-shadow .08s,transform .08s}
+.pad .u{left:33%;top:0;border-radius:18px 18px 6px 6px}
+.pad .d{left:33%;bottom:0;border-radius:6px 6px 18px 18px}
+.pad .l{left:0;top:33%;border-radius:18px 6px 6px 18px}
+.pad .r{right:0;top:33%;border-radius:6px 18px 18px 6px}
+.pad .hub{position:absolute;left:33%;top:33%;width:34%;height:34%;background:#14234f;box-shadow:0 5px 0 #030a1f;display:grid;place-items:center}
+.pad .hub::after{content:"";width:42%;height:42%;border-radius:50%;background:radial-gradient(circle at 40% 35%,#22356f,#0a1533);box-shadow:inset 0 2px 4px #0008}
+.pad .arm svg{width:42%;height:42%;color:#8a97c7;transition:color .08s}
+.pad .arm.on{background:linear-gradient(180deg,#5cf0b4,#2fe39a);box-shadow:inset 0 2px 0 #ffffff55,0 1px 0 #0f8c5b,0 0 22px #2fe39a66;transform:translateY(3px)}
+.pad .arm.on svg{color:#03301e}
 
 /* ---- 2048 ---- */
 #v2048{--g:var(--orange)}
@@ -358,11 +366,12 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         </div>
         <button class="btn" id="snkGo">Jouer</button></div>
     </div>
-    <div class="pad">
-      <button class="u" data-d="0,-1" aria-label="Haut"><svg><use href="#arrow"/></svg></button>
-      <button class="l" data-d="-1,0" aria-label="Gauche"><svg><use href="#arrow"/></svg></button>
-      <button class="d" data-d="0,1" aria-label="Bas"><svg><use href="#arrow"/></svg></button>
-      <button class="r" data-d="1,0" aria-label="Droite"><svg><use href="#arrow"/></svg></button>
+    <div class="pad" id="snkPad" role="group" aria-label="Directions">
+      <span class="arm u" data-d="0,-1"><svg viewBox="0 0 24 24"><path d="M12 5l8 11H4z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+      <span class="arm l" data-d="-1,0"><svg viewBox="0 0 24 24"><path d="M5 12l11-8v16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+      <span class="arm r" data-d="1,0"><svg viewBox="0 0 24 24"><path d="M19 12L8 4v16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+      <span class="arm d" data-d="0,1"><svg viewBox="0 0 24 24"><path d="M12 19L4 8h16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
+      <span class="hub"></span>
     </div>
   </div>
 </section>
@@ -481,7 +490,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.5.1';
+const APP_VERSION='1.5.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -753,7 +762,25 @@ refreshHome();
   $('snkGo').addEventListener('click',()=>{if(state==='paused')resume();else start()});
   document.querySelectorAll('#snkMode button').forEach(b=>b.addEventListener('click',()=>{mode=b.dataset.v;store.set('snkMode',mode);optsUI();sfx.play('tick');draw(1)}));
   document.querySelectorAll('#snkSpd button').forEach(b=>b.addEventListener('click',()=>{spd=+b.dataset.v;store.set('snkSpd',spd);optsUI();sfx.play('tick')}));
-  document.querySelectorAll('#vSnake .pad button').forEach(b=>b.addEventListener('pointerdown',e=>{e.preventDefault();const[x,y]=b.dataset.d.split(',').map(Number);turn(x,y)}));
+  // croix : toute la zone compte, le pouce peut glisser d'une direction à l'autre
+  (function(){
+    const pad=$('snkPad'),arms={};pad.querySelectorAll('.arm').forEach(a=>arms[a.dataset.d]=a);
+    let id=null,curD=null;
+    function at(e){
+      const r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
+      if(Math.hypot(dx,dy)<r.width*.09)return null;
+      return Math.abs(dx)>Math.abs(dy)?(dx>0?'1,0':'-1,0'):(dy>0?'0,1':'0,-1');
+    }
+    function set(d){
+      if(d===curD)return;if(curD)arms[curD].classList.remove('on');curD=d;
+      if(d){arms[d].classList.add('on');const[x,y]=d.split(',').map(Number);turn(x,y);vibe(8)}
+    }
+    pad.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;try{pad.setPointerCapture(id)}catch(_){}set(at(e))});
+    pad.addEventListener('pointermove',e=>{if(e.pointerId===id)set(at(e))});
+    const end=e=>{if(e.pointerId!==id)return;id=null;set(null)};
+    pad.addEventListener('pointerup',end);pad.addEventListener('pointercancel',end);
+    ['touchstart','touchend'].forEach(t=>pad.addEventListener(t,e=>e.stopPropagation(),{passive:true})); // pas de glissement parasite
+  })();
   onSwipe(document.querySelector('#vSnake .main'),turn);
   document.addEventListener('keydown',e=>{
     if(current!=='vSnake')return;
