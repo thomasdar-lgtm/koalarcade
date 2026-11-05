@@ -511,7 +511,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.6.2';
+const APP_VERSION='1.6.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -598,10 +598,13 @@ const net=(function(){
     if(loading)return loading;
     loading=(async()=>{
       try{await loadScript('firebase-config.js')}catch(e){}
+      if(location.hostname==='localhost'&&new URLSearchParams(location.search).has('mock'))window.FIREBASE_CONFIG=null; // tests locaux
       if(window.FIREBASE_CONFIG&&window.FIREBASE_CONFIG.databaseURL){
-        await loadScript('lib/firebase-app.js');await loadScript('lib/firebase-database.js');
-        if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
-        db=firebase.database();db.ref('.info/serverTimeOffset').on('value',s=>{offset=s.val()||0});kind='fb';
+        try{
+          await loadScript('lib/firebase-app.js');await loadScript('lib/firebase-database.js');
+          if(!firebase.apps.length)firebase.initializeApp(window.FIREBASE_CONFIG);
+          db=firebase.database();db.ref('.info/serverTimeOffset').on('value',s=>{offset=s.val()||0});kind='fb';
+        }catch(e){kind=null;loading=null;console.warn('Firebase',e)}
       }else if(location.hostname==='localhost'){kind='mock';window.addEventListener('storage',e=>{if(e.key&&e.key.startsWith('ka_mock/')){const p=e.key.slice(8);(subs[p]||[]).forEach(cb=>cb(mockGet(p)))}})}
       return kind;
     })();
@@ -617,12 +620,12 @@ const net=(function(){
     setMe(v){me=v;if(!asP)store.set('who',v)},
     now(){return Date.now()+offset},
     watch(p,cb){
-      if(kind==='fb'){const ref=db.ref(ROOT+p),h=s=>cb(s.val());ref.on('value',h);return()=>ref.off('value',h)}
+      if(kind==='fb'){const ref=db.ref(ROOT+p),h=s=>cb(s.val());ref.on('value',h,e=>toast('Lecture refusée par Firebase ('+(e&&e.code||'erreur')+')',4000));return()=>ref.off('value',h)}
       (subs[p]=subs[p]||[]).push(cb);cb(mockGet(p));return()=>{subs[p]=subs[p].filter(f=>f!==cb)};
     },
     // fn(cur) renvoie le nouvel état, ou null pour refuser le coup ; init:true autorise la création
     transact(p,fn,init){
-      if(kind==='fb')return db.ref(ROOT+p).transaction(cur=>{if(cur===null&&!init)return null;const r=fn(clone(cur));return r===null?undefined:r}).catch(()=>{});
+      if(kind==='fb')return db.ref(ROOT+p).transaction(cur=>{if(cur===null&&!init)return null;const r=fn(clone(cur));return r===null?undefined:r}).catch(e=>{toast('Connexion refusée par Firebase ('+(e&&e.code||'erreur')+')',4000)});
       const cur=mockGet(p);if(cur===null&&!init)return Promise.resolve();const r=fn(clone(cur));if(r!==null&&r!==undefined)mockSet(p,r);return Promise.resolve();
     },
     // présence : chaque téléphone signale qu'il est là ; cb(autreEnLigne)
@@ -673,7 +676,7 @@ function twoPlayer(cfg){
   async function goOnline(){
     const g=++gen;status('Connexion…');
     const k=await net.start();if(g!==gen)return;
-    if(!k){status('Le jeu en ligne sera disponible dès que Firebase sera configuré');return}
+    if(!k){status(window.FIREBASE_CONFIG?'Connexion à Firebase impossible, vérifie ta connexion':'Le jeu en ligne sera disponible dès que Firebase sera configuré');return}
     await askWho();if(g!==gen)return;
     const names=()=>NAMES[1-net.me]+(other?' est en ligne':' n\'est pas encore là');
     unP=net.presence(o=>{other=o;if(mode==='online')status('Tu joues '+NAMES[net.me]+' · '+names(),o)});
