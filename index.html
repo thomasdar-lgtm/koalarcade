@@ -46,6 +46,7 @@ button:focus-visible{outline:3px solid var(--g);outline-offset:3px}
 
 /* ---- en-tête de jeu ---- */
 header{display:flex;align-items:center;gap:12px;padding:12px 16px 8px}
+header .hlogo{width:40px;height:40px;flex:none;border-radius:11px}
 header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 .back{width:44px;height:44px;border-radius:50%;background:var(--plate);box-shadow:0 3px 0 #030a1f;display:grid;place-items:center;flex:none}
 .back:active{transform:translateY(2px);box-shadow:0 1px 0 #030a1f}
@@ -68,13 +69,15 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 .sec{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px}
 .sec h2{font-weight:800;font-size:15px;color:var(--mut);padding-left:2px}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tile{position:relative;overflow:hidden;text-align:left;min-height:156px;padding:14px;border-radius:22px;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;
-  background:linear-gradient(160deg,color-mix(in srgb,var(--g) 26%,var(--deep)),color-mix(in srgb,var(--g) 8%,var(--deep)) 70%);
+.tile{position:relative;text-align:left;padding:10px 10px 12px;border-radius:24px;display:flex;flex-direction:column;gap:2px;
+  background:linear-gradient(170deg,color-mix(in srgb,var(--g) 24%,var(--deep)),color-mix(in srgb,var(--g) 8%,var(--deep)) 75%);
   border:1.5px solid color-mix(in srgb,var(--g) 40%,transparent);box-shadow:0 5px 0 color-mix(in srgb,var(--g) 28%,#000);transition:transform .06s,box-shadow .06s}
 .tile:active{transform:translateY(4px);box-shadow:0 1px 0 color-mix(in srgb,var(--g) 28%,#000)}
-.tile.wide{grid-column:span 2;min-height:120px}
-.tile .art{position:absolute;top:12px;right:12px;width:76px;height:76px}
-.tile.wide .art{width:150px;height:44px;top:16px}
+.tile .art{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:18px;margin-bottom:8px;filter:drop-shadow(0 6px 10px #0007)}
+.tile b,.tile .rec{padding:0 4px}
+.tile.wide{grid-column:span 2;flex-direction:row;align-items:center;gap:14px;padding:10px}
+.tile.wide .art{width:96px;flex:none;margin:0}
+.tile.wide>span.tx{display:flex;flex-direction:column;gap:2px}
 .tile b{font-weight:900;font-size:21px;letter-spacing:-.01em}
 .tile .rec{font-weight:700;font-size:13px;color:var(--g);min-height:17px}
 .tile .rec i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px;vertical-align:0}
@@ -236,16 +239,16 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
       <h2>En solo</h2>
       <div class="tiles">
         <button class="tile" data-go="vSnake" style="--g:var(--mint);animation-delay:.05s">
-          <svg class="art" viewBox="0 0 80 80"><path d="M10 62c14 0 14-22 28-22s14 22 28 22" fill="none" stroke="#12a56b" stroke-width="13" stroke-linecap="round"/><path d="M10 62c14 0 14-22 28-22s14 22 28 22" fill="none" stroke="#2fe39a" stroke-width="9" stroke-linecap="round"/><circle cx="66" cy="62" r="8" fill="#2fe39a"/><circle cx="69" cy="59" r="2" fill="#00071a"/><circle cx="58" cy="18" r="7" fill="#ff3b4e"/><path d="M58 11c2-4 6-5 8-4" stroke="#2fe39a" stroke-width="3" fill="none" stroke-linecap="round"/></svg>
+          <img class="art" src="img/snake.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <b>Snake</b><span class="rec" id="hSnake"></span>
         </button>
         <button class="tile" data-go="v2048" style="--g:var(--orange);animation-delay:.1s">
-          <svg class="art" viewBox="0 0 80 80" font-family="Raleway" font-weight="900" text-anchor="middle"><rect x="4" y="4" width="34" height="34" rx="8" fill="#ff8a3d"/><rect x="42" y="4" width="34" height="34" rx="8" fill="#ffc93c"/><rect x="4" y="42" width="34" height="34" rx="8" fill="#0e1b40"/><rect x="42" y="42" width="34" height="34" rx="8" fill="#ff3b4e"/><text x="21" y="28" font-size="18" fill="#00071a">8</text><text x="59" y="27" font-size="14" fill="#00071a">128</text><text x="59" y="65" font-size="16" fill="#00071a">32</text></svg>
+          <img class="art" src="img/2048.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <b>2048</b><span class="rec" id="h2048"></span>
         </button>
         <button class="tile wide" data-go="vMot" style="--g:var(--sky);animation-delay:.15s">
-          <svg class="art" viewBox="0 0 150 44" font-family="Raleway" font-weight="900" font-size="18" text-anchor="middle"><g><rect x="0" y="6" width="26" height="26" rx="6" fill="#2fe39a"/><text x="13" y="26" fill="#032417">K</text></g><g><rect x="31" y="6" width="26" height="26" rx="6" fill="#1b2650"/><text x="44" y="26" fill="#8a97c7">O</text></g><g><rect x="62" y="6" width="26" height="26" rx="6" fill="#ffc93c"/><text x="75" y="26" fill="#2b1d00">A</text></g><g><rect x="93" y="6" width="26" height="26" rx="6" fill="#2fe39a"/><text x="106" y="26" fill="#032417">L</text></g><g><rect x="124" y="6" width="26" height="26" rx="6" fill="#1b2650"/><text x="137" y="26" fill="#8a97c7">A</text></g></svg>
-          <b>Mot du jour</b><span class="rec" id="hMot"></span>
+          <img class="art" src="img/mot.webp" alt="" width="160" height="160" loading="eager" decoding="async">
+          <span class="tx"><b>Mot du jour</b><span class="rec" id="hMot"></span></span>
         </button>
       </div>
     </div>
@@ -254,11 +257,11 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
       <h2>À deux</h2>
       <div class="tiles">
         <button class="tile" data-go="vC4" style="--g:var(--red);animation-delay:.2s">
-          <svg class="art" viewBox="0 0 80 80"><rect x="2" y="10" width="76" height="64" rx="10" fill="#2f5bff"/><g fill="#00071a"><circle cx="16" cy="24" r="7"/><circle cx="32" cy="24" r="7"/><circle cx="48" cy="24" r="7"/><circle cx="64" cy="24" r="7"/><circle cx="16" cy="42" r="7"/><circle cx="64" cy="42" r="7"/><circle cx="64" cy="60" r="7"/></g><circle cx="32" cy="42" r="7" fill="#ffc93c"/><circle cx="48" cy="42" r="7" fill="#ff3b4e"/><circle cx="16" cy="60" r="7" fill="#ff3b4e"/><circle cx="32" cy="60" r="7" fill="#ff3b4e"/><circle cx="48" cy="60" r="7" fill="#ffc93c"/></svg>
+          <img class="art" src="img/p4.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <b>Puissance 4</b><span class="rec" id="hC4"></span>
         </button>
         <button class="tile" data-go="vDuel" style="--g:var(--volt);animation-delay:.25s">
-          <svg class="art" viewBox="0 0 80 80"><path d="M44 4 14 46h22l-6 30 36-46H42z" fill="#b26bff"/><path d="M44 4 30 24l10 0 2-20z" fill="#d6b0ff"/><circle cx="12" cy="14" r="6" fill="#ff3b4e"/><circle cx="68" cy="66" r="6" fill="#ffc93c"/></svg>
+          <img class="art" src="img/duel.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <b>Duel réflexes</b><span class="rec" id="hDuel"></span>
         </button>
       </div>
@@ -269,7 +272,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 <!-- SNAKE -->
 <section class="view" id="vSnake">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><h1>Snake</h1>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/snake.webp" alt="" width="40" height="40"><h1>Snake</h1>
     <div class="chips"><div class="chip"><small>score</small><b id="snkS">0</b></div><div class="chip"><small>record</small><b id="snkB">0</b></div></div></header>
   <div class="main">
     <div class="snkWrap">
@@ -287,7 +290,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 <!-- 2048 -->
 <section class="view" id="v2048">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><h1>2048</h1>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/2048.webp" alt="" width="40" height="40"><h1>2048</h1>
     <div class="chips"><div class="chip" id="t2Chip"><small>score</small><b id="t2S">0</b></div><div class="chip"><small>record</small><b id="t2B">0</b></div></div></header>
   <div class="main">
     <div class="msg" id="t2M">Glisse pour fusionner les tuiles</div>
@@ -298,7 +301,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 <!-- MOT DU JOUR -->
 <section class="view" id="vMot">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><h1 id="wTitle">Mot du jour</h1>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/mot.webp" alt="" width="40" height="40"><h1 id="wTitle">Mot du jour</h1>
     <div class="chips"><div class="chip"><small>série</small><b id="wSs">0</b></div></div></header>
   <div class="main">
     <div id="wGrid"></div>
@@ -311,7 +314,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 <!-- PUISSANCE 4 -->
 <section class="view" id="vC4">
-  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><h1>Puissance 4</h1></header>
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/p4.webp" alt="" width="40" height="40"><h1>Puissance 4</h1></header>
   <div class="main">
     <div class="players">
       <div class="pl" id="c4P0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="c4T0"></small></div><strong id="c4A">0</strong></div>
@@ -341,7 +344,7 @@ header h1{font-weight:900;font-size:24px;flex:1;letter-spacing:-.01em}
 
 <script>
 'use strict';
-const APP_VERSION='1.1.3';
+const APP_VERSION='1.1.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
