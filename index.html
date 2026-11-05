@@ -430,6 +430,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <section class="view" id="vTtt">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/morpion.svg" alt="" width="40" height="40"><h1>Morpion</h1></header>
   <div class="main">
+    <div class="mbar"><div class="seg" id="tttMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="tttNet" hidden></div>
     <div class="players">
       <div class="pl" id="tttP0" style="--pc:var(--red)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><path d="M7 7l16 16M23 7L7 23" stroke="var(--red)" stroke-width="5" stroke-linecap="round"/></svg><div><b>Thomas</b><small id="tttT0"></small></div><strong id="tttA">0</strong></div>
       <div class="pl" id="tttP1" style="--pc:var(--sun)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><circle cx="15" cy="15" r="9" fill="none" stroke="var(--sun)" stroke-width="5"/></svg><div><b>Cindy</b><small id="tttT1"></small></div><strong id="tttB">0</strong></div>
@@ -507,7 +509,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.6.0';
+const APP_VERSION='1.6.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1175,29 +1177,50 @@ refreshHome();
 
 /* ---------- MORPION ---------- */
 (function(){
-  const el=$('ttt'),names=['Thomas','Cindy'],pcs=['var(--red)','var(--sun)'];
+  const el=$('ttt'),pcs=['var(--red)','var(--sun)'];
   const LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   const MARK=['<svg viewBox="0 0 100 100"><path pathLength="100" d="M18 18L82 82"/><path pathLength="100" d="M82 18L18 82"/></svg>','<svg viewBox="0 0 100 100"><circle pathLength="100" cx="50" cy="50" r="34" transform="rotate(-90 50 50)"/></svg>'];
-  let b=null,turn,over,starter=store.get('tttStarter',0),sc=store.get('tttScore',[0,0]);
-  for(let i=0;i<9;i++){const c=document.createElement('button');c.setAttribute('aria-label','Case '+(i+1));c.addEventListener('click',()=>play(i));el.appendChild(c)}
-  function turnUI(){[0,1].forEach(p=>{$('tttP'+p).classList.toggle('on',!over&&turn===p);$('tttT'+p).textContent=!over&&turn===p?'À toi de jouer':''});$('tttA').textContent=sc[0];$('tttB').textContent=sc[1]}
-  function newRound(){b=Array(9).fill(null);turn=starter;over=false;[...el.children].forEach(c=>{c.innerHTML='';c.className=''});$('tttM').textContent='';turnUI()}
-  function play(i){
-    if(over||b[i]!==null)return;
-    b[i]=turn;el.children[i].innerHTML=MARK[turn];sfx.play('key');vibe(10);
-    const line=LINES.find(l=>l.every(k=>b[k]===turn));
-    if(line){
-      over=true;sc[turn]++;store.set('tttScore',sc);
-      line.forEach(k=>{el.children[k].classList.add('w');el.children[k].style.setProperty('--pc',pcs[turn])});
-      $('tttM').textContent=names[turn]+' gagne la manche !';sfx.play('win');vibe([40,30,40]);
-      starter=1-starter;store.set('tttStarter',starter);turnUI();return;
-    }
-    if(b.every(v=>v!==null)){over=true;$('tttM').textContent='Match nul';sfx.play('draw');starter=1-starter;store.set('tttStarter',starter);turnUI();return}
-    turn=1-turn;turnUI();
+  const fresh=prev=>({b:'.........',turn:prev?prev.starter:0,starter:prev?prev.starter:0,over:false,win:'',last:-1,mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0]});
+  function move(S,i,p){
+    if(S.over||S.turn!==p||S.b[i]!=='.')return null;
+    const ch=String(p);S.b=S.b.slice(0,i)+ch+S.b.slice(i+1);S.last=i;S.mv++;
+    const line=LINES.find(l=>l.every(k=>S.b[k]===ch));
+    if(line){S.over=true;S.win=line.join(',');S.sc=[S.sc[0],S.sc[1]];S.sc[p]++;S.starter=1-S.starter}
+    else if(!S.b.includes('.')){S.over=true;S.starter=1-S.starter}
+    else S.turn=1-p;
+    return S;
   }
-  $('tttNew').addEventListener('click',newRound);
-  $('tttRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?')){sc=[0,0];store.set('tttScore',sc);turnUI()}});
-  enterHooks.vTtt=()=>{if(!b)newRound();else turnUI()};
+  for(let i=0;i<9;i++){const c=document.createElement('button');c.setAttribute('aria-label','Case '+(i+1));c.addEventListener('click',()=>tap(i));el.appendChild(c)}
+  function render(S,prev,ctx){
+    const newMv=!prev||prev.mv!==S.mv,cells=S.win?S.win.split(',').map(Number):[];
+    for(let i=0;i<9;i++){
+      const c=el.children[i],v=S.b[i];
+      if(v==='.'){if(c.innerHTML)c.innerHTML='';c.className='';continue}
+      if(!c.dataset.v||c.dataset.v!==v||!c.innerHTML){c.innerHTML=MARK[+v];c.dataset.v=v}
+      const w=cells.includes(i);c.className=w?'w':'';if(w)c.style.setProperty('--pc',pcs[+v]);
+    }
+    for(let i=0;i<9;i++)if(S.b[i]==='.')delete el.children[i].dataset.v;
+    if(newMv&&prev&&S.last>=0){sfx.play('key');vibe(10)}
+    if(S.over&&prev&&!prev.over){if(S.win){sfx.play('win');vibe([40,30,40])}else sfx.play('draw')}
+    $('tttA').textContent=S.sc[0];$('tttB').textContent=S.sc[1];
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('tttP'+p).classList.toggle('on',on);$('tttT'+p).textContent=on?(ctx.online&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
+    $('tttM').textContent=S.over?(S.win?NAMES[+S.b[cells[0]]]+' gagne la manche !':'Match nul'):(ctx.online&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
+  }
+  const game=twoPlayer({
+    key:'ttt',fresh,render,
+    loadLocal(){const st=store.get('tttStarter',0);return{...fresh(null),sc:store.get('tttScore',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('tttScore',S.sc);store.set('tttStarter',S.starter)}
+  });
+  const ctx=game.ctx;
+  function tap(i){
+    const S=ctx.state;if(!S||S.over||S.b[i]!=='.')return;
+    if(!ctx.mine(S.turn)){$('tttM').textContent='Attends ton tour, '+NAMES[S.turn]+' réfléchit';sfx.play('error');return}
+    ctx.act(s=>move(s,i,ctx.online?ctx.me:s.turn));
+  }
+  $('tttNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.last>=0&&!confirm('Recommencer la manche ?'))return;ctx.act(s=>fresh(s))});
+  $('tttRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,sc:[0,0]}))});
+  enterHooks.vTtt=()=>game.enter();
+  leaveHooks.vTtt=()=>game.leave();
 })();
 
 /* ---------- CASSE-BRIQUES ---------- */
