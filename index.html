@@ -19,7 +19,7 @@
 :root{
   --night:#00071a;--deep:#07112b;--plate:#0e1b40;--line:#1b2a5c;
   --ink:#eef2ff;--mut:#8a97c7;
-  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;
+  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;
   --g:var(--sun);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -230,6 +230,33 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .card.ok .ft{background:color-mix(in srgb,var(--pc) 35%,#fff);box-shadow:0 0 0 3px var(--pc),0 4px 0 #0005}
 .card.ok .in{animation:okPop .35s ease-out}
 @keyframes okPop{50%{transform:rotateY(180deg) scale(1.1)}}
+/* ---- sudoku ---- */
+#vSdk{--g:var(--coral)}
+.sbar{display:flex;align-items:center;gap:8px;width:min(94vw,440px)}
+.sbar .seg{flex:1}.sbar .seg button{font-size:13px}
+#sdkDaily{flex:none;padding:9px 12px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:13px;color:var(--mut)}
+#sdkDaily.on{background:var(--g);color:var(--night);border-color:var(--g)}
+#sdk{--w:min(94vw,calc(100vh - 360px),440px);width:var(--w);height:var(--w);display:grid;grid-template-columns:repeat(9,minmax(0,1fr));grid-template-rows:repeat(9,minmax(0,1fr));
+  background:#fff4f6;border-radius:14px;overflow:hidden;border:3px solid #5a1f3a;box-shadow:0 10px 26px #0008;flex:none}
+#sdk .sc{display:grid;place-items:center;font-weight:800;font-size:calc(var(--w) / 15);color:#d0446a;border-right:1px solid #e8c9d1;border-bottom:1px solid #e8c9d1;position:relative;cursor:pointer;min-width:0;min-height:0}
+#sdk .sc:nth-child(9n){border-right:0}#sdk .sc:nth-child(n+73){border-bottom:0}
+#sdk .sc.br{border-right:2.5px solid #5a1f3a}#sdk .sc.bb{border-bottom:2.5px solid #5a1f3a}
+#sdk .sc.gv{color:#2a0f24;font-weight:900}
+#sdk .sc.zone{background:#fbe3e8}
+#sdk .sc.same{background:#ffc7d2}
+#sdk .sc.sel{background:#ff9fb2}
+#sdk .sc.bad{color:#fff;background:#ff3b4e}
+#sdk.won .sc{animation:hop .5s ease-out both}
+#sdk .nt{display:grid;grid-template-columns:repeat(3,1fr);width:100%;height:100%;padding:1px}
+#sdk .nt span{font-size:calc(var(--w) / 38);font-weight:700;color:#8a5a6a;display:grid;place-items:center;line-height:1}
+#sdkPad{display:grid;grid-template-columns:repeat(9,1fr);gap:5px;width:min(94vw,440px)}
+#sdkPad .pk{height:50px;border-radius:12px;background:var(--plate);font-weight:900;font-size:22px;box-shadow:0 3px 0 #030a1f}
+#sdkPad .pk:active{transform:translateY(2px);box-shadow:0 1px 0 #030a1f}
+#sdkPad .pk.full{opacity:.3}
+.sdkTools{display:flex;gap:8px;width:min(94vw,440px);margin-top:auto}
+.sdkTools button{flex:1;display:flex;align-items:center;justify-content:center;gap:6px;padding:10px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:14px}
+.sdkTools button.on{background:var(--g);color:var(--night);border-color:var(--g)}
+.sdkTools svg{width:18px;height:18px}
 /* ---- bataille navale ---- */
 #vBn{--g:var(--ocean)}
 .bnGrid{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));grid-template-rows:repeat(8,minmax(0,1fr));aspect-ratio:1;flex:none;gap:3px;padding:6px;border-radius:16px;background:linear-gradient(180deg,#0b3560,#07203f);box-shadow:0 0 0 2px #1a4d80,0 10px 26px #0008}
@@ -360,6 +387,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vBb" style="--g:var(--lime);animation-delay:.2s">
           <img class="art" src="img/briques.webp" alt="" width="160" height="160">
           <b>Casse-briques</b><span class="rec" id="hBb"></span>
+        </button>
+        <button class="tile" data-go="vSdk" style="--g:var(--coral);animation-delay:.22s">
+          <img class="art" src="img/sudoku.svg" alt="" width="160" height="160">
+          <b>Sudoku</b><span class="rec" id="hSdk"></span>
         </button>
       </div>
     </div>
@@ -518,6 +549,23 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- SUDOKU -->
+<section class="view" id="vSdk">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/sudoku.svg" alt="" width="40" height="40"><h1>Sudoku</h1>
+    <div class="chips"><div class="chip"><small id="sdkLv">niveau</small><b id="sdkT">0:00</b></div></div></header>
+  <div class="main">
+    <div class="sbar"><div class="seg" id="sdkLvl"><button data-l="facile">Facile</button><button data-l="moyen">Moyen</button><button data-l="difficile">Difficile</button></div><button id="sdkDaily">Du jour</button></div>
+    <div id="sdk"></div>
+    <div class="msg" id="sdkM"></div>
+    <div class="sdkTools">
+      <button id="sdkUndo"><svg viewBox="0 0 24 24"><path d="M4 9h11a5 5 0 0 1 0 10H9M4 9l4-4M4 9l4 4" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>Annuler</button>
+      <button id="sdkErase"><svg viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>Effacer</button>
+      <button id="sdkNotes"><svg viewBox="0 0 24 24"><path d="M4 20l4-1 11-11-3-3L5 16z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/></svg>Notes</button>
+    </div>
+    <div id="sdkPad"></div>
+  </div>
+</section>
+
 <!-- BATAILLE NAVALE -->
 <section class="view" id="vBn">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/bataille.svg" alt="" width="40" height="40"><h1>Bataille</h1>
@@ -567,7 +615,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.8.0';
+const APP_VERSION='1.8.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -783,6 +831,7 @@ function refreshHome(){
   const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'Pas encore de record';
   const bbb=store.get('bbBest',0);$('hBb').textContent=bbb?'Record '+bbb:'Pas encore de record';
   const bns=store.get('bnScore',[0,0]);$('hBn').innerHTML=(bns[0]||bns[1])?duo(bns[0],bns[1]):'Coule la flotte adverse';
+  const sdd=store.get('sdkDailyDone',0),sdn=new Date(),sdk=sdn.getFullYear()*10000+(sdn.getMonth()+1)*100+sdn.getDate();$('hSdk').textContent=sdd===sdk?'Grille du jour terminée':'Une grille du jour t\'attend';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -1546,6 +1595,113 @@ refreshHome();
   $('memRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,wins:[0,0]}))});
   enterHooks.vMem=()=>game.enter();
   leaveHooks.vMem=()=>game.leave();
+})();
+
+/* ---------- SUDOKU ---------- */
+(function(){
+  const el=$('sdk'),pad=$('sdkPad'),LV={facile:40,moyen:32,difficile:26};
+  let G=null,sel=-1,notesMode=false,tick=null,undoStack=[];
+  function rng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+  const peers=(()=>{const P=[];for(let i=0;i<81;i++){const r=Math.floor(i/9),c=i%9,br=r-r%3,bc=c-c%3,s=new Set();for(let k=0;k<9;k++){s.add(r*9+k);s.add(k*9+c)}for(let y=0;y<3;y++)for(let x=0;x<3;x++)s.add((br+y)*9+bc+x);s.delete(i);P.push([...s])}return P})();
+  const ok=(g,i,v)=>peers[i].every(j=>g[j]!==v);
+  function fill(g,R){
+    const i=g.indexOf(0);if(i<0)return true;
+    const ns=[1,2,3,4,5,6,7,8,9];for(let k=8;k>0;k--){const j=Math.floor(R()*(k+1));[ns[k],ns[j]]=[ns[j],ns[k]]}
+    for(const v of ns)if(ok(g,i,v)){g[i]=v;if(fill(g,R))return true;g[i]=0}
+    return false;
+  }
+  function count(g,lim){ // nombre de solutions (arrêt à lim)
+    let best=-1,bc=10;
+    for(let i=0;i<81;i++)if(!g[i]){let c=0;for(let v=1;v<=9;v++)if(ok(g,i,v))c++;if(c<bc){bc=c;best=i;if(c<2)break}}
+    if(best<0)return 1;let n=0;
+    for(let v=1;v<=9&&n<lim;v++)if(ok(g,best,v)){g[best]=v;n+=count(g,lim-n);g[best]=0}
+    return n;
+  }
+  function generate(level,seed){
+    const R=rng(seed),sol=Array(81).fill(0);fill(sol,R);
+    const puz=sol.slice(),order=[...Array(81).keys()];for(let k=80;k>0;k--){const j=Math.floor(R()*(k+1));[order[k],order[j]]=[order[j],order[k]]}
+    let givens=81;
+    for(const i of order){if(givens<=LV[level])break;const v=puz[i];puz[i]=0;if(count(puz.slice(),2)!==1)puz[i]=v;else givens--}
+    return{sol:sol.join(''),puz:puz.join('')};
+  }
+  const todayKey=()=>{const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()};
+  function start(level,daily){
+    const seed=daily?todayKey()*7+13:Math.floor(Math.random()*2**31);
+    const g=generate(level,seed);
+    G={level,daily:daily?todayKey():0,sol:g.sol,puz:g.puz,val:g.puz.split('').map(Number),notes:Array(81).fill(0),t:0,done:false,err:0};
+    sel=-1;undoStack=[];save();build();render();startTimer();
+  }
+  function save(){store.set('sdkState',G)}
+  function startTimer(){clearInterval(tick);if(!G||G.done)return;tick=setInterval(()=>{if(current!=='vSdk'||document.hidden)return;G.t++;$('sdkT').textContent=fmt(G.t);if(G.t%5===0)save()},1000)}
+  const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  function build(){
+    if(el.children.length===81)return;el.innerHTML='';
+    for(let i=0;i<81;i++){const d=document.createElement('div');d.className='sc';d.setAttribute('role','button');const r=Math.floor(i/9),c=i%9;if(c%3===2&&c<8)d.classList.add('br');if(r%3===2&&r<8)d.classList.add('bb');d.addEventListener('click',()=>{sel=i;sfx.play('tick');render()});el.appendChild(d)}
+  }
+  function render(){
+    if(!G)return;
+    const sv=sel>=0?G.val[sel]:0,sr=sel>=0?Math.floor(sel/9):-1,scl=sel%9,sb=sel>=0?Math.floor(sr/3)*3+Math.floor(scl/3):-1;
+    for(let i=0;i<81;i++){
+      const d=el.children[i],v=G.val[i],given=G.puz[i]!=='0',r=Math.floor(i/9),c=i%9,b=Math.floor(r/3)*3+Math.floor(c/3);
+      let cls='sc'+(c%3===2&&c<8?' br':'')+(r%3===2&&r<8?' bb':'');
+      if(given)cls+=' gv';
+      if(i===sel)cls+=' sel';else if(sel>=0&&(r===sr||c===scl||b===sb))cls+=' zone';
+      if(v&&sv&&v===sv&&i!==sel)cls+=' same';
+      if(v&&!given&&!ok(G.val.map((x,k)=>k===i?0:x),i,v))cls+=' bad';
+      if(d.className!==cls)d.className=cls;
+      if(v){if(d.textContent!==String(v)||d.firstChild&&d.firstChild.nodeType!==3)d.textContent=v}
+      else if(G.notes[i]){let h='<div class="nt">';for(let n=1;n<=9;n++)h+='<span>'+(G.notes[i]>>n&1?n:'')+'</span>';h+='</div>';if(d.innerHTML!==h)d.innerHTML=h}
+      else if(d.innerHTML)d.innerHTML='';
+    }
+    // compte des chiffres restants
+    const cnt=Array(10).fill(0);G.val.forEach(v=>cnt[v]++);
+    pad.querySelectorAll('[data-n]').forEach(b=>{const n=+b.dataset.n;b.classList.toggle('full',cnt[n]>=9)});
+    $('sdkNotes').classList.toggle('on',notesMode);
+    $('sdkT').textContent=fmt(G.t);
+    $('sdkLv').textContent=(G.daily?'Grille du jour':'Niveau '+G.level);
+    document.querySelectorAll('#sdkLvl button').forEach(b=>b.classList.toggle('on',!G.daily&&b.dataset.l===G.level));
+    $('sdkDaily').classList.toggle('on',!!G.daily);
+  }
+  function put(n){
+    if(!G||G.done||sel<0||G.puz[sel]!=='0')return;
+    undoStack.push({i:sel,v:G.val[sel],n:G.notes[sel]});if(undoStack.length>200)undoStack.shift();
+    if(notesMode&&n){if(G.val[sel])return;G.notes[sel]^=(1<<n);sfx.play('key')}
+    else{
+      G.val[sel]=G.val[sel]===n?0:n;G.notes[sel]=0;
+      if(n&&G.val[sel]===n){
+        // efface la note de ce chiffre chez les voisins
+        peers[sel].forEach(j=>{G.notes[j]&=~(1<<n)});
+        if(String(n)!==G.sol[sel]){G.err++;sfx.play('error');vibe(30)}else sfx.play('key');
+      }else sfx.play('tick');
+    }
+    save();render();check();
+  }
+  function check(){
+    if(G.val.join('')!==G.sol)return;
+    G.done=true;clearInterval(tick);save();
+    const key=G.daily?'jour':G.level,best=store.get('sdkBest',{}),rec=!best[key]||G.t<best[key];
+    if(rec){best[key]=G.t;store.set('sdkBest',best)}
+    if(G.daily)store.set('sdkDailyDone',G.daily);
+    $('sdkM').textContent=(rec?'Nouveau record ! ':'Bravo ! ')+'Grille terminée en '+fmt(G.t);$('sdkM').className='msg hi';
+    sfx.play('win');vibe([40,30,40]);
+    el.classList.add('won');setTimeout(()=>el.classList.remove('won'),900);
+  }
+  for(let n=1;n<=9;n++){const b=document.createElement('button');b.className='pk';b.dataset.n=n;b.textContent=n;b.addEventListener('click',()=>put(n));pad.appendChild(b)}
+  $('sdkErase').addEventListener('click',()=>put(0));
+  $('sdkNotes').addEventListener('click',()=>{notesMode=!notesMode;sfx.play('tick');render()});
+  $('sdkUndo').addEventListener('click',()=>{const u=undoStack.pop();if(!u||!G||G.done)return;G.val[u.i]=u.v;G.notes[u.i]=u.n;sel=u.i;sfx.play('tick');save();render()});
+  const busy=()=>G&&!G.done&&G.val.some((v,i)=>v&&G.puz[i]==='0');
+  document.querySelectorAll('#sdkLvl button').forEach(b=>b.addEventListener('click',()=>{if(busy()&&!confirm('Abandonner la grille en cours ?'))return;$('sdkM').textContent='';$('sdkM').className='msg';start(b.dataset.l,false)}));
+  $('sdkDaily').addEventListener('click',()=>{if(G&&G.daily===todayKey()&&!G.done)return;if(busy()&&!confirm('Abandonner la grille en cours ?'))return;$('sdkM').className='msg';$('sdkM').textContent=store.get('sdkDailyDone',0)===todayKey()?'Grille du jour déjà terminée, tu peux la refaire':'';start('moyen',true)});
+  document.addEventListener('keydown',e=>{if(current!=='vSdk')return;if(/^[1-9]$/.test(e.key))put(+e.key);else if(e.key==='Backspace'||e.key==='0')put(0)});
+  enterHooks.vSdk=()=>{
+    if(!G){const s=store.get('sdkState',null);if(s&&s.sol&&s.val&&s.val.length===81)G=s}
+    if(!G){start('facile',false);return}
+    build();render();startTimer();
+    if(G.done){$('sdkM').textContent='Grille terminée en '+fmt(G.t)+'. Choisis une nouvelle grille';$('sdkM').className='msg hi'}
+  };
+  leaveHooks.vSdk=()=>{clearInterval(tick);if(G)save()};
+  if(location.hostname==='localhost')window.__sdk=()=>G; // aide aux tests locaux uniquement
 })();
 
 /* ---------- BATAILLE NAVALE ---------- */
