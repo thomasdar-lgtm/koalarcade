@@ -1,5 +1,6 @@
-const CACHE_VERSION = 'koalarcade-1.0.0';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png'];
+const CACHE_VERSION = 'koalarcade-1.1.0';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png',
+  './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_VERSION).then(c => c.addAll(ASSETS)).then(() => self.skipWaiting()));
