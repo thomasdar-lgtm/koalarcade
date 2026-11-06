@@ -1,7 +1,7 @@
 {
   "name": "Koalarcade",
   "short_name": "Koalarcade",
-  "description": "Les mini-jeux de Thomas et Cindy",
+  "description": "Mini-jeux en solo ou à deux",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",

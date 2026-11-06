@@ -557,6 +557,12 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #vCr{--g:var(--lime)}
 #crCv{display:block;touch-action:none}
 .crHint{color:var(--mut);font-weight:700;font-size:13px;text-align:center}
+/* noms de joueurs sur une ligne */
+.pl{min-width:0}.pl div{min-width:0}
+.pl b,.pl small{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dfRes div{gap:6px;min-width:0}.dfRes div span,.dfRes div i{white-space:nowrap}
+.m2Top .pl{gap:6px}.m2Mini:empty{display:none}
+.pl{gap:8px;padding:10px}.pl b{font-size:15px}.pl strong{font-size:26px}.pl .tok{width:24px;height:24px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -636,7 +642,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <div class="main intro" id="homeMain">
     <div class="brand">
       <img class="logo" src="logo.webp" alt="" width="60" height="60">
-      <div><h1>Koalarcade</h1><p>Les jeux de Thomas et Cindy</p></div>
+      <div><h1>Koalarcade</h1><p>Mini-jeux en solo ou à deux</p></div>
       <button class="menuBtn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><g fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></g></svg></button>
     </div>
 
@@ -827,8 +833,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="mbar"><div class="seg" id="c4Mode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="c4Net" hidden></div>
     <div class="players">
-      <div class="pl" id="c4P0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="c4T0"></small></div><strong id="c4A">0</strong></div>
-      <div class="pl" id="c4P1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="c4T1"></small></div><strong id="c4B">0</strong></div>
+      <div class="pl" id="c4P0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Joueur 1</b><small id="c4T0"></small></div><strong id="c4A">0</strong></div>
+      <div class="pl" id="c4P1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Joueur 2</b><small id="c4T1"></small></div><strong id="c4B">0</strong></div>
     </div>
     <div id="c4"></div>
     <div class="msg hi" id="c4M"></div>
@@ -843,8 +849,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="mbar"><div class="seg" id="tttMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="tttNet" hidden></div>
     <div class="players">
-      <div class="pl" id="tttP0" style="--pc:var(--red)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><path d="M7 7l16 16M23 7L7 23" stroke="var(--red)" stroke-width="5" stroke-linecap="round"/></svg><div><b>Thomas</b><small id="tttT0"></small></div><strong id="tttA">0</strong></div>
-      <div class="pl" id="tttP1" style="--pc:var(--sun)" data-k="ttt"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><circle cx="15" cy="15" r="9" fill="none" stroke="var(--sun)" stroke-width="5"/></svg><div><b data-p1>Cindy</b><small id="tttT1"></small></div><strong id="tttB">0</strong></div>
+      <div class="pl" id="tttP0" style="--pc:var(--red)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><path d="M7 7l16 16M23 7L7 23" stroke="var(--red)" stroke-width="5" stroke-linecap="round"/></svg><div><b>Joueur 1</b><small id="tttT0"></small></div><strong id="tttA">0</strong></div>
+      <div class="pl" id="tttP1" style="--pc:var(--sun)" data-k="ttt"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><circle cx="15" cy="15" r="9" fill="none" stroke="var(--sun)" stroke-width="5"/></svg><div><b data-p1>Joueur 2</b><small id="tttT1"></small></div><strong id="tttB">0</strong></div>
     </div>
     <div id="ttt"></div>
     <div class="msg hi" id="tttM"></div>
@@ -887,8 +893,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="mbar"><div class="seg" id="memMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="memNet" hidden></div>
     <div class="players">
-      <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
-      <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
+      <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Joueur 1</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
+      <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Joueur 2</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
     </div>
     <div id="mem"></div>
     <div class="msg hi" id="memM"></div>
@@ -913,7 +919,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
       <div class="pdSet">
         <b>Défi à deux</b><small class="msg" id="pdSetM" style="text-align:left"></small>
         <label class="msg" style="text-align:left">Qui choisit le mot ?</label>
-        <select id="pdWho"><option value="0">Thomas</option><option value="1">Cindy</option></select>
+        <select id="pdWho"><option value="0">Joueur 1</option><option value="1">Joueur 2</option></select>
         <input id="pdIn" type="text" autocomplete="off" autocorrect="off" spellcheck="false" maxlength="14" placeholder="MOT SECRET">
         <div class="row"><button class="btn" id="pdOk">Valider</button><button class="btn ghost" id="pdCancel">Annuler</button></div>
       </div>
@@ -953,7 +959,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <!-- BATAILLE NAVALE -->
 <section class="view" id="vBn">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/bataille.webp" alt="" width="40" height="40"><h1>Bataille</h1>
-    <div class="chips"><div class="chip"><small>Thomas</small><b id="bnA">0</b></div><div class="chip"><small data-p1>Cindy</small><b id="bnB">0</b></div></div></header>
+    <div class="chips"><div class="chip"><small>Joueur 1</small><b id="bnA">0</b></div><div class="chip"><small data-p1>Joueur 2</small><b id="bnB">0</b></div></div></header>
   <div class="main">
     <div class="mbar"><div class="seg" id="bnMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="bnNet" hidden></div>
@@ -999,8 +1005,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="mbar"><div class="seg" id="damMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="damNet" hidden></div>
     <div class="players">
-      <div class="pl" id="damP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="damT0"></small></div><strong id="damA">0</strong></div>
-      <div class="pl" id="damP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="damT1"></small></div><strong id="damB">0</strong></div>
+      <div class="pl" id="damP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Joueur 1</b><small id="damT0"></small></div><strong id="damA">0</strong></div>
+      <div class="pl" id="damP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Joueur 2</b><small id="damT1"></small></div><strong id="damB">0</strong></div>
     </div>
     <div id="dam"></div>
     <div class="msg hi" id="damM"></div>
@@ -1027,7 +1033,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <div class="main">
     <div id="qzStart">
       <div class="qzQ">10 questions de culture générale. Plus tu réponds vite, plus tu gagnes de points.</div>
-      <div class="qzA"><button id="qzSolo">Jouer seul</button><button id="qzDuo">À deux : Thomas et Cindy à tour de rôle</button></div>
+      <div class="qzA"><button id="qzSolo">Jouer seul</button><button id="qzDuo">À deux, à tour de rôle</button></div>
     </div>
     <div id="qzPlay" hidden>
       <div class="qzTop"><span class="cat" id="qzCat"></span><span class="qzWho" id="qzWho"></span><span class="num" id="qzNum"></span></div>
@@ -1120,7 +1126,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <!-- COULEURS -->
 <section class="view" id="vCou">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/couleurs.webp" alt="" width="40" height="40"><h1>Couleurs</h1>
-    <div class="chips"><div class="chip"><small>Thomas</small><b id="couA">0</b></div><div class="chip"><small data-p1>Cindy</small><b id="couB">0</b></div></div></header>
+    <div class="chips"><div class="chip"><small>Joueur 1</small><b id="couA">0</b></div><div class="chip"><small data-p1>Joueur 2</small><b id="couB">0</b></div></div></header>
   <div class="main">
     <div class="mbar"><div class="seg" id="couMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="couNet" hidden></div>
@@ -1141,8 +1147,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="mbar"><div class="seg" id="mt2Mode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="mt2Net" hidden></div>
     <div class="m2Top">
-      <div class="pl" id="m2P0" style="--pc:var(--red)"><div><b>Thomas</b><small id="m2T0"></small></div><div class="m2Mini" id="m2Mini0"></div><strong id="m2A">0</strong></div>
-      <div class="pl" id="m2P1" style="--pc:var(--sun)"><div><b data-p1>Cindy</b><small id="m2T1"></small></div><div class="m2Mini" id="m2Mini1"></div><strong id="m2B">0</strong></div>
+      <div class="pl" id="m2P0" style="--pc:var(--red)"><div><b>Joueur 1</b><small id="m2T0"></small></div><div class="m2Mini" id="m2Mini0"></div><strong id="m2A">0</strong></div>
+      <div class="pl" id="m2P1" style="--pc:var(--sun)"><div><b data-p1>Joueur 2</b><small id="m2T1"></small></div><div class="m2Mini" id="m2Mini1"></div><strong id="m2B">0</strong></div>
     </div>
     <div id="m2Grid"></div>
     <div class="msg hi" id="m2M"></div>
@@ -1165,11 +1171,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
-    <div class="half top idle" id="dA"><span class="sc" id="dAs">0</span><span class="nm" id="dAn">Cindy</span><span class="ms" id="dAm"></span><span class="netst" id="duelNet" hidden></span></div>
+    <div class="half top idle" id="dA"><span class="sc" id="dAs">0</span><span class="nm" id="dAn">Joueur 2</span><span class="ms" id="dAm"></span><span class="netst" id="duelNet" hidden></span></div>
     <div class="dmid"><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><button class="btn" id="dGo">Lancer</button>
       <div class="seg mini" id="duelMode"><button data-m="local" aria-label="Sur ce téléphone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="ai" aria-label="Contre l'IA"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="9.5" cy="13" r="1.6" fill="currentColor"/><circle cx="14.5" cy="13" r="1.6" fill="currentColor"/><path d="M12 7V4M12 4h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="online" aria-label="En ligne"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
       <button class="back noback" id="dRst" aria-label="Scores à zéro"><svg viewBox="0 0 24 24" style="width:22px;height:22px"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
-    <div class="half idle" id="dB"><span class="sc" id="dBs">0</span><span class="nm" id="dBn">Thomas</span><span class="ms" id="dBm"></span></div>
+    <div class="half idle" id="dB"><span class="sc" id="dBs">0</span><span class="nm" id="dBn">Joueur 1</span><span class="ms" id="dBm"></span></div>
   </div>
 </section>
 
@@ -1184,7 +1190,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <div id="toast" hidden role="status"></div>
 <div id="who" hidden><div class="sheet" role="dialog" aria-label="Qui joue sur ce téléphone ?">
   <b>Qui joue sur ce téléphone ?</b><small>Pour jouer en ligne, chacun choisit son nom sur son propre téléphone.</small>
-  <div class="row"><button class="btn" data-who="0" style="--g:var(--red)">Thomas</button><button class="btn" data-who="1" style="--g:var(--sun)">Cindy</button></div>
+  <div class="row"><button class="btn" data-who="0" style="--g:var(--red)">Joueur 1</button><button class="btn" data-who="1" style="--g:var(--sun)">Joueur 2</button></div>
 </div></div>
 <div id="upd" hidden role="status"><img src="logo.webp" alt="" width="40" height="40"><div><b>Mise à jour disponible</b><small>Installe-la quand tu veux</small></div><button class="btn" id="updGo">Installer</button></div>
 
@@ -1193,7 +1199,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.3.4';
+const APP_VERSION='2.4.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1270,7 +1276,7 @@ function floatPlus(chip,txt){const s=document.createElement('span');s.className=
 
 /* ---------- JEU EN LIGNE (Firebase) ---------- */
 const clone=o=>o==null?o:JSON.parse(JSON.stringify(o));
-const NAMES=['Thomas','Cindy'];
+const NAMES=['Joueur 1','Joueur 2'];
 const net=(function(){
   const ROOT='koalarcade/salon/';
   let kind=null,db=null,offset=0,loading=null,me=store.get('who',null);
@@ -1367,7 +1373,7 @@ function twoPlayer(cfg){
   };
   function save(){if(mode==='solo'){if(cfg.saveSolo)cfg.saveSolo(S);return}if(mode==='local')cfg.saveLocal(S);else if(mode==='ai'){const old=store.get(cfg.key+'AIScore',[0,0]);if(S[field][0]>old[0]&&aiLevel===2)store.set('aiHardWins',store.get('aiHardWins',0)+1);store.set(cfg.key+'AIScore',S[field])}}
   function load(){const L=cfg.loadLocal();if(mode==='ai')L[field]=store.get(cfg.key+'AIScore',[0,0]);if(mode==='solo'){L.solo=true;if(cfg.soloInit)cfg.soloInit(L)}return L}
-  function names(){NAMES[1]=mode==='ai'?'Koala':'Cindy';view.querySelectorAll('[data-p1]').forEach(e=>e.textContent=NAMES[1])}
+  function names(){NAMES[1]=mode==='ai'?'Koala':'Joueur 2';view.querySelectorAll('[data-p1]').forEach(e=>e.textContent=NAMES[1])}
   function draw(cur,prev){
     names();cfg.render(cur,prev,ctx);
     clearTimeout(aiT);
@@ -1401,7 +1407,7 @@ function twoPlayer(cfg){
   return{
     ctx,
     enter(){names();segUI();if(mode==='online'){if(!unW)goOnline()}else{if(!S)S=load();draw(S,null)}},
-    leave(){gen++;clearTimeout(aiT);NAMES[1]='Cindy';if(mode==='online'){stopOnline();S=null}}
+    leave(){gen++;clearTimeout(aiT);NAMES[1]='Joueur 2';if(mode==='online'){stopOnline();S=null}}
   };
 }
 
@@ -1446,7 +1452,7 @@ function refreshHome(){
   const dl=store.get('wDaily',null),today=new Date(),tk=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
   if(dl&&dl.day===tk&&dl.done)$('hMot').textContent=dl.won===undefined?'Terminé pour aujourd\'hui':dl.won?'Trouvé aujourd\'hui en '+dl.rows.length+' essai'+(dl.rows.length>1?'s':''):'Raté aujourd\'hui, à demain';
   else $('hMot').textContent='Un nouveau mot t\'attend';
-  $('hC4').innerHTML=(c[0]||c[1])?duo(c[0],c[1]):'Thomas contre Cindy';
+  $('hC4').innerHTML=(c[0]||c[1])?duo(c[0],c[1]):'Joueur 1 contre joueur 2';
   const tt=store.get('tttScore',[0,0]);$('hTtt').innerHTML=(tt[0]||tt[1])?duo(tt[0],tt[1]):'Trois à la suite';
   const mm=store.get('memScore',[0,0]);$('hMem').innerHTML=(mm[0]||mm[1])?duo(mm[0],mm[1]):'Retrouve les paires';
   const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'À découvrir';
@@ -2824,7 +2830,7 @@ refreshHome();
 /* ---------- DAMES (règles internationales, 10×10) ---------- */
 (function(){
   const N=10,el=$('dam'),DIRS=[[-1,-1],[-1,1],[1,-1],[1,1]];
-  // 'a' pion de Thomas (monte), 'A' sa dame ; 'b' pion de Cindy (descend), 'B' sa dame
+  // 'a' pion de Joueur 1 (monte), 'A' sa dame ; 'b' pion de Joueur 2 (descend), 'B' sa dame
   function initBoard(){let b='';for(let r=0;r<N;r++)for(let c=0;c<N;c++){const dark=(r+c)%2===1;b+=dark&&r<4?'b':dark&&r>5?'a':'.'}return b}
   const owner=ch=>ch==='a'||ch==='A'?0:ch==='b'||ch==='B'?1:-1;
   const isKing=ch=>ch==='A'||ch==='B';
@@ -3163,7 +3169,7 @@ refreshHome();
     const dpr=window.devicePixelRatio||1;cv.width=Math.round(W*scale*dpr);cv.height=Math.round(H*scale*dpr);cv.style.width=W*scale+'px';cv.style.height=H*scale+'px';ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);draw();
   }
   function modeUI(){document.querySelectorAll('#pongMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode))}
-  function names(){return[NAMES[0],mode==='ai'?'Koala':'Cindy']}
+  function names(){return[NAMES[0],mode==='ai'?'Koala':'Joueur 2']}
   function intro(){$('pongOt').textContent='Pong';$('pongOp').textContent=mode==='ai'?'Glisse ton doigt en bas pour bouger ta raquette. Niveau '+AI_LV[aiLevel].toLowerCase()+'.':'Chacun glisse le doigt de son côté de l\'écran. Premier à '+WIN+' points.';$('pongGo').textContent='Jouer';ov.hidden=false}
   function reset(){pads=[{x:W/2,tx:W/2},{x:W/2,tx:W/2}];sc=[0,0];server=Math.random()<.5?0:1;serve()}
   function serve(){ball={x:W/2,y:H/2,vx:0,vy:0,sp:340};serveT=.9;trail=[]}
@@ -3889,7 +3895,7 @@ refreshHome();
 
 /* ---------- DUEL REFLEXES ---------- */
 (function(){
-  // local : Thomas en bas (dB), Cindy en haut retournée (dA) · en ligne : moi en bas, l'autre en haut
+  // local : Joueur 1 en bas (dB), Joueur 2 en haut retournée (dA) · en ligne : moi en bas, l'autre en haut
   const H={b:$('dB'),a:$('dA')},PC=['var(--red)','var(--sun)'];
   let goT=null,slowT=null,lastRound=-1,localNow=()=>Date.now();
   const fresh=prev=>({phase:'idle',goAt:0,r:[-2,-2],win:-1,why:'',round:prev?prev.round+1:0,sc:prev?prev.sc:[0,0]});
@@ -4099,7 +4105,7 @@ setTimeout(()=>cloud.sync(false),1500);
   };
   function render(){
     const me=net.me===0||net.me===1?net.me:null,pl=plays(),got=unlocked();
-    $('pName').textContent=me===null?'Joueur':['Thomas','Cindy'][me];
+    $('pName').textContent=me===null?'Joueur':['Joueur 1','Joueur 2'][me];
     $('pAv').style.setProperty('--pc',me===1?'var(--sun)':'var(--red)');
     $('pSub').textContent=me===null?'Choisis qui joue sur ce téléphone':'Sur ce téléphone';
     $('pStats').innerHTML='<div><b>'+tot()+'</b><small>parties</small></div><div><b>'+Object.keys(pl).length+'</b><small>jeux essayés</small></div><div><b>'+got.length+'/'+T.length+'</b><small>trophées</small></div>';
@@ -4135,7 +4141,7 @@ setTimeout(()=>cloud.sync(false),1500);
     const done=mine.day===k;$('dfGo').textContent=done?'Revoir':'Jouer';
     const v=[0,1].map(p=>res['p'+p]!=null?res['p'+p]:(net.me===p&&done?mine.val:null));
     let best=-1;if(v[0]!=null&&v[1]!=null&&v[0]!==v[1])best=(t.low?v[0]<v[1]:v[0]>v[1])?0:1;
-    $('dfRes').innerHTML=['Thomas','Cindy'].map((n,p)=>'<div class="'+(p===best?'best':'')+'"><span>'+(p===best?'👑 ':'')+n+'</span><i>'+(v[p]==null?'pas encore':t.f(v[p]))+'</i></div>').join('');
+    $('dfRes').innerHTML=['Joueur 1','Joueur 2'].map((n,p)=>'<div class="'+(p===best?'best':'')+'"><span>'+(p===best?'👑 ':'')+n+'</span><i>'+(v[p]==null?'pas encore':t.f(v[p]))+'</i></div>').join('');
   }
   async function watch(){
     const k=dayKey();if(watched===k||(net.me!==0&&net.me!==1))return;
