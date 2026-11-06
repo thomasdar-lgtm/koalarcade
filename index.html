@@ -477,6 +477,29 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .pGames img{width:36px;height:36px;border-radius:9px}
 .pGames span{flex:1;font-weight:800;font-size:14px}
 .pGames em{font-style:normal;color:var(--mut);font-weight:700;font-size:12px;text-align:right}
+/* ---- yams ---- */
+#vYams{--g:var(--red)}
+#vYams .main{gap:10px}
+.yDice{display:flex;gap:8px;justify-content:center;width:min(94vw,440px)}
+.yDie{flex:1;max-width:64px;aspect-ratio:1;border-radius:14px;background:#fffdf7;box-shadow:inset 0 -4px 0 #0002,0 4px 0 #8d8a80;position:relative;cursor:pointer;transition:transform .12s}
+.yDie.held{background:#ffe9a6;box-shadow:inset 0 -4px 0 #0002,0 0 0 3px var(--sun),0 4px 0 #8d6f10;transform:translateY(4px)}
+.yDie.roll{animation:yRoll .35s ease-out}
+@keyframes yRoll{0%{transform:rotate(0) scale(.85)}60%{transform:rotate(200deg) scale(1.05)}100%{transform:rotate(360deg)}}
+.yDie i{position:absolute;width:17%;height:17%;border-radius:50%;background:#1a1a2e;transform:translate(-50%,-50%)}
+.yDie.blank{background:#ffffff22;box-shadow:none}
+.yBar{display:flex;align-items:center;gap:10px;width:min(94vw,440px)}
+.yBar .btn{flex:1}
+.yBar small{color:var(--mut);font-weight:700;font-size:13px;white-space:nowrap}
+.ySheet{width:min(94vw,440px);border-collapse:separate;border-spacing:0 3px;font-size:14px}
+.ySheet td{padding:6px 8px;background:var(--deep);font-weight:700}
+.ySheet td:first-child{border-radius:10px 0 0 10px;color:var(--mut)}.ySheet td:last-child{border-radius:0 10px 10px 0}
+.ySheet td.v{text-align:center;width:22%;font-weight:900}
+.ySheet td.v.cur{background:color-mix(in srgb,var(--g) 14%,var(--deep))}
+.ySheet td.v.pot{color:var(--sun);cursor:pointer;font-weight:800;opacity:.9}
+.ySheet td.v.pot.zero{color:var(--mut)}
+.ySheet tr.sum td{background:#00071a;color:var(--ink)}
+.ySheet th{font-size:12px;color:var(--mut);font-weight:800;padding:2px 8px}
+.ySheet th.on{color:var(--g)}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -665,6 +688,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vPong" style="--g:var(--mint)">
           <img class="art" src="img/pong.svg" alt="" width="160" height="160">
           <b>Pong</b><span class="rec" id="hvPong"></span>
+        </button>
+        <button class="tile" data-go="vYams" style="--g:var(--red)">
+          <img class="art" src="img/yams.svg" alt="" width="160" height="160">
+          <b>Yams</b><span class="rec" id="hvYams"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1007,6 +1034,20 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- YAMS -->
+<section class="view" id="vYams">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/yams.svg" alt="" width="40" height="40"><h1>Yams</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="yamsMode"><button data-m="solo">Solo</button><button data-m="local">À deux</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="yamsNet" hidden></div>
+    <div class="msg hi" id="yM"></div>
+    <div class="yDice" id="yDice"></div>
+    <div class="yBar"><button class="btn" id="yRoll">Lancer</button><small id="yLeft"></small></div>
+    <table class="ySheet" id="ySheet"></table>
+    <div class="row"><button class="btn ghost" id="yNew">Nouvelle partie</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1038,7 +1079,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.2.3';
+const APP_VERSION='2.3.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1199,9 +1240,10 @@ function twoPlayer(cfg){
   const ctx={
     get online(){return mode==='online'},
     get ai(){return mode==='ai'},
+    get solo(){return mode==='solo'},
     get me(){return mode==='online'?net.me:0},
     // peut-on agir pour le joueur p depuis ce téléphone ?
-    mine(p){return mode==='local'||(mode==='ai'?p===0:p===net.me)},
+    mine(p){return mode==='local'||mode==='solo'||(mode==='ai'?p===0:p===net.me)},
     act(fn){
       if(mode!=='online'){const r=fn(clone(S));if(r){const p=S;S=r;save();draw(S,p)}return}
       net.transact(cfg.key,cur=>cur?fn(cur):null);
@@ -1209,8 +1251,8 @@ function twoPlayer(cfg){
     get state(){return S},
     get level(){return aiLevel}
   };
-  function save(){if(mode==='local')cfg.saveLocal(S);else if(mode==='ai'){const old=store.get(cfg.key+'AIScore',[0,0]);if(S[field][0]>old[0]&&aiLevel===2)store.set('aiHardWins',store.get('aiHardWins',0)+1);store.set(cfg.key+'AIScore',S[field])}}
-  function load(){const L=cfg.loadLocal();if(mode==='ai')L[field]=store.get(cfg.key+'AIScore',[0,0]);return L}
+  function save(){if(mode==='solo'){if(cfg.saveSolo)cfg.saveSolo(S);return}if(mode==='local')cfg.saveLocal(S);else if(mode==='ai'){const old=store.get(cfg.key+'AIScore',[0,0]);if(S[field][0]>old[0]&&aiLevel===2)store.set('aiHardWins',store.get('aiHardWins',0)+1);store.set(cfg.key+'AIScore',S[field])}}
+  function load(){const L=cfg.loadLocal();if(mode==='ai')L[field]=store.get(cfg.key+'AIScore',[0,0]);if(mode==='solo'){L.solo=true;if(cfg.soloInit)cfg.soloInit(L)}return L}
   function names(){NAMES[1]=mode==='ai'?'Koala':'Cindy';view.querySelectorAll('[data-p1]').forEach(e=>e.textContent=NAMES[1])}
   function draw(cur,prev){
     names();cfg.render(cur,prev,ctx);
@@ -1307,6 +1349,7 @@ function refreshHome(){
   const mmw=store.get('mmWins',0);$('hvMm').textContent=mmw?mmw+' grille'+(mmw>1?'s':'')+' terminée'+(mmw>1?'s':''):'Trouve les mots cachés';
   const tqb=store.get('tqBest',{});const tqk=Object.keys(tqb).sort();$('hvTq').textContent=tqk.length?'Record '+tqk[tqk.length-1]+' : '+tqb[tqk[tqk.length-1]]+' coups':'Remets l\'image en ordre';
   const mcw=store.get('mcWins',0);$('hvMc').textContent=mcw?mcw+' grille'+(mcw>1?'s':'')+' remplie'+(mcw>1?'s':''):'Grilles toujours nouvelles';
+  const ymb=store.get('yamsBest',0);$('hvYams').textContent=ymb?'Record '+ymb:'5 dés, 13 coups';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -3318,6 +3361,124 @@ refreshHome();
   leaveHooks.vMc=()=>{clearInterval(tick);if(G)save()};
   window.addEventListener('resize',()=>{if(current==='vMc'&&G)size()});
   if(location.hostname==='localhost')window.__mc={get:()=>G,generate,type,tap}; // aide aux tests locaux uniquement
+})();
+
+/* ---------- YAMS ---------- */
+(function(){
+  const CATS=[['1','As'],['2','Deux'],['3','Trois'],['4','Quatre'],['5','Cinq'],['6','Six'],['br','Brelan'],['ca','Carré'],['fu','Full'],['ps','Petite suite'],['gs','Grande suite'],['ya','Yams'],['ch','Chance']];
+  const sum=d=>d.reduce((a,b)=>a+b,0);
+  function score(c,d){
+    const cnt=[0,0,0,0,0,0,0];d.forEach(v=>cnt[v]++);const mx=Math.max(...cnt),set=new Set(d);
+    if(/^[1-6]$/.test(c))return cnt[+c]*+c;
+    if(c==='br')return mx>=3?sum(d):0;
+    if(c==='ca')return mx>=4?sum(d):0;
+    if(c==='fu')return(cnt.includes(3)&&cnt.includes(2))||mx===5?25:0;
+    if(c==='ps')return[[1,2,3,4],[2,3,4,5],[3,4,5,6]].some(r=>r.every(v=>set.has(v)))?30:0;
+    if(c==='gs')return[[1,2,3,4,5],[2,3,4,5,6]].some(r=>r.every(v=>set.has(v)))?40:0;
+    if(c==='ya')return mx===5?50:0;
+    return sum(d);
+  }
+  const upper=sh=>CATS.slice(0,6).reduce((a,[c])=>a+(sh[c]||0),0);
+  const total=sh=>CATS.reduce((a,[c])=>a+(sh[c]||0),0)+(upper(sh)>=63?35:0);
+  const filled=sh=>CATS.filter(([c])=>sh[c]!=null).length;
+  const roll=()=>1+Math.floor(Math.random()*6);
+  const fresh=prev=>({d:[0,0,0,0,0],h:[0,0,0,0,0],left:3,sh:[{},{}],turn:prev&&!prev.solo?prev.starter:0,starter:prev&&!prev.solo?prev.starter:0,over:false,mv:prev?prev.mv+1:0,wins:prev?prev.wins:[0,0],solo:prev?prev.solo:false,ev:''});
+  function doRoll(S,p){if(S.over||S.turn!==p||S.left<=0)return null;S.d=S.d.map((v,i)=>S.h[i]&&v?v:roll());S.left--;S.mv++;S.ev='roll';return S}
+  function doHold(S,p,i){if(S.over||S.turn!==p||S.left===3||S.left===0)return null;S.h=S.h.slice();S.h[i]=S.h[i]?0:1;S.mv++;S.ev='hold';return S}
+  function doScore(S,p,c){
+    if(S.over||S.turn!==p||S.left===3||S.sh[p][c]!=null)return null;
+    S.sh=[{...S.sh[0]},{...S.sh[1]}];S.sh[p][c]=score(c,S.d);S.mv++;S.ev='score';S.lastCat=c;
+    S.d=[0,0,0,0,0];S.h=[0,0,0,0,0];S.left=3;
+    const n=S.solo?1:2;
+    if(Array.from({length:n},(_,k)=>filled(S.sh[k])).every(f=>f===13)){S.over=true;S.ev='end';
+      if(!S.solo){const a=total(S.sh[0]),b=total(S.sh[1]);if(a!==b){S.wins=[S.wins[0],S.wins[1]];S.wins[a>b?0:1]++}S.starter=1-S.starter}}
+    else if(!S.solo)S.turn=1-p;
+    return S;
+  }
+  // ----- IA -----
+  function bestCat(sh,d,end){ // choix de la case : points pondérés par la difficulté de la case
+    const W={'1':.6,'2':.8,'3':1,'4':1,'5':1,'6':1,br:.8,ca:1.2,fu:1,ps:1,gs:1.1,ya:1.6,ch:.5};
+    let best=null,bv=-1e9;
+    for(const[c]of CATS){if(sh[c]!=null)continue;let v=score(c,d)*W[c];
+      if(/^[1-6]$/.test(c)){v+= (score(c,d)-3*+c)*.8}            // garder la prime du haut
+      if(score(c,d)===0)v=-({ya:4,'1':1,ch:30,br:12,ca:8,gs:10,ps:8,fu:9}[c]||6+ +c);
+      if(v>bv){bv=v;best=c}}
+    return best;
+  }
+  function evalHold(sh,d,mask,rolls,R,n){ // Monte-Carlo : moyenne de la meilleure case après les lancers restants
+    let tot=0;for(let k=0;k<n;k++){let x=d.map((v,i)=>mask>>i&1?v:1+Math.floor(R()*6));for(let r=1;r<rolls;r++){const c=bestCat(sh,x),keep=greedyMask(sh,x);x=x.map((v,i)=>keep>>i&1?v:1+Math.floor(R()*6))}
+      const c=bestCat(sh,x);tot+=score(c,x)+(score(c,x)===0?-5:0)}
+    return tot/n;
+  }
+  function greedyMask(sh,d){ // garde les dés les plus fréquents, ou une suite
+    const cnt=[0,0,0,0,0,0,0];d.forEach(v=>cnt[v]++);const set=new Set(d);
+    if((sh.gs==null||sh.ps==null)&&[[1,2,3,4],[2,3,4,5],[3,4,5,6]].some(r=>r.filter(v=>set.has(v)).length>=4)){let m=0,seen=new Set();d.forEach((v,i)=>{if(!seen.has(v)&&[2,3,4,5].includes(v)||(!seen.has(v)&&(v===1||v===6)&&set.has(v===1?2:5))){m|=1<<i;seen.add(v)}});return m}
+    let bv=0,best=0;for(let v=6;v>=1;v--)if(cnt[v]>best){best=cnt[v];bv=v}
+    let m=0;d.forEach((v,i)=>{if(v===bv||(best===1&&v>=5))m|=1<<i});return m;
+  }
+  function ai(S,ctx,lv){
+    if(S.over||S.turn!==1)return null;
+    if(S.left===3)return{fn:s=>doRoll(s,1),delay:700};
+    const sh=S.sh[1],now=bestCat(sh,S.d);
+    if(S.left>0){
+      if(['ya','gs'].includes(now)&&score(now,S.d)>0||(now==='fu'&&score('fu',S.d)>0&&lv<2))return{fn:s=>doScore(s,1,now),delay:800};
+      let mask;
+      if(lv===0)mask=Math.random()<.5?greedyMask(sh,S.d):Math.floor(Math.random()*32);
+      else if(lv===1)mask=greedyMask(sh,S.d);
+      else{let bv=-1e9;const R=Math.random;for(let m=0;m<32;m++){const v=evalHold(sh,S.d,m,S.left,R,60);if(v>bv){bv=v;mask=m}}}
+      if(mask===31)return{fn:s=>doScore(s,1,bestCat(s.sh[1],s.d)),delay:800};
+      const want=[0,1,2,3,4].map(i=>mask>>i&1);
+      const diff=want.findIndex((v,i)=>v!==S.h[i]);
+      if(diff>=0)return{fn:s=>doHold(s,1,diff),delay:350};
+      return{fn:s=>doRoll(s,1),delay:650};
+    }
+    return{fn:s=>doScore(s,1,lv===0&&Math.random()<.3?CATS.map(c=>c[0]).filter(c=>s.sh[1][c]==null)[0]:bestCat(s.sh[1],s.d)),delay:900};
+  }
+  // ----- affichage -----
+  const PIPS={1:[[50,50]],2:[[28,28],[72,72]],3:[[28,28],[50,50],[72,72]],4:[[28,28],[72,28],[28,72],[72,72]],5:[[28,28],[72,28],[50,50],[28,72],[72,72]],6:[[28,25],[72,25],[28,50],[72,50],[28,75],[72,75]]};
+  const box=$('yDice');for(let i=0;i<5;i++){const d=document.createElement('div');d.className='yDie blank';d.addEventListener('click',()=>tapDie(i));box.appendChild(d)}
+  function render(S,prev,ctx){
+    const me=ctx.online?ctx.me:S.turn,mine=ctx.mine(S.turn),rolled=S.left<3;
+    S.d.forEach((v,i)=>{const e=box.children[i];e.className='yDie'+(v?'':' blank')+(S.h[i]?' held':'')+(prev&&prev.mv!==S.mv&&S.ev==='roll'&&!S.h[i]&&v?' roll':'');e.innerHTML=v?PIPS[v].map(([x,y])=>'<i style="left:'+x+'%;top:'+y+'%"></i>').join(''):''});
+    const n=S.solo?1:2,names=S.solo?[NAMES[0]]:[NAMES[0],NAMES[1]];
+    let h='<tr><th></th>'+names.map((nm,p)=>'<th class="'+(p===S.turn&&!S.over?'on':'')+'">'+nm+'</th>').join('')+'</tr>';
+    CATS.forEach(([c,l],k)=>{
+      h+='<tr><td>'+l+'</td>';
+      for(let p=0;p<n;p++){const v=S.sh[p][c];
+        if(v!=null)h+='<td class="v">'+v+'</td>';
+        else if(p===S.turn&&rolled&&!S.over&&mine){const sc=score(c,S.d);h+='<td class="v pot cur'+(sc?'':' zero')+'" data-c="'+c+'">'+sc+'</td>'}
+        else h+='<td class="v'+(p===S.turn&&!S.over?' cur':'')+'"></td>'}
+      h+='</tr>';
+      if(k===5){h+='<tr class="sum"><td>Prime (63 en haut)</td>';for(let p=0;p<n;p++){const u=upper(S.sh[p]);h+='<td class="v">'+(u>=63?'+35':u+'/63')+'</td>'}h+='</tr>'}
+    });
+    h+='<tr class="sum"><td>Total</td>';for(let p=0;p<n;p++)h+='<td class="v">'+total(S.sh[p])+'</td>';h+='</tr>';
+    $('ySheet').innerHTML=h;
+    $('ySheet').querySelectorAll('.pot').forEach(td=>td.addEventListener('click',()=>ctx.act(s=>doScore(s,ctx.online?ctx.me:s.turn,td.dataset.c))));
+    $('yRoll').disabled=!mine||S.left===0||S.over;$('yRoll').style.opacity=$('yRoll').disabled?.4:1;
+    $('yRoll').textContent=S.left===3?'Lancer les dés':'Relancer';
+    $('yLeft').textContent=S.over?'':S.left===3?'3 lancers':S.left+' relance'+(S.left>1?'s':'')+' restante'+(S.left>1?'s':'');
+    let m;
+    if(S.over){if(S.solo){const t=total(S.sh[0]),b=store.get('yamsBest',0);m='Partie terminée : '+t+' points'+(t>=b?' (record !)':'')}else{const a=total(S.sh[0]),b=total(S.sh[1]);m=a===b?'Égalité, '+a+' points chacun':NAMES[a>b?0:1]+' gagne avec '+Math.max(a,b)+' points'}}
+    else if(!mine)m='Au tour de '+NAMES[S.turn]+'…';
+    else m=(S.solo?'':NAMES[S.turn]+' : ')+(S.left===3?'lance les dés':S.left===0?'choisis une case':'garde des dés, relance ou choisis une case');
+    $('yM').textContent=m;
+    if(prev&&prev.mv!==S.mv){if(S.ev==='roll')sfx.play('move');if(S.ev==='hold')sfx.play('tick');if(S.ev==='score'){sfx.play('key');vibe(10)}if(S.ev==='end'){
+      if(S.solo){const t=total(S.sh[0]);if(t>store.get('yamsBest',0))store.set('yamsBest',t)}
+      sfx.play(S.solo||!(ctx.online||ctx.ai)||total(S.sh[ctx.me])>=total(S.sh[1-ctx.me])?'win':'lose')}}
+  }
+  const game=twoPlayer({
+    key:'yams',fresh,render,ai,scoreField:'wins',
+    loadLocal(){const st=store.get('yamsStarter',0);return{...fresh(null),wins:store.get('yamsScore',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('yamsScore',S.wins);store.set('yamsStarter',S.starter);store.set('yamsLocal',S)},
+    soloInit(L){L.turn=0},saveSolo(S){store.set('yamsSolo',S)}
+  });
+  const ctx=game.ctx;
+  function tapDie(i){const S=ctx.state;if(!S||!ctx.mine(S.turn))return;ctx.act(s=>doHold(s,ctx.online?ctx.me:s.turn,i))}
+  $('yRoll').addEventListener('click',()=>{const S=ctx.state;if(!S||!ctx.mine(S.turn))return;ctx.act(s=>doRoll(s,ctx.online?ctx.me:s.turn))});
+  $('yNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&filled(S.sh[0])&&!confirm('Recommencer la partie ?'))return;ctx.act(s=>fresh(s))});
+  enterHooks.vYams=()=>game.enter();
+  leaveHooks.vYams=()=>game.leave();
+  if(location.hostname==='localhost')window.__yams={score,total,state:()=>ctx.state,ai,greedyMask,evalHold};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
