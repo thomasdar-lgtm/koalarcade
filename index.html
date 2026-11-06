@@ -114,7 +114,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .ov h3{font-weight:900;font-size:30px;color:var(--g)}
 .ov p{color:var(--mut);font-weight:700}
 /* croix directionnelle */
-.pad{--s:min(210px,52vw);position:relative;width:var(--s);height:var(--s);margin-top:auto;flex:none;touch-action:none;
+.padZone{flex:1;width:100%;min-height:calc(var(--ps) + 16px);display:flex;align-items:flex-end;justify-content:center;touch-action:none;--ps:min(250px,64vw)}
+.pad{--s:var(--ps);position:relative;width:var(--s);height:var(--s);flex:none;touch-action:none;pointer-events:none;
   border-radius:50%;background:radial-gradient(circle,#0a1533 0 58%,transparent 72%)}
 .pad .arm{position:absolute;width:34%;height:34%;display:grid;place-items:center;
   background:linear-gradient(180deg,#1a2a5e,#101d47);box-shadow:inset 0 2px 0 #ffffff1a,0 5px 0 #030a1f;transition:background .08s,box-shadow .08s,transform .08s}
@@ -593,12 +594,14 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         </div>
         <button class="btn" id="snkGo">Jouer</button></div>
     </div>
+    <div class="padZone" id="snkZone">
     <div class="pad" id="snkPad" role="group" aria-label="Directions">
       <span class="arm u" data-d="0,-1"><svg viewBox="0 0 24 24"><path d="M12 5l8 11H4z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
       <span class="arm l" data-d="-1,0"><svg viewBox="0 0 24 24"><path d="M5 12l11-8v16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
       <span class="arm r" data-d="1,0"><svg viewBox="0 0 24 24"><path d="M19 12L8 4v16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
       <span class="arm d" data-d="0,1"><svg viewBox="0 0 24 24"><path d="M12 19L4 8h16z" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg></span>
       <span class="hub"></span>
+    </div>
     </div>
   </div>
 </section>
@@ -914,7 +917,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.6';
+const APP_VERSION='2.0.7';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1171,7 +1174,7 @@ refreshHome();
   let mode=store.get('snkMode','walls'),spd=store.get('snkSpd',2);
 
   function size(){
-    const w=Math.min(window.innerWidth-32,400,window.innerHeight-330);
+    const ps=Math.min(250,window.innerWidth*.64),w=Math.min(window.innerWidth-32,400,window.innerHeight-ps-150);
     cell=Math.max(12,Math.floor(w/N));
     const dpr=window.devicePixelRatio||1;
     cv.width=cell*N*dpr;cv.height=cell*N*dpr;
@@ -1331,22 +1334,23 @@ refreshHome();
   document.querySelectorAll('#snkSpd button').forEach(b=>b.addEventListener('click',()=>{spd=+b.dataset.v;store.set('snkSpd',spd);optsUI();sfx.play('tick')}));
   // croix : toute la zone compte, le pouce peut glisser d'une direction à l'autre
   (function(){
-    const pad=$('snkPad'),arms={};pad.querySelectorAll('.arm').forEach(a=>arms[a.dataset.d]=a);
+    const pad=$('snkPad'),zone=$('snkZone'),arms={};pad.querySelectorAll('.arm').forEach(a=>arms[a.dataset.d]=a);
     let id=null,curD=null;
     function at(e){
       const r=pad.getBoundingClientRect(),dx=e.clientX-(r.left+r.width/2),dy=e.clientY-(r.top+r.height/2);
-      if(Math.hypot(dx,dy)<r.width*.09)return null;
+      if(Math.hypot(dx,dy)<r.width*.06)return curD; // centre : on garde la direction en cours
       return Math.abs(dx)>Math.abs(dy)?(dx>0?'1,0':'-1,0'):(dy>0?'0,1':'0,-1');
     }
     function set(d){
       if(d===curD)return;if(curD)arms[curD].classList.remove('on');curD=d;
       if(d){arms[d].classList.add('on');const[x,y]=d.split(',').map(Number);turn(x,y);vibe(8)}
     }
-    pad.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;try{pad.setPointerCapture(id)}catch(_){}set(at(e))});
-    pad.addEventListener('pointermove',e=>{if(e.pointerId===id)set(at(e))});
+    // toute la zone sous la grille compte : la direction se calcule par rapport au centre de la croix
+    zone.addEventListener('pointerdown',e=>{e.preventDefault();id=e.pointerId;try{zone.setPointerCapture(id)}catch(_){}set(at(e))});
+    zone.addEventListener('pointermove',e=>{if(e.pointerId===id)set(at(e))});
     const end=e=>{if(e.pointerId!==id)return;id=null;set(null)};
-    pad.addEventListener('pointerup',end);pad.addEventListener('pointercancel',end);
-    ['touchstart','touchend'].forEach(t=>pad.addEventListener(t,e=>e.stopPropagation(),{passive:true})); // pas de glissement parasite
+    zone.addEventListener('pointerup',end);zone.addEventListener('pointercancel',end);
+    ['touchstart','touchend'].forEach(t=>zone.addEventListener(t,e=>e.stopPropagation(),{passive:true})); // pas de glissement parasite
   })();
   onSwipe(document.querySelector('#vSnake .main'),turn);
   document.addEventListener('keydown',e=>{
