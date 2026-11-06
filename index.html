@@ -68,18 +68,35 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .brand p{color:var(--mut);font-weight:700;margin-top:4px;font-size:14px}
 .sec{width:100%;max-width:520px;display:flex;flex-direction:column;gap:10px}
 .sec h2{font-weight:800;font-size:15px;color:var(--mut);padding-left:2px}
-.tiles{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.tile{position:relative;text-align:left;padding:10px 10px 12px;border-radius:24px;display:flex;flex-direction:column;gap:2px;
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+@media (min-width:600px){.tiles{grid-template-columns:repeat(4,minmax(0,1fr))}}
+.hbar{width:100%;max-width:520px;display:flex;flex-direction:column;gap:8px}
+.srch{display:flex;align-items:center;gap:8px;background:var(--deep);border:1.5px solid var(--line);border-radius:14px;padding:0 12px;color:var(--mut)}
+.srch svg{width:18px;height:18px;flex:none}
+.srch input{flex:1;min-width:0;background:none;border:0;outline:0;color:var(--ink);font:inherit;font-weight:700;font-size:16px;padding:11px 0}
+.hf{display:flex;gap:6px}
+.hf button{flex:1;padding:8px 4px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:13px;color:var(--mut)}
+.hf button.on{background:var(--sun);border-color:var(--sun);color:var(--night)}
+.recent{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}
+.recent::-webkit-scrollbar{display:none}
+.recent button{flex:none;width:68px;display:flex;flex-direction:column;align-items:center;gap:4px;font-weight:700;font-size:11px;color:var(--mut)}
+.recent img{width:60px;height:60px;border-radius:16px;box-shadow:0 4px 10px #0007}
+.recent span{width:100%;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .fav{position:absolute;top:4px;right:4px;width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:#00071a99;color:#ffffff70;z-index:2}
+.tile .fav svg{width:17px;height:17px}
+.tile .fav.on{color:var(--sun);background:#00071acc}
+.tile[hidden]{display:none}.sec[hidden]{display:none}
+.tile{position:relative;text-align:left;padding:7px 7px 9px;border-radius:20px;min-width:0;display:flex;flex-direction:column;gap:2px;
   background:linear-gradient(170deg,color-mix(in srgb,var(--g) 24%,var(--deep)),color-mix(in srgb,var(--g) 8%,var(--deep)) 75%);
   border:1.5px solid color-mix(in srgb,var(--g) 40%,transparent);box-shadow:0 5px 0 color-mix(in srgb,var(--g) 28%,#000);transition:transform .06s,box-shadow .06s}
 .tile:active{transform:translateY(4px);box-shadow:0 1px 0 color-mix(in srgb,var(--g) 28%,#000)}
-.tile .art{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:18px;margin-bottom:8px;filter:drop-shadow(0 6px 10px #0007)}
-.tile b,.tile .rec{padding:0 4px}
+.tile .art{display:block;width:100%;height:auto;aspect-ratio:1;border-radius:15px;margin-bottom:6px;filter:drop-shadow(0 6px 10px #0007)}
+.tile b,.tile .rec{padding:0 2px}
 .tile.wide{grid-column:span 2;flex-direction:row;align-items:center;gap:14px;padding:10px}
 .tile.wide .art{width:96px;flex:none;margin:0}
 .tile.wide>span.tx{display:flex;flex-direction:column;gap:2px}
-.tile b{font-weight:900;font-size:clamp(17px,5vw,21px);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.tile .rec{font-weight:700;font-size:13px;color:var(--g);min-height:17px}
+.tile b{font-weight:900;font-size:clamp(13px,3.8vw,17px);letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tile .rec{font-weight:700;font-size:11px;color:var(--g);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
 .tile .rec i{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px;vertical-align:0}
 .intro .tile{animation:tileIn .4s cubic-bezier(.2,.9,.3,1.3) both}
 @keyframes tileIn{from{opacity:0;transform:translateY(18px) scale(.96)}}
@@ -509,7 +526,13 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
       <button class="menuBtn" id="menuBtn" aria-label="Menu"><svg viewBox="0 0 24 24"><g fill="currentColor"><circle cx="12" cy="5" r="2.2"/><circle cx="12" cy="12" r="2.2"/><circle cx="12" cy="19" r="2.2"/></g></svg></button>
     </div>
 
-    <div class="sec">
+    <div class="hbar">
+      <label class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><input id="hSearch" type="search" placeholder="Chercher un jeu" autocomplete="off"></label>
+      <div class="hf" id="hFilt"><button data-f="all">Tous</button><button data-f="fav">Favoris</button><button data-f="solo">Solo</button><button data-f="duo">À deux</button></div>
+    </div>
+    <div class="sec" id="hRecSec" hidden><h2>Joués récemment</h2><div class="recent" id="hRecent"></div></div>
+    <div class="msg" id="hEmpty" hidden></div>
+    <div class="sec" data-s="solo">
       <h2>En solo</h2>
       <div class="tiles">
         <button class="tile" data-go="vSnake" style="--g:var(--mint);animation-delay:.05s">
@@ -520,9 +543,9 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <img class="art" src="img/2048.webp" alt="" width="160" height="160" loading="eager" decoding="async">
           <b>2048</b><span class="rec" id="h2048"></span>
         </button>
-        <button class="tile wide" data-go="vMot" style="--g:var(--volt);animation-delay:.15s">
+        <button class="tile" data-go="vMot" style="--g:var(--volt);animation-delay:.15s">
           <img class="art" src="img/mot.webp" alt="" width="160" height="160" loading="eager" decoding="async">
-          <span class="tx"><b>Mot du jour</b><span class="rec" id="hMot"></span></span>
+          <b>Mot du jour</b><span class="rec" id="hMot"></span>
         </button>
         <button class="tile" data-go="vMine" style="--g:var(--teal);animation-delay:.18s">
           <img class="art" src="img/demineur.webp" alt="" width="160" height="160">
@@ -572,7 +595,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
       </div>
     </div>
 
-    <div class="sec">
+    <div class="sec" data-s="duo">
       <h2>À deux</h2>
       <div class="tiles">
         <button class="tile" data-go="vC4" style="--g:var(--blue);animation-delay:.2s">
@@ -962,7 +985,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.1.1';
+const APP_VERSION='2.2.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1189,8 +1212,8 @@ const leaveHooks={},enterHooks={};
 function show(id){
   if(leaveHooks[current])leaveHooks[current]();
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===id));
-  current=id;
-  if(id==='vHome')refreshHome();
+  current=id;if(window.noteRecent)noteRecent(id);
+  if(id==='vHome'){refreshHome();if(window.homeApply)homeApply()}
   if(enterHooks[id])enterHooks[id]();
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.go);history.pushState({v:b.dataset.go},'')}));
@@ -1200,21 +1223,21 @@ setTimeout(()=>$('homeMain').classList.remove('intro'),900);
 function duo(a,b){return '<i style="background:var(--red)"></i>'+a+' – '+b+'<i style="background:var(--sun)"></i>'}
 function refreshHome(){
   const s=store.get('snkBest',0),t=store.get('t2Best',0),c=store.get('c4Score',[0,0]),d=store.get('duelScore',[0,0]);
-  $('hSnake').textContent=s?'Record '+s:'Pas encore de record';
-  $('h2048').textContent=t?'Record '+t:'Pas encore de record';
+  $('hSnake').textContent=s?'Record '+s:'À découvrir';
+  $('h2048').textContent=t?'Record '+t:'À découvrir';
   const dl=store.get('wDaily',null),today=new Date(),tk=today.getFullYear()+'-'+(today.getMonth()+1)+'-'+today.getDate();
   if(dl&&dl.day===tk&&dl.done)$('hMot').textContent=dl.won===undefined?'Terminé pour aujourd\'hui':dl.won?'Trouvé aujourd\'hui en '+dl.rows.length+' essai'+(dl.rows.length>1?'s':''):'Raté aujourd\'hui, à demain';
   else $('hMot').textContent='Un nouveau mot t\'attend';
   $('hC4').innerHTML=(c[0]||c[1])?duo(c[0],c[1]):'Thomas contre Cindy';
   const tt=store.get('tttScore',[0,0]);$('hTtt').innerHTML=(tt[0]||tt[1])?duo(tt[0],tt[1]):'Trois à la suite';
   const mm=store.get('memScore',[0,0]);$('hMem').innerHTML=(mm[0]||mm[1])?duo(mm[0],mm[1]):'Retrouve les paires';
-  const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'Pas encore de record';
-  const bbb=store.get('bbBest',0);$('hBb').textContent=bbb?'Record '+bbb:'Pas encore de record';
+  const mb=store.get('mineBest',{});const mbt=['facile','moyen','expert'].filter(k=>mb[k]).map(k=>k[0].toUpperCase()+k.slice(1)+' '+mb[k]+' s');$('hMine').textContent=mbt.length?'Record '+mbt[mbt.length-1]:'À découvrir';
+  const bbb=store.get('bbBest',0);$('hBb').textContent=bbb?'Record '+bbb:'À découvrir';
   const bns=store.get('bnScore',[0,0]);$('hBn').innerHTML=(bns[0]||bns[1])?duo(bns[0],bns[1]):'Coule la flotte adverse';
   const sdd=store.get('sdkDailyDone',0),sdn=new Date(),sdk=sdn.getFullYear()*10000+(sdn.getMonth()+1)*100+sdn.getDate();$('hSdk').textContent=sdd===sdk?'Grille du jour terminée':'Une grille du jour t\'attend';
-  const flb=store.get('flBest',0);$('hFl').textContent=flb?'Record '+flb:'Pas encore de record';
+  const flb=store.get('flBest',0);$('hFl').textContent=flb?'Record '+flb:'À découvrir';
   const pds=store.get('pdStats',{p:0,w:0});$('hPd').textContent=pds.p?pds.w+' mot'+(pds.w>1?'s':'')+' trouvé'+(pds.w>1?'s':''):'Sauve le koala';
-  const tb=store.get('tetBest',0);$('hvTet').textContent=tb?'Record '+tb:'Pas encore de record';
+  const tb=store.get('tetBest',0);$('hvTet').textContent=tb?'Record '+tb:'À découvrir';
   const dms=store.get('damScore',[0,0]);$('hvDam').innerHTML=(dms[0]||dms[1])?duo(dms[0],dms[1]):'Règles internationales';
   const sw=store.get('solWins',0);$('hvSol').textContent=sw?sw+' partie'+(sw>1?'s':'')+' gagnée'+(sw>1?'s':''):'Klondike';
   const qzb=store.get('qzBest',0);$('hvQz').textContent=qzb?'Record '+qzb+' points':'136 questions';
@@ -3330,6 +3353,34 @@ $('mUpd').addEventListener('click',()=>{
   if(!('serviceWorker' in navigator)||!window.__checkUpdate){toast('Vérification impossible sur ce navigateur',3000);return}
   window.__checkUpdate();
 });
+
+/* ---------- accueil : recherche, filtres, favoris, récents ---------- */
+(function(){
+  const tiles=[...document.querySelectorAll('#homeMain .tile[data-go]')],norm=t=>t.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  let filt=store.get('homeFilt','all'),q='';
+  const favs=()=>store.get('favs',[]);
+  const STAR='<svg viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.8 6.6 19.7l1.1-6.1L3.2 9.4l6.1-.8z" fill="currentColor"/></svg>';
+  tiles.forEach(t=>{
+    t.dataset.sec=t.closest('.sec').dataset.s;t.dataset.name=t.querySelector('b').textContent;
+    const f=document.createElement('span');f.className='fav';f.setAttribute('role','button');f.setAttribute('aria-label','Favori');f.innerHTML=STAR;t.appendChild(f);
+    f.addEventListener('click',e=>{e.stopPropagation();e.preventDefault();let v=favs();const id=t.dataset.go;v=v.includes(id)?v.filter(x=>x!==id):v.concat(id);store.set('favs',v);sfx.play('tick');apply()});
+  });
+  function apply(){
+    const fv=favs(),qq=norm(q);let shown=0;
+    tiles.forEach(t=>{const ok=(filt==='all'||(filt==='fav'?fv.includes(t.dataset.go):t.dataset.sec===filt))&&(!qq||norm(t.dataset.name).includes(qq));t.hidden=!ok;if(ok)shown++;t.querySelector('.fav').classList.toggle('on',fv.includes(t.dataset.go))});
+    document.querySelectorAll('#homeMain .sec[data-s]').forEach(s=>s.hidden=![...s.querySelectorAll('.tile')].some(t=>!t.hidden));
+    document.querySelectorAll('#hFilt button').forEach(b=>b.classList.toggle('on',b.dataset.f===filt));
+    const em=$('hEmpty');em.hidden=shown>0;em.textContent=filt==='fav'&&!fv.length&&!qq?'Pas encore de favori : touche l\'étoile d\'un jeu pour l\'ajouter ici':'Aucun jeu ne correspond';
+    // récents : masqués pendant une recherche
+    const rec=store.get('recent',[]).filter(id=>tiles.some(t=>t.dataset.go===id)).slice(0,6);
+    $('hRecSec').hidden=!!qq||rec.length<2;
+    $('hRecent').innerHTML='';rec.forEach(id=>{const t=tiles.find(x=>x.dataset.go===id),b=document.createElement('button');b.innerHTML='<img src="'+t.querySelector('.art').getAttribute('src')+'" alt=""><span>'+t.dataset.name+'</span>';b.addEventListener('click',()=>{show(id);history.pushState({v:id},'')});$('hRecent').appendChild(b)});
+  }
+  document.querySelectorAll('#hFilt button').forEach(b=>b.addEventListener('click',()=>{filt=b.dataset.f;store.set('homeFilt',filt);sfx.play('tick');apply()}));
+  $('hSearch').addEventListener('input',e=>{q=e.target.value;apply()});
+  window.homeApply=apply;window.noteRecent=id=>{if(id==='vHome')return;store.set('recent',[id].concat(store.get('recent',[]).filter(x=>x!==id)).slice(0,8))};
+  apply();
+})();
 
 /* ---------- service worker ---------- */
 if('serviceWorker' in navigator){
