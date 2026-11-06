@@ -970,6 +970,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <div id="menu" hidden><div class="pop" role="menu">
   <button class="it" id="mUpd" role="menuitem"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Vérifier les mises à jour</button>
   <button class="it" id="mSnd" role="menuitem"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path id="sndWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path id="sndOff" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span id="sndTxt"></span></button>
+  <button class="it" id="mSync" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/><path d="M12 11v5m-2.5-2.5L12 16l2.5-2.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="mSyncTxt">Sauvegarde en ligne</span></button>
   <button class="it" id="mWho" role="menuitem"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21a8 8 0 0 1 16 0z" fill="currentColor"/></svg><span id="mWhoTxt"></span></button>
   <div class="vline" id="mVer"></div>
 </div></div>
@@ -985,7 +986,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.2.0';
+const APP_VERSION='2.2.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -993,7 +994,7 @@ document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION
 const $=id=>document.getElementById(id);
 const store={
   get(k,d){try{const v=localStorage.getItem('ka_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
-  set(k,v){try{localStorage.setItem('ka_'+k,JSON.stringify(v))}catch(e){}}
+  set(k,v){try{localStorage.setItem('ka_'+k,JSON.stringify(v))}catch(e){}if(window.cloud)cloud.touch(k)}
 };
 function vibe(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
@@ -1089,6 +1090,9 @@ const net=(function(){
   function mockSet(p,v){try{if(v===null)localStorage.removeItem('ka_mock/'+p);else localStorage.setItem('ka_mock/'+p,JSON.stringify(v))}catch(e){}(subs[p]||[]).forEach(cb=>cb(clone(v)))}
   return{
     start,
+    // sauvegarde personnelle : koalarcade/save/<joueur>
+    saveGet(){if(kind==='fb')return db.ref('koalarcade/save/'+me).once('value').then(s=>s.val()||{});try{return Promise.resolve(JSON.parse(localStorage.getItem('ka_mocksave_'+me)||'{}'))}catch(e){return Promise.resolve({})}},
+    savePut(upd){if(kind==='fb')return db.ref('koalarcade/save/'+me).update(upd);let cur={};try{cur=JSON.parse(localStorage.getItem('ka_mocksave_'+me)||'{}')}catch(e){}Object.assign(cur,upd);localStorage.setItem('ka_mocksave_'+me,JSON.stringify(cur));return Promise.resolve()},
     get ok(){return !!kind},
     get me(){return me},
     setMe(v){me=v;if(!asP)store.set('who',v)},
@@ -1123,7 +1127,7 @@ function askWho(){
   return new Promise(ok=>{
     if(net.me===0||net.me===1)return ok(net.me);
     const sh=$('who');sh.hidden=false;
-    sh.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{net.setMe(+b.dataset.who);sh.hidden=true;whoUI();ok(net.me)});
+    sh.querySelectorAll('[data-who]').forEach(b=>b.onclick=()=>{net.setMe(+b.dataset.who);sh.hidden=true;whoUI();if(window.cloud){cloud.ui();setTimeout(()=>cloud.sync(false),300)}ok(net.me)});
   });
 }
 function whoUI(){$('mWhoTxt').textContent=net.me===0||net.me===1?'Ce téléphone : '+NAMES[net.me]:'Choisir qui joue ici'}
@@ -3381,6 +3385,49 @@ $('mUpd').addEventListener('click',()=>{
   window.homeApply=apply;window.noteRecent=id=>{if(id==='vHome')return;store.set('recent',[id].concat(store.get('recent',[]).filter(x=>x!==id)).slice(0,8))};
   apply();
 })();
+
+/* ---------- sauvegarde en ligne (records, parties, réglages) ---------- */
+window.cloud=(function(){
+  const SKIP=/^(who|mock|mocksave_|_meta)/;let meta={},dirty=new Set(),timer=null,ready=false,last=store.get('_lastSync',0),busy=false;
+  try{meta=JSON.parse(localStorage.getItem('ka__meta')||'{}')}catch(e){}
+  const saveMeta=()=>{try{localStorage.setItem('ka__meta',JSON.stringify(meta))}catch(e){}};
+  const enc=k=>k.replace(/[.#$\[\]\/]/g,'_');
+  function ui(){const t=$('mSyncTxt');if(!t)return;
+    if(net.me!==0&&net.me!==1)t.textContent='Sauvegarde : choisis qui joue ici';
+    else t.textContent=busy?'Sauvegarde en cours…':last?'Sauvegardé à '+new Date(last).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}):'Sauvegarder maintenant'}
+  function touch(k){if(SKIP.test(k)||k==='_lastSync')return;meta[k]=Date.now();saveMeta();dirty.add(k);if(ready){clearTimeout(timer);timer=setTimeout(push,2500)}}
+  async function push(){
+    if(!ready||!dirty.size)return;const upd={};
+    dirty.forEach(k=>{const v=localStorage.getItem('ka_'+k);upd[enc(k)]={k,v:v===null?null:v,t:meta[k]||Date.now()}});dirty.clear();
+    try{busy=true;ui();await net.savePut(upd);last=Date.now();try{localStorage.setItem('ka__lastSync',JSON.stringify(last))}catch(e){}}catch(e){Object.values(upd).forEach(x=>dirty.add(x.k))}busy=false;ui();
+  }
+  // au démarrage : récupère ce qui est plus récent en ligne, envoie ce qui est plus récent ici
+  async function sync(manual){
+    if(net.me!==0&&net.me!==1){if(manual){$('menu').hidden=true;await askWho()}else return}
+    if(!await net.start()){if(manual)toast('Sauvegarde en ligne indisponible',3000);return}
+    busy=true;ui();let changed=[];
+    try{
+      const remote=await net.saveGet();const seen=new Set();
+      for(const ek in remote){const x=remote[ek];if(!x||!x.k)continue;seen.add(x.k);
+        if(!meta[x.k]||x.t>meta[x.k]){if(x.v===null)localStorage.removeItem('ka_'+x.k);else localStorage.setItem('ka_'+x.k,x.v);meta[x.k]=x.t;changed.push(x.k)}
+        else if(meta[x.k]>x.t)dirty.add(x.k)}
+      for(const k in meta)if(!seen.has(k))dirty.add(k);
+      // premières données sur cet appareil : on envoie tout ce qui existe
+      for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key.startsWith('ka_'))continue;const k=key.slice(3);if(SKIP.test(k)||k==='_lastSync'||k.startsWith('_'))continue;if(!meta[k]&&!seen.has(k)){meta[k]=Date.now();dirty.add(k)}}
+      saveMeta();ready=true;await push();last=Date.now();
+    }catch(e){if(manual)toast('Sauvegarde impossible pour l\'instant',3000)}
+    busy=false;ui();
+    if(changed.length){refreshHome();if(window.homeApply)homeApply();
+      toast('Sauvegarde récupérée ('+changed.length+' élément'+(changed.length>1?'s':'')+')',3000);
+      if(current==='vHome'&&changed.some(k=>/State$|Score$|Best$|Stats$/.test(k)))setTimeout(()=>location.reload(),1200)}
+    else if(manual)toast('Tout est sauvegardé',2500);
+  }
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)push()});
+  return{touch,sync,ui,push};
+})();
+$('mSync').addEventListener('click',()=>{$('menu').hidden=true;cloud.sync(true)});
+cloud.ui();
+setTimeout(()=>cloud.sync(false),1500);
 
 /* ---------- service worker ---------- */
 if('serviceWorker' in navigator){
