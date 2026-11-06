@@ -19,7 +19,7 @@
 :root{
   --night:#00071a;--deep:#07112b;--plate:#0e1b40;--line:#1b2a5c;
   --ink:#eef2ff;--mut:#8a97c7;
-  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;--cyan:#3ee6ff;
+  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;--wood:#e0a96d;--cyan:#3ee6ff;
   --g:var(--sun);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -315,6 +315,21 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .tetPad button{height:58px;border-radius:16px;background:linear-gradient(180deg,#1a2a5e,#101d47);box-shadow:inset 0 2px 0 #ffffff1a,0 4px 0 #030a1f;display:grid;place-items:center;color:var(--mut)}
 .tetPad button:active{transform:translateY(3px);box-shadow:0 1px 0 #030a1f;background:color-mix(in srgb,var(--g) 40%,#101d47);color:var(--ink)}
 .tetPad svg{width:26px;height:26px}
+/* ---- dames ---- */
+#vDam{--g:var(--wood)}
+#dam{--w:min(94vw,calc(100vh - 330px),440px);width:var(--w);height:var(--w);flex:none;display:grid;grid-template-columns:repeat(10,minmax(0,1fr));grid-template-rows:repeat(10,minmax(0,1fr));
+  border-radius:12px;overflow:hidden;border:5px solid #6b4423;box-shadow:0 10px 26px #0008}
+#dam .q{position:relative;display:grid;place-items:center}
+#dam .q.l{background:#f1d9b5}#dam .q.d{background:#a56a3d}
+#dam .q.last{background:#c98a4f}
+#dam .q.sel{background:#e0a96d}
+#dam .q.dst::after{content:"";width:34%;height:34%;border-radius:50%;background:#2fe39a;box-shadow:0 0 0 3px #00071a55}
+#dam .q.mv .pc{box-shadow:0 0 0 3px #2fe39a,inset 0 -4px 0 #0004}
+#dam .pc{width:80%;height:80%;border-radius:50%;box-shadow:inset 0 -4px 0 #0004,0 2px 4px #0006;display:grid;place-items:center;transition:transform .15s}
+#dam .pc.a{background:radial-gradient(circle at 35% 30%,#ff8a95,#e0182e 70%)}
+#dam .pc.b{background:radial-gradient(circle at 35% 30%,#fff3b0,#f5a800 70%)}
+#dam .pc.k::after{content:"";width:46%;height:46%;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 18h18l-2-11-5 5-2-7-2 7-5-5z' fill='%23fff' stroke='%2300071a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")}
+#dam .pc.cap{opacity:.35}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -463,6 +478,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vBn" style="--g:var(--ocean);animation-delay:.4s">
           <img class="art" src="img/bataille.webp" alt="" width="160" height="160">
           <b>Bataille navale</b><span class="rec" id="hBn"></span>
+        </button>
+        <button class="tile" data-go="vDam" style="--g:var(--wood)">
+          <img class="art" src="img/dames.svg" alt="" width="160" height="160">
+          <b>Dames</b><span class="rec" id="hvDam"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -692,6 +711,22 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- DAMES -->
+<section class="view" id="vDam">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/dames.svg" alt="" width="40" height="40"><h1>Dames</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="damMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="damNet" hidden></div>
+    <div class="players">
+      <div class="pl" id="damP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="damT0"></small></div><strong id="damA">0</strong></div>
+      <div class="pl" id="damP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="damT1"></small></div><strong id="damB">0</strong></div>
+    </div>
+    <div id="dam"></div>
+    <div class="msg hi" id="damM"></div>
+    <div class="row"><button class="btn" id="damNew">Nouvelle partie</button><button class="btn ghost" id="damRst">Scores à zéro</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -719,7 +754,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.0';
+const APP_VERSION='2.0.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -956,6 +991,7 @@ function refreshHome(){
   const flb=store.get('flBest',0);$('hFl').textContent=flb?'Record '+flb:'Pas encore de record';
   const pds=store.get('pdStats',{p:0,w:0});$('hPd').textContent=pds.p?pds.w+' mot'+(pds.w>1?'s':'')+' trouvé'+(pds.w>1?'s':''):'Sauve le koala';
   const tb=store.get('tetBest',0);$('hvTet').textContent=tb?'Record '+tb:'Pas encore de record';
+  const dms=store.get('damScore',[0,0]);$('hvDam').innerHTML=(dms[0]||dms[1])?duo(dms[0],dms[1]):'Règles internationales';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2304,6 +2340,130 @@ refreshHome();
   window.addEventListener('resize',()=>{if(current==='vTet')size()});
   if(location.hostname==='localhost')window.__tet=()=>({board,cur,score,lines,level,state}); // aide aux tests locaux uniquement
   score=0;lines=0;level=1;
+})();
+
+/* ---------- DAMES (règles internationales, 10×10) ---------- */
+(function(){
+  const N=10,el=$('dam'),DIRS=[[-1,-1],[-1,1],[1,-1],[1,1]];
+  // 'a' pion de Thomas (monte), 'A' sa dame ; 'b' pion de Cindy (descend), 'B' sa dame
+  function initBoard(){let b='';for(let r=0;r<N;r++)for(let c=0;c<N;c++){const dark=(r+c)%2===1;b+=dark&&r<4?'b':dark&&r>5?'a':'.'}return b}
+  const owner=ch=>ch==='a'||ch==='A'?0:ch==='b'||ch==='B'?1:-1;
+  const isKing=ch=>ch==='A'||ch==='B';
+  const inb=(r,c)=>r>=0&&r<N&&c>=0&&c<N;
+  // tous les coups légaux du joueur p : {path:[cases], caps:[cases]} ; prise obligatoire et majoritaire
+  function moves(b,p){
+    const caps=[],simple=[];
+    for(let i=0;i<N*N;i++){
+      if(owner(b[i])!==p)continue;
+      const r=Math.floor(i/N),c=i%N,k=isKing(b[i]);
+      capSeq(b,p,k,i,[i],[],caps);
+      for(const[dr,dc]of DIRS){
+        if(!k&&dr!==(p===0?-1:1))continue;
+        let rr=r+dr,cc=c+dc;
+        while(inb(rr,cc)&&b[rr*N+cc]==='.'){simple.push({path:[i,rr*N+cc],caps:[]});if(!k)break;rr+=dr;cc+=dc}
+      }
+    }
+    if(caps.length){const mx=Math.max(...caps.map(m=>m.caps.length));return caps.filter(m=>m.caps.length===mx)}
+    return simple;
+  }
+  function capSeq(b,p,k,from,path,taken,out){
+    const r=Math.floor(from/N),c=from%N,start=path[0];let found=false;
+    const empty=i=>b[i]==='.'||i===start;
+    for(const[dr,dc]of DIRS){
+      let rr=r+dr,cc=c+dc;
+      if(k)while(inb(rr,cc)&&empty(rr*N+cc)){rr+=dr;cc+=dc}
+      if(!inb(rr,cc))continue;
+      const vi=rr*N+cc;
+      if(owner(b[vi])!==1-p||taken.includes(vi))continue;
+      let lr=rr+dr,lc=cc+dc;
+      while(inb(lr,lc)&&empty(lr*N+lc)){
+        const li=lr*N+lc;found=true;
+        capSeq(b,p,k,li,path.concat(li),taken.concat(vi),out);
+        if(!k)break;lr+=dr;lc+=dc;
+      }
+    }
+    if(!found&&taken.length)out.push({path,caps:taken});
+  }
+  function apply(b,m){
+    const a=b.split(''),from=m.path[0],to=m.path[m.path.length-1];let ch=a[from];a[from]='.';
+    m.caps.forEach(i=>a[i]='.');
+    const row=Math.floor(to/N);if(ch==='a'&&row===0)ch='A';if(ch==='b'&&row===N-1)ch='B';
+    a[to]=ch;return a.join('');
+  }
+  const fresh=prev=>{const st=prev?prev.starter:0;return{b:initBoard(),turn:st,starter:st,over:false,win:-1,last:'',mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0],quiet:0}};
+  function play(S,p,m){
+    if(S.over||S.turn!==p)return null;
+    const legal=moves(S.b,p).find(x=>x.path.join()===m.path.join()&&x.caps.join()===m.caps.join());if(!legal)return null;
+    const wasKing=isKing(S.b[m.path[0]]);
+    S.b=apply(S.b,legal);S.last=legal.path.join(',');S.mv++;S.quiet=legal.caps.length||!wasKing?0:(S.quiet||0)+1;S.lastCap=legal.caps.length;
+    const opp=1-p;
+    if(!moves(S.b,opp).length){S.over=true;S.win=p;S.sc=[S.sc[0],S.sc[1]];S.sc[p]++;S.starter=1-S.starter}
+    else if(S.quiet>=50){S.over=true;S.win=-1;S.starter=1-S.starter}
+    else S.turn=opp;
+    return S;
+  }
+  // ----- affichage -----
+  let sel=-1,flip=false;
+  for(let i=0;i<N*N;i++){const q=document.createElement('div');q.className='q';q.addEventListener('click',()=>tap(i));el.appendChild(q)}
+  const vi=i=>flip?N*N-1-i:i; // case affichée -> case du plateau
+  function render(S,prev,ctx){
+    flip=ctx.online&&ctx.me===1;
+    const legal=!S.over&&ctx.mine(S.turn)?moves(S.b,S.turn):[],movers=new Set(legal.map(m=>m.path[0]));
+    const dests=sel>=0?legal.filter(m=>m.path[0]===sel).map(m=>m.path[m.path.length-1]):[];
+    if(sel>=0&&!movers.has(sel))sel=-1;
+    const lastSet=new Set(S.last?S.last.split(',').map(Number):[]);
+    for(let d=0;d<N*N;d++){
+      const i=vi(d),q=el.children[d],r=Math.floor(i/N),c=i%N,ch=S.b[i];
+      let cls='q '+((r+c)%2?'d':'l');if(lastSet.has(i))cls+=' last';if(i===sel)cls+=' sel';if(dests.includes(i))cls+=' dst';if(movers.has(i)&&sel<0)cls+=' mv';
+      if(q.className!==cls)q.className=cls;
+      const want=ch==='.'?'':'pc '+(owner(ch)?'b':'a')+(isKing(ch)?' k':'');
+      const pc=q.firstChild;
+      if(!want){if(pc)q.innerHTML=''}else if(!pc){const e=document.createElement('div');e.className=want;q.appendChild(e)}else if(pc.className!==want)pc.className=want;
+    }
+    if(prev&&prev.mv!==S.mv&&S.last){if(S.lastCap)sfx.play('merge',16<<Math.min(4,S.lastCap));else sfx.play('drop');vibe(10)}
+    if(S.over&&prev&&!prev.over){setTimeout(()=>sfx.play(S.win<0?'draw':((ctx.online||ctx.ai)&&S.win!==ctx.me?'lose':'win')),300)}
+    $('damA').textContent=S.sc[0];$('damB').textContent=S.sc[1];
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('damP'+p).classList.toggle('on',on);$('damT'+p).textContent=on?((ctx.online||ctx.ai)&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
+    const forced=legal.length&&legal[0].caps.length?' La prise est obligatoire'+(legal[0].caps.length>1?' ('+legal[0].caps.length+' pièces)':'')+'.':'';
+    $('damM').textContent=S.over?(S.win<0?'Match nul':NAMES[S.win]+' gagne la partie !'):((ctx.online||ctx.ai)&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:((ctx.online||ctx.ai)?'À toi de jouer.':'À '+NAMES[S.turn]+' de jouer.')+forced);
+  }
+  // ----- IA : minimax alpha-bêta -----
+  function evalB(b){let s=0;for(let i=0;i<N*N;i++){const ch=b[i];if(ch==='.')continue;const r=Math.floor(i/N),v=isKing(ch)?3.2:1+(owner(ch)===1?r:(N-1-r))*.04+((i%N>1&&i%N<8)?.05:0);s+=owner(ch)===1?v:-v}return s}
+  function search(b,p,d,a,be){
+    const ms=moves(b,p);if(!ms.length)return p===1?-1000-d:1000+d;
+    if(d===0)return evalB(b);
+    if(p===1){let best=-1e9;for(const m of ms){const v=search(apply(b,m),0,d-1,a,be);if(v>best)best=v;if(best>a)a=best;if(a>=be)break}return best}
+    let best=1e9;for(const m of ms){const v=search(apply(b,m),1,d-1,a,be);if(v<best)best=v;if(best<be)be=best;if(a>=be)break}return best;
+  }
+  function ai(S,ctx,lv){
+    if(S.over||S.turn!==1)return null;
+    const ms=moves(S.b,1);if(!ms.length)return null;
+    let pick;
+    if(lv===0&&Math.random()<.5)pick=ms[Math.floor(Math.random()*ms.length)];
+    else{const d=[1,3,6][lv];let best=-1e10,bs=[];for(const m of ms){const v=search(apply(S.b,m),0,d-1,-1e10,1e10)+Math.random()*.01;if(v>best){best=v;bs=[m]}}pick=bs[0]}
+    return{fn:s=>play(s,1,pick),delay:650};
+  }
+  const game=twoPlayer({
+    key:'dam',fresh,render,ai,
+    loadLocal(){const st=store.get('damStarter',0);return{...fresh(null),sc:store.get('damScore',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('damScore',S.sc);store.set('damStarter',S.starter)}
+  });
+  const ctx=game.ctx;
+  function tap(d){
+    const S=ctx.state;if(!S||S.over)return;const i=vi(d);
+    if(!ctx.mine(S.turn)){$('damM').textContent='Attends ton tour, '+NAMES[S.turn]+' réfléchit';sfx.play('error');return}
+    const legal=moves(S.b,S.turn);
+    if(sel>=0){const m=legal.find(x=>x.path[0]===sel&&x.path[x.path.length-1]===i);if(m){sel=-1;ctx.act(s=>play(s,s.turn,m));return}}
+    if(legal.some(m=>m.path[0]===i)){sel=sel===i?-1:i;sfx.play('tick')}
+    else if(owner(S.b[i])===S.turn){sel=-1;sfx.play('error');$('damM').textContent=legal.length&&legal[0].caps.length?'Une autre pièce doit prendre':'Cette pièce ne peut pas bouger'}
+    else sel=-1;
+    render(S,S,ctx);
+  }
+  $('damNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.last&&!confirm('Recommencer la partie ?'))return;sel=-1;ctx.act(s=>fresh(s))});
+  $('damRst').addEventListener('click',()=>{if(confirm('Remettre les scores à zéro ?'))ctx.act(s=>({...s,sc:[0,0]}))});
+  enterHooks.vDam=()=>{sel=-1;game.enter()};
+  leaveHooks.vDam=()=>game.leave();
+  if(location.hostname==='localhost')window.__dam={moves,apply,ai,search,state:()=>ctx.state}; // aide aux tests locaux uniquement
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
