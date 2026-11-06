@@ -1,5 +1,5 @@
-const CACHE_VERSION = 'koalarcade-2.3.0';
-const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp', './img/yams.svg', './img/croises.svg', './img/taquin.svg', './img/motsmeles.svg', './img/pong.svg', './img/quiz.svg', './img/solitaire.svg', './img/dames.svg', './img/tetris.svg', './mots.js', './quiz.js', './croises.js', './firebase-config.js', './lib/firebase-app.js', './lib/firebase-database.js',
+const CACHE_VERSION = 'koalarcade-2.3.1';
+const ASSETS = ['./', './index.html', './manifest.json', './icon-192.png', './icon-512.png', './icon-maskable-192.png', './icon-maskable-512.png', './apple-touch-icon.png', './logo.webp', './img/couleurs.svg', './img/yams.svg', './img/croises.svg', './img/taquin.svg', './img/motsmeles.svg', './img/pong.svg', './img/quiz.svg', './img/solitaire.svg', './img/dames.svg', './img/tetris.svg', './mots.js', './quiz.js', './croises.js', './firebase-config.js', './lib/firebase-app.js', './lib/firebase-database.js',
   './img/snake.webp', './img/2048.webp', './img/mot.webp', './img/p4.webp', './img/duel.webp', './img/morpion.webp', './img/memory.webp', './img/bataille.webp', './img/sudoku.webp', './img/flappy.webp', './img/pendu.webp', './img/demineur.webp', './img/briques.webp',
   './fonts/raleway-500.woff2', './fonts/raleway-700.woff2', './fonts/raleway-800.woff2', './fonts/raleway-900.woff2'];
 

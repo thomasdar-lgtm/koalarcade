@@ -500,6 +500,39 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .ySheet tr.sum td{background:#00071a;color:var(--ink)}
 .ySheet th{font-size:12px;color:var(--mut);font-weight:800;padding:2px 8px}
 .ySheet th.on{color:var(--g)}
+/* ---- couleurs (jeu de cartes) ---- */
+#vCou{--g:var(--sun)}
+#vCou .main{gap:10px}
+.cOpp{display:flex;align-items:center;gap:10px;width:min(94vw,460px)}
+.cOpp .fan{display:flex;flex:1;justify-content:center;min-height:56px}
+.cOpp .fan i{width:30px;height:46px;border-radius:7px;margin-left:-14px;background:linear-gradient(135deg,#2b4290,#101d47);border:2px solid #fff;box-shadow:0 2px 4px #0006}
+.cOpp b{font-weight:900}
+.cTable{display:flex;align-items:center;justify-content:center;gap:22px;padding:6px 0}
+.cPile{position:relative}
+.cDeck{cursor:pointer}
+.cCol{width:18px;height:18px;border-radius:50%;box-shadow:0 0 0 3px #fff3;margin:0 auto}
+.cc{--cc:#888;width:64px;height:96px;border-radius:12px;background:var(--cc);border:3px solid #fff;box-shadow:0 4px 8px #0007;position:relative;display:grid;place-items:center;color:#fff;font-weight:900;flex:none;user-select:none}
+.cc::before{content:"";position:absolute;inset:10px 6px;border-radius:50%/40%;background:#ffffff2a;transform:rotate(-24deg)}
+.cc span{position:relative;font-size:30px;text-shadow:0 2px 0 #0004}
+.cc small{position:absolute;left:5px;top:3px;font-size:13px}
+.cc.r{--cc:#e8283c}.cc.y{--cc:#f2b705;color:#3a2a00}.cc.g{--cc:#1eae5c}.cc.b{--cc:#2f6fe0}
+.cc.w{--cc:conic-gradient(#e8283c 0 25%,#f2b705 0 50%,#1eae5c 0 75%,#2f6fe0 0)}
+.cc.w{background:conic-gradient(#e8283c 0 25%,#f2b705 0 50%,#1eae5c 0 75%,#2f6fe0 0)}
+.cc.back{background:linear-gradient(135deg,#2b4290,#101d47)}
+.cc.back span{font-size:12px;color:#ffffffcc}
+.cHand{display:flex;width:100%;max-width:520px;overflow-x:auto;padding:14px 16px 8px;gap:0;scrollbar-width:none;margin-top:auto}
+.cHand::-webkit-scrollbar{display:none}
+.cHand .cc{margin-left:-18px;transition:transform .12s;cursor:pointer}
+.cHand .cc:first-child{margin-left:0}
+.cHand .cc.ok{transform:translateY(-12px)}
+.cHand .cc.no{filter:brightness(.55)}
+#cPick{position:fixed;inset:0;z-index:30;background:#00071acc;display:flex;align-items:center;justify-content:center}
+#cPick[hidden]{display:none}
+#cPick div{display:grid;grid-template-columns:1fr 1fr;gap:12px;background:var(--plate);padding:18px;border-radius:20px}
+#cPick button{width:96px;height:96px;border-radius:18px;border:3px solid #fff}
+#cCover{position:fixed;inset:0;z-index:30;background:radial-gradient(circle at 50% 40%,#3a2a0a,#00071a 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
+#cCover[hidden]{display:none}
+#cCover h3{font-weight:900;font-size:26px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -692,6 +725,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vYams" style="--g:var(--red)">
           <img class="art" src="img/yams.svg" alt="" width="160" height="160">
           <b>Yams</b><span class="rec" id="hvYams"></span>
+        </button>
+        <button class="tile" data-go="vCou" style="--g:var(--sun)">
+          <img class="art" src="img/couleurs.svg" alt="" width="160" height="160">
+          <b>Couleurs</b><span class="rec" id="hvCou"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1048,6 +1085,23 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- COULEURS -->
+<section class="view" id="vCou">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/couleurs.svg" alt="" width="40" height="40"><h1>Couleurs</h1>
+    <div class="chips"><div class="chip"><small>Thomas</small><b id="couA">0</b></div><div class="chip"><small data-p1>Cindy</small><b id="couB">0</b></div></div></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="couMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="couNet" hidden></div>
+    <div class="cOpp"><b id="cOppN"></b><div class="fan" id="cOpp"></div></div>
+    <div class="cTable"><div class="cPile cDeck" id="cDeck"><div class="cc back"><span>Piocher</span></div></div><div class="cPile" id="cTop"></div><div><div class="cCol" id="cCol"></div></div></div>
+    <div class="msg hi" id="cM"></div>
+    <div class="cHand" id="cHand"></div>
+    <div class="row"><button class="btn ghost" id="cPass" hidden>Passer</button><button class="btn ghost" id="cNew">Nouvelle partie</button></div>
+  </div>
+  <div id="cPick" hidden><div><button data-c="r" style="background:#e8283c"></button><button data-c="y" style="background:#f2b705"></button><button data-c="g" style="background:#1eae5c"></button><button data-c="b" style="background:#2f6fe0"></button></div></div>
+  <div id="cCover" hidden><img src="logo.webp" alt="" width="80" height="80"><h3 id="cCoverT"></h3><p class="msg">L'autre joueur ne doit pas regarder l'écran</p><button class="btn" id="cCoverB"></button></div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1079,7 +1133,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.3.0';
+const APP_VERSION='2.3.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1350,6 +1404,7 @@ function refreshHome(){
   const tqb=store.get('tqBest',{});const tqk=Object.keys(tqb).sort();$('hvTq').textContent=tqk.length?'Record '+tqk[tqk.length-1]+' : '+tqb[tqk[tqk.length-1]]+' coups':'Remets l\'image en ordre';
   const mcw=store.get('mcWins',0);$('hvMc').textContent=mcw?mcw+' grille'+(mcw>1?'s':'')+' remplie'+(mcw>1?'s':''):'Grilles toujours nouvelles';
   const ymb=store.get('yamsBest',0);$('hvYams').textContent=ymb?'Record '+ymb:'5 dés, 13 coups';
+  const cos=store.get('couScore',[0,0]);$('hvCou').innerHTML=(cos[0]||cos[1])?duo(cos[0],cos[1]):'Vide ta main en premier';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -3479,6 +3534,106 @@ refreshHome();
   enterHooks.vYams=()=>game.enter();
   leaveHooks.vYams=()=>game.leave();
   if(location.hostname==='localhost')window.__yams={score,total,state:()=>ctx.state,ai,greedyMask,evalHold};
+})();
+
+/* ---------- COULEURS (jeu de cartes à deux) ---------- */
+(function(){
+  // cartes : couleur r/y/g/b + valeur 0-9, S (passe), R (inverse), P (+2) ; joker W et super-joker X (+4)
+  const LAB={S:'⊘',R:'⇄',P:'+2',W:'★',X:'+4'};
+  function deck(){const d=[];for(const c of 'rygb'){d.push(c+'0');for(let k=0;k<2;k++){for(let v=1;v<=9;v++)d.push(c+v);d.push(c+'S',c+'R',c+'P')}}for(let k=0;k<4;k++)d.push('W','X');
+    for(let i=d.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[d[i],d[j]]=[d[j],d[i]]}return d}
+  const col=c=>c==='W'||c==='X'?'w':c[0],val=c=>c==='W'||c==='X'?c:c.slice(1);
+  const playable=(S,c)=>c==='W'||c==='X'||col(c)===S.color||val(c)===val(S.top);
+  function draw(S,p,n){for(let k=0;k<n;k++){if(!S.deck.length){const keep=S.pile.pop();S.deck=S.pile.sort(()=>Math.random()-.5);S.pile=[keep]}if(!S.deck.length)break;S.hands[p].push(S.deck.pop())}}
+  function fresh(prev){
+    const st=prev?prev.starter:0,d=deck(),S={deck:d,pile:[],hands:[[],[]],turn:st,starter:st,over:false,win:-1,mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0],drew:false,ev:'deal',last:''};
+    draw(S,0,7);draw(S,1,7);let t;do{t=S.deck.pop();if(/[SRPWX]/.test(val(t)))S.deck.unshift(t)}while(/[SRPWX]/.test(val(t)));
+    S.pile=[t];S.top=t;S.color=col(t);return S;
+  }
+  function play(S,p,i,choose){
+    if(S.over||S.turn!==p)return null;const c=S.hands[p][i];if(!c||!playable(S,c))return null;
+    if((c==='W'||c==='X')&&!choose)return null;
+    S.hands=[S.hands[0].slice(),S.hands[1].slice()];S.hands[p].splice(i,1);S.pile=S.pile.concat(c);S.top=c;S.color=c==='W'||c==='X'?choose:col(c);
+    S.mv++;S.drew=false;S.last=NAMES[p]+' joue';S.ev='play';const o=1-p,v=val(c);
+    if(!S.hands[p].length){S.over=true;S.win=p;S.sc=[S.sc[0],S.sc[1]];S.sc[p]++;S.starter=1-S.starter;S.ev='end';return S}
+    if(v==='P'){draw(S,o,2);S.last=NAMES[o]+' pioche 2 cartes';S.turn=p}
+    else if(v==='X'){draw(S,o,4);S.last=NAMES[o]+' pioche 4 cartes';S.turn=p}
+    else if(v==='S'||v==='R'){S.last=NAMES[p]+' rejoue';S.turn=p}
+    else S.turn=o;
+    return S;
+  }
+  function pick(S,p){if(S.over||S.turn!==p||S.drew)return null;S.hands=[S.hands[0].slice(),S.hands[1].slice()];draw(S,p,1);S.drew=true;S.mv++;S.ev='draw';
+    if(!playable(S,S.hands[p][S.hands[p].length-1])){S.drew=false;S.turn=1-p;S.last=NAMES[p]+' pioche et passe'}return S}
+  function pass(S,p){if(S.over||S.turn!==p||!S.drew)return null;S.drew=false;S.turn=1-p;S.mv++;S.ev='pass';S.last=NAMES[p]+' passe';return S}
+  // ----- IA -----
+  function aiMove(S,lv){
+    const h=S.hands[1],opts=h.map((c,i)=>({c,i})).filter(o=>playable(S,o.c));
+    const fav=()=>{const n={r:0,y:0,g:0,b:0};h.forEach(c=>{if(col(c)!=='w')n[col(c)]++});return Object.keys(n).sort((a,b)=>n[b]-n[a])[0]};
+    if(!opts.length)return S.drew?{t:'pass'}:{t:'draw'};
+    let o;
+    if(lv===0)o=opts[Math.floor(Math.random()*opts.length)];
+    else{
+      const opp=S.hands[0].length,sc=x=>{const v=val(x.c);let s=0;
+        if(v==='X')s=opp<=2?90:-40;else if(v==='W')s=opp<=1?80:-30;else if(v==='P')s=opp<=3?70:25;else if(v==='S'||v==='R')s=30;else s=+v;
+        if(col(x.c)===fav())s+=8;if(lv===2&&h.length<=2&&(v==='W'||v==='X'))s+=60;return s};
+      opts.sort((a,b)=>sc(b)-sc(a));o=opts[0];
+    }
+    return{t:'play',i:o.i,c:o.c==='W'||o.c==='X'?fav():null};
+  }
+  function ai(S,ctx,lv){
+    if(S.over||S.turn!==1)return null;const m=aiMove(S,lv);
+    if(m.t==='draw')return{fn:s=>pick(s,1),delay:800};
+    if(m.t==='pass')return{fn:s=>pass(s,1),delay:700};
+    return{fn:s=>play(s,1,m.i,m.c),delay:900};
+  }
+  // ----- affichage -----
+  let revealed=-1,hold=-1,holdT=null,pending=-1;
+  function cardHTML(c){if(!c)return'';const v=val(c);return'<div class="cc '+col(c)+'"><small>'+(LAB[v]||v)+'</small><span>'+(LAB[v]||v)+'</span></div>'}
+  const COLN={r:'rouge',y:'jaune',g:'vert',b:'bleu'},COLC={r:'#e8283c',y:'#f2b705',g:'#1eae5c',b:'#2f6fe0'};
+  function viewer(S,ctx){if(ctx.online)return ctx.me;if(ctx.ai)return 0;if(hold>=0)return hold;return S.turn}
+  function render(S,prev,ctx){
+    const fresh_=prev&&prev.mv!==S.mv;
+    if(!ctx.online&&!ctx.ai&&fresh_&&prev.turn!==S.turn&&!S.over){hold=prev.turn;clearTimeout(holdT);holdT=setTimeout(()=>{hold=-1;if(ctx.state)render(ctx.state,ctx.state,ctx)},1200)}
+    const v=viewer(S,ctx),o=1-v,mine=ctx.mine(S.turn)&&S.turn===v&&!S.over;
+    const cover=!ctx.online&&!ctx.ai&&!S.over&&hold<0&&revealed!==v;
+    $('cCover').hidden=!cover;if(cover){$('cCoverT').textContent='Passe le téléphone à '+NAMES[v];$('cCoverB').textContent='Je suis '+NAMES[v]}
+    $('cOppN').textContent=NAMES[o]+' · '+S.hands[o].length;
+    $('cOpp').innerHTML='<i></i>'.repeat(Math.min(S.hands[o].length,14));
+    $('cTop').innerHTML=cardHTML(S.top);$('cCol').style.background=COLC[S.color];
+    const hand=S.hands[v];
+    $('cHand').innerHTML=hand.map((c,i)=>cardHTML(c).replace('class="cc ','class="cc '+(mine?(playable(S,c)?'ok ':'no '):'')).replace('<div ','<div data-i="'+i+'" ')).join('');
+    $('cPass').hidden=!(mine&&S.drew);
+    $('couA').textContent=S.sc[0];$('couB').textContent=S.sc[1];
+    let m;
+    if(S.over)m=(ctx.online||ctx.ai)?(S.win===ctx.me?'Gagné ! Tu as vidé ta main':NAMES[S.win]+' a vidé sa main'):NAMES[S.win]+' gagne la partie !';
+    else if(S.turn===v&&mine)m=(S.last&&S.ev!=='deal'?S.last+'. ':'')+(S.drew?'Joue la carte piochée ou passe':'À toi : couleur '+COLN[S.color]);
+    else m=(S.last?S.last+'. ':'')+'Au tour de '+NAMES[S.turn];
+    if(S.hands[o].length===1&&!S.over)m='⚠️ '+NAMES[o]+' n\'a plus qu\'une carte ! '+m;
+    $('cM').textContent=m;
+    if(fresh_){if(S.ev==='play')sfx.play(/[PX]$/.test(S.top)?'merge':'key',64);if(S.ev==='draw')sfx.play('tick');if(S.ev==='end')sfx.play((ctx.online||ctx.ai)&&S.win!==ctx.me?'lose':'win');vibe(8)}
+  }
+  const game=twoPlayer({
+    key:'cou',fresh,render,ai,
+    loadLocal(){const st=store.get('couStarter',0);return{...fresh(null),sc:store.get('couScore',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('couScore',S.sc);store.set('couStarter',S.starter)}
+  });
+  const ctx=game.ctx;
+  $('cHand').addEventListener('click',e=>{
+    const d=e.target.closest('.cc');if(!d)return;const S=ctx.state;if(!S)return;const v=viewer(S,ctx);
+    if(S.turn!==v||!ctx.mine(S.turn)||S.over){sfx.play('error');return}
+    const i=+d.dataset.i,c=S.hands[v][i];if(!playable(S,c)){sfx.play('error');d.animate([{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'none'}],{duration:200});return}
+    if(c==='W'||c==='X'){pending=i;$('cPick').hidden=false;return}
+    ctx.act(s=>play(s,v,i,null));
+  });
+  document.querySelectorAll('#cPick button').forEach(b=>b.addEventListener('click',()=>{$('cPick').hidden=true;const S=ctx.state;if(!S||pending<0)return;const v=viewer(S,ctx),i=pending;pending=-1;ctx.act(s=>play(s,v,i,b.dataset.c))}));
+  $('cPick').addEventListener('click',e=>{if(e.target.id==='cPick'){$('cPick').hidden=true;pending=-1}});
+  $('cDeck').addEventListener('click',()=>{const S=ctx.state;if(!S)return;const v=viewer(S,ctx);if(S.turn!==v||!ctx.mine(S.turn))return;ctx.act(s=>pick(s,v))});
+  $('cPass').addEventListener('click',()=>{const S=ctx.state;if(!S)return;const v=viewer(S,ctx);ctx.act(s=>pass(s,v))});
+  $('cCoverB').addEventListener('click',()=>{const S=ctx.state;if(!S)return;revealed=viewer(S,ctx);sfx.play('tick');render(S,S,ctx)});
+  $('cNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.mv&&!confirm('Recommencer la partie ?'))return;revealed=-1;ctx.act(s=>fresh(s))});
+  enterHooks.vCou=()=>{revealed=-1;hold=-1;game.enter()};
+  leaveHooks.vCou=()=>{clearTimeout(holdT);hold=-1;game.leave()};
+  if(location.hostname==='localhost')window.__cou={state:()=>ctx.state,playable,play,pick,pass,aiMove};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
