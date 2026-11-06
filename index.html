@@ -19,7 +19,7 @@
 :root{
   --night:#00071a;--deep:#07112b;--plate:#0e1b40;--line:#1b2a5c;
   --ink:#eef2ff;--mut:#8a97c7;
-  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;--felt:#3ccf7a;--wood:#e0a96d;--cyan:#3ee6ff;
+  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;--amber:#ffb547;--felt:#3ccf7a;--wood:#e0a96d;--cyan:#3ee6ff;
   --g:var(--sun);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -348,6 +348,25 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .solBar{display:flex;gap:8px;width:min(94vw,440px)}
 .solBar button{flex:1;padding:10px;border-radius:12px;background:#0a2a1ccc;border:1.5px solid #ffffff25;font-weight:800;font-size:14px}
 .solBar button.on{background:var(--g);color:var(--night)}
+/* ---- quiz ---- */
+#vQz{--g:var(--amber)}
+.qzTop{display:flex;align-items:center;gap:10px;width:min(94vw,460px)}
+.qzTop .cat{background:color-mix(in srgb,var(--g) 22%,var(--deep));color:var(--g);font-weight:800;font-size:13px;padding:5px 10px;border-radius:99px}
+.qzTop .num{margin-left:auto;font-weight:800;color:var(--mut)}
+.qzBar{width:min(94vw,460px);height:8px;border-radius:9px;background:var(--deep);overflow:hidden}
+.qzBar i{display:block;height:100%;background:var(--g);transform-origin:left;transition:transform .1s linear}
+.qzBar i.low{background:var(--red)}
+.qzQ{width:min(94vw,460px);background:var(--plate);border:1.5px solid var(--line);border-radius:20px;padding:20px 18px;font-weight:800;font-size:clamp(18px,5vw,22px);line-height:1.35;text-align:center;min-height:120px;display:grid;place-items:center}
+.qzA{display:flex;flex-direction:column;gap:9px;width:min(94vw,460px)}
+.qzA button{padding:15px 16px;border-radius:16px;background:var(--deep);border:2px solid var(--line);font-weight:700;font-size:17px;text-align:left;box-shadow:0 3px 0 #030a1f;transition:background .15s,border-color .15s}
+.qzA button:active{transform:translateY(2px)}
+.qzA button.ok{background:var(--mint);border-color:var(--mint);color:#032417}
+.qzA button.ko{background:var(--red);border-color:var(--red);color:#fff;animation:shake .3s}
+.qzA button.dim{opacity:.45}
+.qzWho{font-weight:900;font-size:16px}
+#qzStart,#qzPlay,#qzEnd{display:contents}#qzStart[hidden],#qzPlay[hidden],#qzEnd[hidden]{display:none}
+.qzBig{font-weight:900;font-size:64px;color:var(--g);line-height:1}
+.qzRes{display:flex;gap:10px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -473,6 +492,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vSol" style="--g:var(--felt)">
           <img class="art" src="img/solitaire.svg" alt="" width="160" height="160">
           <b>Solitaire</b><span class="rec" id="hvSol"></span>
+        </button>
+        <button class="tile" data-go="vQz" style="--g:var(--amber)">
+          <img class="art" src="img/quiz.svg" alt="" width="160" height="160">
+          <b>Quiz</b><span class="rec" id="hvQz"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -761,6 +784,31 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- QUIZ -->
+<section class="view" id="vQz">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/quiz.svg" alt="" width="40" height="40"><h1>Quiz</h1>
+    <div class="chips"><div class="chip"><small>points</small><b id="qzS">0</b></div><div class="chip"><small>record</small><b id="qzB">0</b></div></div></header>
+  <div class="main">
+    <div id="qzStart">
+      <div class="qzQ">10 questions de culture générale. Plus tu réponds vite, plus tu gagnes de points.</div>
+      <div class="qzA"><button id="qzSolo">Jouer seul</button><button id="qzDuo">À deux : Thomas et Cindy à tour de rôle</button></div>
+    </div>
+    <div id="qzPlay" hidden>
+      <div class="qzTop"><span class="cat" id="qzCat"></span><span class="qzWho" id="qzWho"></span><span class="num" id="qzNum"></span></div>
+      <div class="qzBar"><i id="qzTime"></i></div>
+      <div class="qzQ" id="qzQ"></div>
+      <div class="qzA" id="qzA"></div>
+      <div class="msg hi" id="qzM"></div>
+    </div>
+    <div id="qzEnd" hidden>
+      <div class="qzBig" id="qzEndS"></div>
+      <div class="msg hi" id="qzEndM"></div>
+      <div class="qzRes" id="qzEndR"></div>
+      <div class="row"><button class="btn" id="qzAgain">Rejouer</button><button class="btn ghost" id="qzMenu">Changer de mode</button></div>
+    </div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -786,9 +834,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <div id="upd" hidden role="status"><img src="logo.webp" alt="" width="40" height="40"><div><b>Mise à jour disponible</b><small>Installe-la quand tu veux</small></div><button class="btn" id="updGo">Installer</button></div>
 
 <script src="mots.js"></script>
+<script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.2';
+const APP_VERSION='2.0.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1027,6 +1076,7 @@ function refreshHome(){
   const tb=store.get('tetBest',0);$('hvTet').textContent=tb?'Record '+tb:'Pas encore de record';
   const dms=store.get('damScore',[0,0]);$('hvDam').innerHTML=(dms[0]||dms[1])?duo(dms[0],dms[1]):'Règles internationales';
   const sw=store.get('solWins',0);$('hvSol').textContent=sw?sw+' partie'+(sw>1?'s':'')+' gagnée'+(sw>1?'s':''):'Klondike';
+  const qzb=store.get('qzBest',0);$('hvQz').textContent=qzb?'Record '+qzb+' points':'136 questions';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2596,6 +2646,61 @@ refreshHome();
   leaveHooks.vSol=()=>{clearInterval(tick);if(G)save()};
   window.addEventListener('resize',()=>{if(current==='vSol')render()});
   if(location.hostname==='localhost')window.__sol={get:()=>G,autoMove,drawStock}; // aide aux tests locaux uniquement
+})();
+
+/* ---------- QUIZ ---------- */
+(function(){
+  const PER=15000,ROUND=10;let mode='solo',qs=[],qi=0,pts=[0,0],good=[0,0],t0=0,raf=null,locked=false,nextT=null;
+  const show=w=>{['qzStart','qzPlay','qzEnd'].forEach(id=>$(id).hidden=id!==w)};
+  function pick(n){
+    // évite de reposer les questions vues récemment
+    let seen=store.get('qzSeen',[]);const pool=[...QUIZ.keys()].filter(i=>!seen.includes(i));
+    const src=pool.length>=n?pool:[...QUIZ.keys()];
+    for(let i=src.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[src[i],src[j]]=[src[j],src[i]]}
+    const out=src.slice(0,n);seen=seen.concat(out).slice(-Math.floor(QUIZ.length*.7));store.set('qzSeen',seen);return out;
+  }
+  function start(m){mode=m;const n=m==='duo'?ROUND*2:ROUND;qs=pick(n);qi=0;pts=[0,0];good=[0,0];show('qzPlay');sfx.play('start');ask()}
+  const who=()=>mode==='duo'?qi%2:0;
+  function ask(){
+    locked=false;const q=QUIZ[qs[qi]],ans=q.slice(2).map((t,k)=>({t,ok:k===0}));
+    for(let i=ans.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[ans[i],ans[j]]=[ans[j],ans[i]]}
+    $('qzCat').textContent=q[0];$('qzQ').textContent=q[1];$('qzM').textContent='';
+    const total=mode==='duo'?ROUND*2:ROUND;$('qzNum').textContent=(qi+1)+'/'+total;
+    $('qzWho').textContent=mode==='duo'?NAMES[who()]:'';$('qzWho').style.color=mode==='duo'?(who()?'var(--sun)':'var(--red)'):'';
+    $('qzS').textContent=mode==='duo'?pts[0]+' – '+pts[1]:pts[0];
+    const box=$('qzA');box.innerHTML='';
+    ans.forEach(a=>{const b=document.createElement('button');b.textContent=a.t;b.dataset.ok=a.ok?1:0;b.addEventListener('click',()=>answer(b));box.appendChild(b)});
+    t0=performance.now();cancelAnimationFrame(raf);const bar=$('qzTime');
+    const tick=()=>{const left=Math.max(0,1-(performance.now()-t0)/PER);bar.style.transform='scaleX('+left+')';bar.classList.toggle('low',left<.3);if(left<=0&&!locked){answer(null);return}if(!locked)raf=requestAnimationFrame(tick)};tick();
+  }
+  function answer(b){
+    if(locked)return;locked=true;cancelAnimationFrame(raf);
+    const btns=[...$('qzA').children],ok=b&&b.dataset.ok==='1',p=who();
+    btns.forEach(x=>{if(x.dataset.ok==='1')x.classList.add('ok');else if(x===b)x.classList.add('ko');else x.classList.add('dim')});
+    if(ok){const g=Math.round(500+500*Math.max(0,1-(performance.now()-t0)/PER));pts[p]+=g;good[p]++;$('qzM').textContent='Bonne réponse ! +'+g;sfx.play('eat');vibe(15)}
+    else{$('qzM').textContent=b?'Raté !':'Temps écoulé !';sfx.play('buzz');vibe(60)}
+    $('qzS').textContent=mode==='duo'?pts[0]+' – '+pts[1]:pts[0];
+    clearTimeout(nextT);nextT=setTimeout(()=>{qi++;if(qi>=qs.length)end();else ask()},ok?1100:1900);
+  }
+  function end(){
+    show('qzEnd');
+    if(mode==='solo'){
+      const b=store.get('qzBest',0),rec=pts[0]>b;if(rec)store.set('qzBest',pts[0]);$('qzB').textContent=Math.max(b,pts[0]);
+      $('qzEndS').textContent=pts[0];$('qzEndM').textContent=(rec?'Nouveau record ! ':'')+good[0]+' bonne'+(good[0]>1?'s':'')+' réponse'+(good[0]>1?'s':'')+' sur '+ROUND;$('qzEndR').innerHTML='';
+      sfx.play(rec?'win':good[0]>=5?'draw':'lose');
+    }else{
+      const w=pts[0]===pts[1]?-1:pts[0]>pts[1]?0:1;$('qzEndS').textContent=pts[0]+' – '+pts[1];
+      $('qzEndM').textContent=w<0?'Égalité parfaite !':NAMES[w]+' gagne le duel !';
+      $('qzEndR').innerHTML=[0,1].map(p=>'<div class="chip"><small>'+NAMES[p]+'</small><b>'+good[p]+'/'+ROUND+'</b></div>').join('');sfx.play('win');
+    }
+    vibe([40,30,40]);
+  }
+  $('qzSolo').addEventListener('click',()=>start('solo'));
+  $('qzDuo').addEventListener('click',()=>start('duo'));
+  $('qzAgain').addEventListener('click',()=>start(mode));
+  $('qzMenu').addEventListener('click',()=>{show('qzStart');sfx.play('tick')});
+  enterHooks.vQz=()=>{$('qzB').textContent=store.get('qzBest',0);if($('qzPlay').hidden===false&&locked===false&&qs.length){t0=performance.now();ask()}};
+  leaveHooks.vQz=()=>{cancelAnimationFrame(raf);clearTimeout(nextT);if(!$('qzPlay').hidden){show('qzStart')}};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
