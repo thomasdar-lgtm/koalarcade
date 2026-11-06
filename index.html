@@ -374,6 +374,17 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #pongOv{border-radius:16px}
 .pongBar{display:flex;align-items:center;gap:10px;padding:8px 12px}
 .pongBar .seg{flex:1}
+/* ---- mots mêlés ---- */
+#vMm{--g:var(--teal)}
+.mmTheme{font-weight:900;font-size:18px;color:var(--g)}
+#mm{--w:min(94vw,calc(100vh - 380px),440px);width:var(--w);height:var(--w);flex:none;position:relative;display:grid;grid-template-columns:repeat(var(--n),minmax(0,1fr));grid-template-rows:repeat(var(--n),minmax(0,1fr));
+  background:#f2fbfa;border-radius:16px;box-shadow:0 10px 26px #0008;touch-action:none;user-select:none;padding:4px}
+#mm .l{display:grid;place-items:center;font-weight:900;font-size:calc(var(--w) / var(--n) * .52);color:#123;position:relative;z-index:1}
+#mm svg{position:absolute;inset:4px;width:calc(100% - 8px);height:calc(100% - 8px);pointer-events:none}
+#mm svg line{stroke-linecap:round;stroke-opacity:.45}
+.mmList{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:min(94vw,440px)}
+.mmList span{padding:5px 10px;border-radius:99px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:14px}
+.mmList span.ok{text-decoration:line-through;color:var(--mut);border-color:transparent;background:color-mix(in srgb,var(--g) 18%,var(--deep))}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -503,6 +514,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vQz" style="--g:var(--amber)">
           <img class="art" src="img/quiz.svg" alt="" width="160" height="160">
           <b>Quiz</b><span class="rec" id="hvQz"></span>
+        </button>
+        <button class="tile" data-go="vMm" style="--g:var(--teal)">
+          <img class="art" src="img/motsmeles.svg" alt="" width="160" height="160">
+          <b>Mots mêlés</b><span class="rec" id="hvMm"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -828,6 +843,20 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="ov" id="pongOv"><h3 id="pongOt">Pong</h3><p id="pongOp"></p><button class="btn" id="pongGo">Jouer</button></div></div>
 </section>
 
+<!-- MOTS MELES -->
+<section class="view" id="vMm">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/motsmeles.svg" alt="" width="40" height="40"><h1>Mots mêlés</h1>
+    <div class="chips"><div class="chip"><small>temps</small><b id="mmT">0:00</b></div></div></header>
+  <div class="main">
+    <div class="seg" id="mmLvl" style="width:min(94vw,440px);flex:none"><button data-l="0">Facile</button><button data-l="1">Moyen</button><button data-l="2">Difficile</button></div>
+    <div class="mmTheme" id="mmTh"></div>
+    <div id="mm"></div>
+    <div class="mmList" id="mmL"></div>
+    <div class="msg hi" id="mmM"></div>
+    <button class="btn" id="mmNew">Nouvelle grille</button>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -856,7 +885,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.4';
+const APP_VERSION='2.0.5';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1097,6 +1126,7 @@ function refreshHome(){
   const sw=store.get('solWins',0);$('hvSol').textContent=sw?sw+' partie'+(sw>1?'s':'')+' gagnée'+(sw>1?'s':''):'Klondike';
   const qzb=store.get('qzBest',0);$('hvQz').textContent=qzb?'Record '+qzb+' points':'136 questions';
   const pgs=store.get('pongScore',[0,0]);$('hvPong').innerHTML=(pgs[0]||pgs[1])?duo(pgs[0],pgs[1]):'Premier à 7 points';
+  const mmw=store.get('mmWins',0);$('hvMm').textContent=mmw?mmw+' grille'+(mmw>1?'s':'')+' terminée'+(mmw>1?'s':''):'Trouve les mots cachés';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2807,6 +2837,77 @@ refreshHome();
   document.addEventListener('visibilitychange',()=>{if(document.hidden&&current==='vPong')pause()});
   window.addEventListener('resize',()=>{if(current==='vPong')size()});
   if(location.hostname==='localhost')window.__pong=()=>({pads,ball,sc,state,mode}); // aide aux tests locaux uniquement
+})();
+
+/* ---------- MOTS MÊLÉS ---------- */
+(function(){
+  const THEMES={
+    'Animaux':'KOALA LAPIN TIGRE ZEBRE CHEVAL GIRAFE DAUPHIN REQUIN TORTUE HIBOU SINGE CASTOR MOUTON CANARD RENARD PANDA',
+    'Fruits':'POMME POIRE BANANE CERISE FRAISE ORANGE CITRON MANGUE RAISIN ABRICOT MELON PRUNE ANANAS KIWI FIGUE',
+    'Cuisine':'GATEAU CREPE TARTE OMELETTE SALADE FROMAGE BEURRE FARINE SUCRE SAUCE SOUPE PIZZA CASSOULET GARBURE',
+    'Sport':'RUGBY TENNIS FOOTBALL VELO JUDO SKI GOLF BOXE NATATION ESCRIME HANDBALL KAYAK SURF PELOTE',
+    'Nature':'FORET OCEAN DUNE PLAGE RIVIERE MONTAGNE NUAGE ORAGE ARBRE FLEUR SOLEIL ETOILE PRAIRIE VAGUE PIN',
+    'Maison':'CUISINE SALON CHAMBRE TABLE CHAISE LAMPE FENETRE PORTE ESCALIER CANAPE ARMOIRE TAPIS JARDIN GARAGE',
+    'Jeux':'CARTE DOMINO PUZZLE ECHECS DAMES DES QUIZ SUDOKU MEMORY PENDU BILLE TOUPIE BALLON JOKER',
+    'Pokémon':'PIKACHU EVOLI SALAMECHE CARAPUCE BULBIZARRE MEW RONFLEX DRACAUFEU LOKHLASS MIMIQUI GOUPIX RONDOUDOU'
+  };
+  const LV=[{n:9,k:6,dirs:[[1,0],[0,1]]},{n:11,k:8,dirs:[[1,0],[0,1],[1,1],[1,-1]]},{n:12,k:10,dirs:[[1,0],[0,1],[1,1],[1,-1],[-1,0],[0,-1],[-1,-1],[-1,1]]}];
+  const COLS=['#ff3b4e','#ffc93c','#2fe39a','#5aa9ff','#b26bff','#ff8a3d','#ff6fb5','#19d3c5','#b8f34a','#4a86ff'];
+  const el=$('mm');let G=null,lvl=store.get('mmLvl',0),tick=null,drag=null;
+  function make(level){
+    const L=LV[level],names=Object.keys(THEMES),theme=names[Math.floor(Math.random()*names.length)];
+    let pool=THEMES[theme].split(' ').filter(w=>w.length<=L.n);
+    for(let a=0;a<60;a++){
+      pool.sort(()=>Math.random()-.5);const g=Array(L.n*L.n).fill(''),placed=[];
+      for(const w of pool){if(placed.length>=L.k)break;
+        for(let t=0;t<120;t++){const[dx,dy]=L.dirs[Math.floor(Math.random()*L.dirs.length)];
+          const x0=Math.floor(Math.random()*L.n),y0=Math.floor(Math.random()*L.n),x1=x0+dx*(w.length-1),y1=y0+dy*(w.length-1);
+          if(x1<0||x1>=L.n||y1<0||y1>=L.n)continue;
+          let ok=true;for(let i=0;i<w.length;i++){const c=g[(y0+dy*i)*L.n+x0+dx*i];if(c&&c!==w[i]){ok=false;break}}
+          if(!ok)continue;for(let i=0;i<w.length;i++)g[(y0+dy*i)*L.n+x0+dx*i]=w[i];placed.push({w,x0,y0,x1,y1,found:false});break}}
+      if(placed.length>=Math.min(L.k,pool.length)){
+        const AL='EEAAISNRTULOCDMPGBVHFQYXJKWZ';for(let i=0;i<g.length;i++)if(!g[i])g[i]=AL[Math.floor(Math.random()*(Math.random()<.6?10:AL.length))];
+        return{n:L.n,grid:g.join(''),words:placed.sort((a,b)=>a.w.localeCompare(b.w)),theme,t:0,done:false,level};
+      }
+    }
+  }
+  const save=()=>store.set('mmState',G);
+  const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  function startTimer(){clearInterval(tick);tick=setInterval(()=>{if(current!=='vMm'||document.hidden||!G||G.done)return;G.t++;$('mmT').textContent=fmt(G.t);if(G.t%5===0)save()},1000)}
+  function newGame(){G=make(lvl);save();build();render();startTimer();$('mmM').textContent='';sfx.play('start')}
+  function build(){
+    el.style.setProperty('--n',G.n);el.innerHTML='';
+    for(let i=0;i<G.n*G.n;i++){const d=document.createElement('div');d.className='l';d.textContent=G.grid[i];el.appendChild(d)}
+    const sv=document.createElementNS('http://www.w3.org/2000/svg','svg');sv.setAttribute('viewBox','0 0 '+G.n+' '+G.n);sv.setAttribute('preserveAspectRatio','none');el.appendChild(sv);
+  }
+  function line(x0,y0,x1,y1,col,id){const l=document.createElementNS('http://www.w3.org/2000/svg','line');l.setAttribute('x1',x0+.5);l.setAttribute('y1',y0+.5);l.setAttribute('x2',x1+.5);l.setAttribute('y2',y1+.5);l.setAttribute('stroke',col);l.setAttribute('stroke-width','.78');if(id)l.id=id;return l}
+  function render(){
+    const sv=el.querySelector('svg');sv.innerHTML='';
+    G.words.forEach((w,k)=>{if(w.found)sv.appendChild(line(w.x0,w.y0,w.x1,w.y1,COLS[k%COLS.length]))});
+    if(drag&&drag.end)sv.appendChild(line(drag.x0,drag.y0,drag.end[0],drag.end[1],'#00071a'));
+    $('mmL').innerHTML=G.words.map(w=>'<span class="'+(w.found?'ok':'')+'">'+w.w+'</span>').join('');
+    $('mmTh').textContent='Thème : '+G.theme;$('mmT').textContent=fmt(G.t);
+    document.querySelectorAll('#mmLvl button').forEach(b=>b.classList.toggle('on',+b.dataset.l===G.level));
+  }
+  function cellAt(e){const r=el.getBoundingClientRect(),s=(r.width-8)/G.n,x=Math.floor((e.clientX-r.left-4)/s),y=Math.floor((e.clientY-r.top-4)/s);return x>=0&&y>=0&&x<G.n&&y<G.n?[x,y]:null}
+  function snap(x0,y0,x,y){ // aligne sur une des 8 directions
+    const dx=x-x0,dy=y-y0;if(!dx&&!dy)return[x0,y0];
+    const a=Math.round(Math.atan2(dy,dx)/(Math.PI/4)),D=[[1,0],[1,1],[0,1],[-1,1],[-1,0],[-1,-1],[0,-1],[1,-1]][(a+8)%8],len=Math.max(Math.abs(dx),Math.abs(dy));
+    let ex=x0+D[0]*len,ey=y0+D[1]*len;ex=Math.max(0,Math.min(G.n-1,ex));ey=Math.max(0,Math.min(G.n-1,ey));return[ex,ey];
+  }
+  el.addEventListener('pointerdown',e=>{if(!G||G.done)return;const c=cellAt(e);if(!c)return;e.preventDefault();try{el.setPointerCapture(e.pointerId)}catch(_){}drag={x0:c[0],y0:c[1],end:c};sfx.play('tick');render()});
+  el.addEventListener('pointermove',e=>{if(!drag)return;const c=cellAt(e);if(!c)return;const s=snap(drag.x0,drag.y0,c[0],c[1]);if(s[0]!==drag.end[0]||s[1]!==drag.end[1]){drag.end=s;render()}});
+  const up=()=>{if(!drag)return;const d=drag;drag=null;
+    const w=G.words.find(w=>!w.found&&((w.x0===d.x0&&w.y0===d.y0&&w.x1===d.end[0]&&w.y1===d.end[1])||(w.x1===d.x0&&w.y1===d.y0&&w.x0===d.end[0]&&w.y0===d.end[1])));
+    if(w){w.found=true;sfx.play('merge',64);vibe(15);save();if(G.words.every(x=>x.found))win()}else if(d.end[0]!==d.x0||d.end[1]!==d.y0)sfx.play('error');
+    render()};
+  el.addEventListener('pointerup',up);el.addEventListener('pointercancel',up);
+  function win(){G.done=true;clearInterval(tick);store.set('mmWins',store.get('mmWins',0)+1);save();$('mmM').textContent='Bravo, tous les mots trouvés en '+fmt(G.t)+' !';sfx.play('win');vibe([40,30,40])}
+  document.querySelectorAll('#mmLvl button').forEach(b=>b.addEventListener('click',()=>{const l=+b.dataset.l;if(G&&!G.done&&G.words.some(w=>w.found)&&!confirm('Abandonner la grille en cours ?'))return;lvl=l;store.set('mmLvl',l);newGame()}));
+  $('mmNew').addEventListener('click',()=>{if(G&&!G.done&&G.words.some(w=>w.found)&&!confirm('Abandonner la grille en cours ?'))return;newGame()});
+  enterHooks.vMm=()=>{if(!G){const s=store.get('mmState',null);if(s&&s.grid&&s.words)G=s}if(!G){newGame();return}build();render();startTimer();if(G.done)$('mmM').textContent='Grille terminée ! Lance une nouvelle grille'};
+  leaveHooks.vMm=()=>{clearInterval(tick);if(G)save()};
+  if(location.hostname==='localhost')window.__mm=()=>G; // aide aux tests locaux uniquement
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
