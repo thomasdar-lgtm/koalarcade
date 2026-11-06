@@ -367,6 +367,13 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #qzStart,#qzPlay,#qzEnd{display:contents}#qzStart[hidden],#qzPlay[hidden],#qzEnd[hidden]{display:none}
 .qzBig{font-weight:900;font-size:64px;color:var(--g);line-height:1}
 .qzRes{display:flex;gap:10px}
+/* ---- pong ---- */
+#vPong{--g:var(--mint)}
+#vPong .pongWrap{flex:1;position:relative;display:flex;justify-content:center;align-items:center;width:100%;padding:0 8px}
+#pongCv{display:block;touch-action:none;border-radius:16px}
+#pongOv{border-radius:16px}
+.pongBar{display:flex;align-items:center;gap:10px;padding:8px 12px}
+.pongBar .seg{flex:1}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -527,6 +534,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vDam" style="--g:var(--wood)">
           <img class="art" src="img/dames.svg" alt="" width="160" height="160">
           <b>Dames</b><span class="rec" id="hvDam"></span>
+        </button>
+        <button class="tile" data-go="vPong" style="--g:var(--mint)">
+          <img class="art" src="img/pong.svg" alt="" width="160" height="160">
+          <b>Pong</b><span class="rec" id="hvPong"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -809,6 +820,14 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PONG -->
+<section class="view" id="vPong">
+  <div class="pongBar"><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button>
+    <div class="seg" id="pongMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button></div></div>
+  <div class="pongWrap"><canvas id="pongCv"></canvas>
+    <div class="ov" id="pongOv"><h3 id="pongOt">Pong</h3><p id="pongOp"></p><button class="btn" id="pongGo">Jouer</button></div></div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -837,7 +856,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.3';
+const APP_VERSION='2.0.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1077,6 +1096,7 @@ function refreshHome(){
   const dms=store.get('damScore',[0,0]);$('hvDam').innerHTML=(dms[0]||dms[1])?duo(dms[0],dms[1]):'Règles internationales';
   const sw=store.get('solWins',0);$('hvSol').textContent=sw?sw+' partie'+(sw>1?'s':'')+' gagnée'+(sw>1?'s':''):'Klondike';
   const qzb=store.get('qzBest',0);$('hvQz').textContent=qzb?'Record '+qzb+' points':'136 questions';
+  const pgs=store.get('pongScore',[0,0]);$('hvPong').innerHTML=(pgs[0]||pgs[1])?duo(pgs[0],pgs[1]):'Premier à 7 points';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2701,6 +2721,92 @@ refreshHome();
   $('qzMenu').addEventListener('click',()=>{show('qzStart');sfx.play('tick')});
   enterHooks.vQz=()=>{$('qzB').textContent=store.get('qzBest',0);if($('qzPlay').hidden===false&&locked===false&&qs.length){t0=performance.now();ask()}};
   leaveHooks.vQz=()=>{cancelAnimationFrame(raf);clearTimeout(nextT);if(!$('qzPlay').hidden){show('qzStart')}};
+})();
+
+/* ---------- PONG ---------- */
+(function(){
+  const cv=$('pongCv'),ctx=cv.getContext('2d'),ov=$('pongOv'),W=360,H=640,PW=78,PH=14,BR=8,WIN=7;
+  let aiAim=null,scale=1,mode=store.get('pongMode','local'),pads,ball,sc,state='idle',raf=null,last=0,serveT=0,server=0,trail=[],flash=0;
+  const PC=['#ff3b4e','#ffc93c'];
+  function size(){
+    const wrap=cv.parentElement.getBoundingClientRect();const s=Math.min((wrap.width-16)/W,(wrap.height-8)/H);scale=Math.max(.3,s);
+    const dpr=window.devicePixelRatio||1;cv.width=Math.round(W*scale*dpr);cv.height=Math.round(H*scale*dpr);cv.style.width=W*scale+'px';cv.style.height=H*scale+'px';ctx.setTransform(scale*dpr,0,0,scale*dpr,0,0);draw();
+  }
+  function modeUI(){document.querySelectorAll('#pongMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode))}
+  function names(){return[NAMES[0],mode==='ai'?'Koala':'Cindy']}
+  function intro(){$('pongOt').textContent='Pong';$('pongOp').textContent=mode==='ai'?'Glisse ton doigt en bas pour bouger ta raquette. Niveau '+AI_LV[aiLevel].toLowerCase()+'.':'Chacun glisse le doigt de son côté de l\'écran. Premier à '+WIN+' points.';$('pongGo').textContent='Jouer';ov.hidden=false}
+  function reset(){pads=[{x:W/2,tx:W/2},{x:W/2,tx:W/2}];sc=[0,0];server=Math.random()<.5?0:1;serve()}
+  function serve(){ball={x:W/2,y:H/2,vx:0,vy:0,sp:340};serveT=.9;trail=[]}
+  function launch(){const a=(Math.random()*.8-.4),dir=server===0?1:-1;ball.vx=Math.sin(a)*ball.sp;ball.vy=Math.cos(a)*ball.sp*dir}
+  function point(w){
+    sc[w]++;server=1-w;flash=.3;sfx.play(mode==='ai'&&w===1?'lose':'eat');vibe(40);
+    if(sc[w]>=WIN){state='over';const tot=store.get(mode==='ai'?'pongAIScore':'pongScore',[0,0]);tot[w]++;store.set(mode==='ai'?'pongAIScore':'pongScore',tot);
+      $('pongOt').textContent=names()[w]+' gagne !';$('pongOp').textContent=sc[0]+' – '+sc[1]+'  ·  Victoires '+tot[0]+' – '+tot[1];$('pongGo').textContent='Rejouer';ov.hidden=false;sfx.play(mode==='ai'&&w===1?'lose':'win');return}
+    serve();
+  }
+  function step(dt){
+    if(flash>0)flash-=dt;
+    // raquettes : suivent le doigt, l'IA suit la balle avec un temps de réaction
+    if(mode==='ai'){
+      if(ball.vy<0&&serveT<=0){
+        if(aiAim===null){ // vise l'endroit prévu d'arrivée, avec une erreur choisie une fois par échange
+          let x=ball.x,vx=ball.vx;const t=(ball.y-40)/-ball.vy;x+=vx*t;while(x<0||x>W){x=x<0?-x:2*W-x}
+          const err=[64,42,24][aiLevel];aiAim=x+(Math.random()*2-1)*err}
+        pads[1].tx=aiAim;
+      }else{aiAim=null;pads[1].tx=W/2}
+    }
+    pads.forEach((p,i)=>{const sp=(mode==='ai'&&i===1)?[240,330,440][aiLevel]:4000;const d=p.tx-p.x;p.x+=Math.sign(d)*Math.min(Math.abs(d),sp*dt);p.x=Math.max(PW/2,Math.min(W-PW/2,p.x))});
+    if(serveT>0){serveT-=dt;if(serveT<=0)launch();return}
+    const n=Math.ceil(Math.hypot(ball.vx,ball.vy)*dt/4);for(let k=0;k<n;k++){
+      const h=dt/n;ball.x+=ball.vx*h;ball.y+=ball.vy*h;
+      if(ball.x<BR){ball.x=BR;ball.vx=Math.abs(ball.vx);sfx.play('tick')}if(ball.x>W-BR){ball.x=W-BR;ball.vx=-Math.abs(ball.vx);sfx.play('tick')}
+      const yb=H-40,yt=40;
+      if(ball.vy>0&&ball.y+BR>=yb-PH/2&&ball.y<yb+PH&&Math.abs(ball.x-pads[0].x)<PW/2+BR)hit(0,yb-PH/2-BR);
+      if(ball.vy<0&&ball.y-BR<=yt+PH/2&&ball.y>yt-PH&&Math.abs(ball.x-pads[1].x)<PW/2+BR)hit(1,yt+PH/2+BR);
+      if(ball.y>H+20){point(1);return}if(ball.y<-20){point(0);return}
+    }
+    trail.push({x:ball.x,y:ball.y});if(trail.length>10)trail.shift();
+  }
+  function hit(p,y){
+    const rel=(ball.x-pads[p].x)/(PW/2),a=Math.max(-1.1,Math.min(1.1,rel*1.15+(Math.random()-.5)*.35));ball.sp=Math.min(950,ball.sp*1.1);
+    ball.vx=Math.sin(a)*ball.sp;ball.vy=Math.cos(a)*ball.sp*(p===0?-1:1);ball.y=y;sfx.play('key');vibe(8);
+  }
+  function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+  function draw(){
+    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#2a2410');g.addColorStop(.5,'#07112b');g.addColorStop(1,'#2a0f18');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    ctx.strokeStyle='rgba(238,242,255,.18)';ctx.setLineDash([10,10]);ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(0,H/2);ctx.lineTo(W,H/2);ctx.stroke();ctx.setLineDash([]);
+    ctx.beginPath();ctx.arc(W/2,H/2,46,0,7);ctx.stroke();
+    if(!pads)return;
+    // scores (celui du haut est retourné pour l'autre joueur)
+    ctx.font='900 64px Raleway,sans-serif';ctx.textAlign='center';ctx.fillStyle='rgba(255,59,78,.35)';ctx.fillText(sc[0],W/2,H/2+90);
+    ctx.save();ctx.translate(W/2,H/2-90);if(mode==='local')ctx.rotate(Math.PI);ctx.fillStyle='rgba(255,201,60,.35)';ctx.fillText(sc[1],0,mode==='local'?0:20);ctx.restore();
+    trail.forEach((t,i)=>{ctx.globalAlpha=i/trail.length*.35;ctx.fillStyle='#eef2ff';ctx.beginPath();ctx.arc(t.x,t.y,BR*(i/trail.length),0,7);ctx.fill()});ctx.globalAlpha=1;
+    [[0,H-40],[1,40]].forEach(([p,y])=>{ctx.shadowColor=PC[p];ctx.shadowBlur=18;ctx.fillStyle=PC[p];rr(pads[p].x-PW/2,y-PH/2,PW,PH,7);ctx.fill();ctx.shadowBlur=0});
+    ctx.shadowColor='#fff';ctx.shadowBlur=14;ctx.fillStyle='#fff';ctx.beginPath();ctx.arc(ball.x,ball.y,BR,0,7);ctx.fill();ctx.shadowBlur=0;
+    if(serveT>0&&state==='play'){ctx.fillStyle='rgba(238,242,255,.7)';ctx.font='800 16px Raleway,sans-serif';ctx.fillText('Service '+names()[server],W/2,H/2+(server===0?40:-30))}
+    if(flash>0){ctx.fillStyle='rgba(255,255,255,'+flash+')';ctx.fillRect(0,0,W,H)}
+  }
+  function loop(t){const dt=Math.min(.033,Math.max(0,(t-last)/1000));last=t;if(state==='play')step(dt);draw();raf=requestAnimationFrame(loop)}
+  function startLoop(){if(raf===null){last=performance.now();raf=requestAnimationFrame(loop)}}
+  function stopLoop(){if(raf!==null){cancelAnimationFrame(raf);raf=null}}
+  // plusieurs doigts : chacun contrôle la raquette de sa moitié
+  function touch(e){
+    if(!pads)return;const r=cv.getBoundingClientRect();
+    for(const t of e.changedTouches||[e]){const x=(t.clientX-r.left)/scale,y=(t.clientY-r.top)/scale;
+      if(y>H/2)pads[0].tx=x;else if(mode==='local')pads[1].tx=x}
+  }
+  cv.addEventListener('touchstart',e=>{e.preventDefault();touch(e)},{passive:false});
+  cv.addEventListener('touchmove',e=>{e.preventDefault();touch(e)},{passive:false});
+  cv.addEventListener('mousemove',e=>{if(e.buttons)touch(e)});cv.addEventListener('mousedown',touch);
+  document.addEventListener('keydown',e=>{if(current!=='vPong'||!pads)return;if(e.key==='ArrowLeft')pads[0].tx=pads[0].x-60;if(e.key==='ArrowRight')pads[0].tx=pads[0].x+60});
+  document.querySelectorAll('#pongMode button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.m===mode)return;mode=b.dataset.m;store.set('pongMode',mode);modeUI();state='idle';pads=null;intro();draw();sfx.play('tick')}));
+  $('pongGo').addEventListener('click',()=>{if(state!=='paused')reset();state='play';ov.hidden=true;sfx.play('start');startLoop()});
+  const pause=()=>{if(state==='play'){state='paused';$('pongOt').textContent='En pause';$('pongOp').textContent=sc[0]+' – '+sc[1];$('pongGo').textContent='Reprendre';ov.hidden=false}};
+  enterHooks.vPong=()=>{modeUI();if(state==='idle')intro();requestAnimationFrame(size);startLoop()};
+  leaveHooks.vPong=()=>{pause();stopLoop()};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&current==='vPong')pause()});
+  window.addEventListener('resize',()=>{if(current==='vPong')size()});
+  if(location.hostname==='localhost')window.__pong=()=>({pads,ball,sc,state,mode}); // aide aux tests locaux uniquement
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
