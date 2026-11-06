@@ -527,7 +527,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="netst" id="tttNet" hidden></div>
     <div class="players">
       <div class="pl" id="tttP0" style="--pc:var(--red)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><path d="M7 7l16 16M23 7L7 23" stroke="var(--red)" stroke-width="5" stroke-linecap="round"/></svg><div><b>Thomas</b><small id="tttT0"></small></div><strong id="tttA">0</strong></div>
-      <div class="pl" id="tttP1" style="--pc:var(--sun)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><circle cx="15" cy="15" r="9" fill="none" stroke="var(--sun)" stroke-width="5"/></svg><div><b>Cindy</b><small id="tttT1"></small></div><strong id="tttB">0</strong></div>
+      <div class="pl" id="tttP1" style="--pc:var(--sun)" data-k="ttt"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><circle cx="15" cy="15" r="9" fill="none" stroke="var(--sun)" stroke-width="5"/></svg><div><b data-p1>Cindy</b><small id="tttT1"></small></div><strong id="tttB">0</strong></div>
     </div>
     <div id="ttt"></div>
     <div class="msg hi" id="tttM"></div>
@@ -682,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.9.0';
+const APP_VERSION='1.9.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1430,11 +1430,32 @@ refreshHome();
     if(newMv&&prev&&S.last>=0){sfx.play('key');vibe(10)}
     if(S.over&&prev&&!prev.over){if(S.win){sfx.play('win');vibe([40,30,40])}else sfx.play('draw')}
     $('tttA').textContent=S.sc[0];$('tttB').textContent=S.sc[1];
-    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('tttP'+p).classList.toggle('on',on);$('tttT'+p).textContent=on?(ctx.online&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
-    $('tttM').textContent=S.over?(S.win?NAMES[+S.b[cells[0]]]+' gagne la manche !':'Match nul'):(ctx.online&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('tttP'+p).classList.toggle('on',on);$('tttT'+p).textContent=on?((ctx.online||ctx.ai)&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
+    $('tttM').textContent=S.over?(S.win?NAMES[+S.b[cells[0]]]+' gagne la manche !':'Match nul'):((ctx.online||ctx.ai)&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
   }
+
+  // IA : 0 = gagne si possible sinon au hasard, 1 = gagne/bloque, 2 = imbattable (minimax)
+  function aiCell(S,lv){
+    const b=S.b.split(''),free=b.map((v,i)=>v==='.'?i:-1).filter(i=>i>=0);
+    const winOf=ch=>{for(const i of free){b[i]=ch;const w=LINES.some(l=>l.every(k=>b[k]===ch));b[i]='.';if(w)return i}return -1};
+    const rnd=a=>a[Math.floor(Math.random()*a.length)];
+    let i=winOf('1');if(i>=0)return i;
+    if(lv===0)return rnd(free);
+    i=winOf('0');if(i>=0)return i;
+    if(lv===1){if(Math.random()<.2)return rnd(free);if(b[4]==='.')return 4;const c=[0,2,6,8].filter(k=>b[k]==='.');return c.length?rnd(c):rnd(free)}
+    function mm(turn,d){
+      const w=LINES.find(l=>l.every(k=>b[k]!=='.'&&b[k]===b[l[0]]));if(w)return b[w[0]]==='1'?10-d:d-10;
+      if(!b.includes('.'))return 0;
+      let best=turn==='1'?-99:99;
+      for(let k=0;k<9;k++)if(b[k]==='.'){b[k]=turn;const v=mm(turn==='1'?'0':'1',d+1);b[k]='.';best=turn==='1'?Math.max(best,v):Math.min(best,v)}
+      return best;
+    }
+    let bv=-99,bi=[];for(const k of free){b[k]='1';const v=mm('0',1);b[k]='.';if(v>bv){bv=v;bi=[k]}else if(v===bv)bi.push(k)}
+    return rnd(bi);
+  }
+  function ai(S,ctx,lv){if(S.over||S.turn!==1)return null;const i=aiCell(S,lv);return{fn:s=>move(s,i,1),delay:550}}
   const game=twoPlayer({
-    key:'ttt',fresh,render,
+    key:'ttt',fresh,render,ai,
     loadLocal(){const st=store.get('tttStarter',0);return{...fresh(null),sc:store.get('tttScore',[0,0]),starter:st,turn:st}},
     saveLocal(S){store.set('tttScore',S.sc);store.set('tttStarter',S.starter)}
   });
