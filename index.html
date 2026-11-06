@@ -166,7 +166,8 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #wKb{display:flex;flex-direction:column;gap:7px;width:100%;max-width:500px}
 #wKb .kr{display:flex;gap:5px;justify-content:center}
 .k{flex:1;max-width:42px;height:52px;border-radius:10px;background:var(--plate);font-weight:800;font-size:16px;box-shadow:0 3px 0 #030a1f}
-.k:active{transform:translateY(2px);box-shadow:0 1px 0 #030a1f}
+.k.pr{transform:translateY(2px);box-shadow:0 1px 0 #030a1f;filter:brightness(1.35)}
+.k{touch-action:manipulation;-webkit-user-select:none;user-select:none}
 .k.w{max-width:66px;flex:1.6;font-size:14px;background:color-mix(in srgb,var(--g) 30%,var(--plate))}
 .k.w svg{width:22px;height:22px;vertical-align:middle}
 .wstats{display:flex;gap:8px}
@@ -961,7 +962,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.1.0';
+const APP_VERSION='2.1.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1164,6 +1165,22 @@ function twoPlayer(cfg){
     enter(){names();segUI();if(mode==='online'){if(!unW)goOnline()}else{if(!S)S=load();draw(S,null)}},
     leave(){gen++;clearTimeout(aiT);NAMES[1]='Cindy';if(mode==='online'){stopOnline();S=null}}
   };
+}
+
+/* Claviers à l'écran : réaction dès le toucher, et un appui entre deux touches compte pour la plus proche */
+function bindKeys(kb,fn){
+  kb.style.touchAction='manipulation';
+  kb.addEventListener('pointerdown',e=>{
+    e.preventDefault();
+    let k=e.target.closest('.k');
+    if(!k){ // appui dans un espace : touche la plus proche
+      let best=1e9;kb.querySelectorAll('.k').forEach(x=>{const r=x.getBoundingClientRect(),dx=Math.max(r.left-e.clientX,0,e.clientX-r.right),dy=Math.max(r.top-e.clientY,0,e.clientY-r.bottom),d=dx*dx+dy*dy;if(d<best){best=d;k=x}});
+      if(best>24*24)return;
+    }
+    k.classList.add('pr');setTimeout(()=>k.classList.remove('pr'),110);
+    fn(k.dataset.k);
+  });
+  kb.addEventListener('click',e=>e.preventDefault());
 }
 
 /* ---------- navigation ---------- */
@@ -1517,7 +1534,8 @@ refreshHome();
       if(ch==='⏎')k.textContent='Valider';
       else if(ch==='⌫'){k.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9l5 6M17 9l-5 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';k.setAttribute('aria-label','Effacer')}
       else k.textContent=ch;
-      k.addEventListener('click',()=>press(ch));rw.appendChild(k)});kb.appendChild(rw)});
+      rw.appendChild(k)});kb.appendChild(rw)});
+  bindKeys(kb,ch=>press(ch));
   function score(g,t){
     const res=Array(5).fill('x'),cnt={};
     for(let i=0;i<5;i++){if(g[i]===t[i])res[i]='g';else cnt[t[i]]=(cnt[t[i]]||0)+1}
@@ -2056,7 +2074,8 @@ refreshHome();
     '<circle cx="140" cy="196" r="26" fill="#c3cbec"/><g id="pdEyes"><circle cx="131" cy="191" r="3.5" fill="#00071a"/><circle cx="149" cy="191" r="3.5" fill="#00071a"/></g><rect x="134" y="195" width="12" height="15" rx="6" fill="#00071a"/>'+
     '<path d="M118 214q-8 10 4 14M162 214q8 10-4 14" stroke="#a9b3e0" stroke-width="7" stroke-linecap="round" fill="none"/></g></svg>';
   const KEYS=['AZERTYUIOP','QSDFGHJKLM','WXCVBN'];
-  KEYS.forEach(r=>{const rw=document.createElement('div');rw.className='kr';[...r].forEach(ch=>{const k=document.createElement('button');k.className='k';k.textContent=ch;k.dataset.k=ch;k.addEventListener('click',()=>guess(ch));rw.appendChild(k)});kb.appendChild(rw)});
+  KEYS.forEach(r=>{const rw=document.createElement('div');rw.className='kr';[...r].forEach(ch=>{const k=document.createElement('button');k.className='k';k.textContent=ch;k.dataset.k=ch;rw.appendChild(k)});kb.appendChild(rw)});
+  bindKeys(kb,ch=>guess(ch));
   function stats(){const s=store.get('pdStats',{p:0,w:0,s:0});$('pdW').textContent=s.w;$('pdSs').textContent=s.s}
   function render(){
     wordEl.innerHTML=[...word].map(c=>'<span class="'+(found.has(c)?'on':done?'miss':'')+'">'+(found.has(c)||done?c:'')+'</span>').join('');
@@ -3196,7 +3215,8 @@ refreshHome();
   // clavier
   const kb=$('mcKb');['AZERTYUIOP','QSDFGHJKLM','WXCVBN⌫'].forEach(r=>{const rw=document.createElement('div');rw.className='kr';
     [...r].forEach(ch=>{const k=document.createElement('button');k.className='k'+(ch==='⌫'?' w':'');if(ch==='⌫'){k.innerHTML='<svg viewBox="0 0 24 24"><path d="M9 5h11v14H9l-6-7z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 9l5 6M17 9l-5 6" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>';k.setAttribute('aria-label','Effacer')}else k.textContent=ch;
-      k.addEventListener('click',()=>type(ch));rw.appendChild(k)});kb.appendChild(rw)});
+      k.dataset.k=ch;rw.appendChild(k)});kb.appendChild(rw)});
+  bindKeys(kb,ch=>type(ch));
   document.addEventListener('keydown',e=>{if(current!=='vMc')return;if(/^[a-zA-Z]$/.test(e.key))type(e.key.toUpperCase());else if(e.key==='Backspace')type('⌫')});
   $('mcPrev').addEventListener('click',()=>step(-1));$('mcNext').addEventListener('click',()=>step(1));
   $('mcCheck').addEventListener('click',()=>{if(!G||G.done)return;const S=solA();let n=0;S.forEach((c,i)=>{if(c&&G.val[i]&&G.val[i]!==c){G.bad[i]=1;n++}});save();render();$('mcM').textContent=n?n+' lettre'+(n>1?'s':'')+' fausse'+(n>1?'s':''):'Aucune erreur pour l\'instant';sfx.play(n?'error':'key')});
