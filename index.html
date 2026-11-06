@@ -443,6 +443,18 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #mcKb .kr{display:flex;gap:4px;justify-content:center}
 .mcTools{display:flex;gap:8px;width:min(94vw,460px)}
 .mcTools button{flex:1;padding:9px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:14px}
+/* ---- défi du jour ---- */
+.defi{width:100%;max-width:520px;display:grid;grid-template-columns:56px 1fr auto;grid-template-areas:"img tx go" "res res res";gap:8px 12px;align-items:center;padding:12px;border-radius:20px;
+  background:linear-gradient(135deg,color-mix(in srgb,var(--sun) 22%,var(--deep)),var(--deep));border:1.5px solid color-mix(in srgb,var(--sun) 50%,transparent)}
+.defi[hidden]{display:none}
+.defi img{grid-area:img;width:56px;height:56px;border-radius:14px}
+.dfTx{grid-area:tx;display:flex;flex-direction:column;min-width:0}
+.dfTx small{color:var(--sun);font-weight:800;font-size:12px}.dfTx b{font-weight:900;font-size:18px}.dfTx span{color:var(--mut);font-weight:700;font-size:12px}
+.defi .btn{grid-area:go;--g:var(--sun);padding:10px 16px}
+.dfRes{grid-area:res;display:flex;gap:8px}
+.dfRes div{flex:1;background:#00071a80;border-radius:12px;padding:6px 10px;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:14px}
+.dfRes div i{font-style:normal;color:var(--mut);font-weight:700;font-size:13px}
+.dfRes div.best{box-shadow:0 0 0 2px var(--sun)}
 /* ---- profil et trophées ---- */
 #vProf{--g:var(--sun)}
 .prof{width:100%;max-width:520px;display:flex;align-items:center;gap:14px;background:var(--plate);border:1.5px solid var(--line);border-radius:20px;padding:14px}
@@ -551,6 +563,12 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="hbar">
       <label class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 16l5 5" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><input id="hSearch" type="search" placeholder="Chercher un jeu" autocomplete="off"></label>
       <div class="hf" id="hFilt"><button data-f="all">Tous</button><button data-f="fav">Favoris</button><button data-f="solo">Solo</button><button data-f="duo">À deux</button></div>
+    </div>
+    <div class="defi" id="defi" hidden>
+      <img id="dfImg" src="logo.webp" alt="">
+      <div class="dfTx"><small>Défi du jour</small><b id="dfName"></b><span id="dfRule"></span></div>
+      <div class="dfRes" id="dfRes"></div>
+      <button class="btn" id="dfGo">Jouer</button>
     </div>
     <div class="sec" id="hRecSec" hidden><h2>Joués récemment</h2><div class="recent" id="hRecent"></div></div>
     <div class="msg" id="hEmpty" hidden></div>
@@ -1020,15 +1038,17 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.2.2';
+const APP_VERSION='2.2.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
 /* ---------- utilitaires ---------- */
 const $=id=>document.getElementById(id);
+// préfixe des données ; en test local (?sep&as=N) chaque « téléphone » simulé a les siennes
+const KA=(()=>{try{const q=new URLSearchParams(location.search);return location.hostname==='localhost'&&q.has('sep')?'ka_t'+q.get('as')+'_':'ka_'}catch(e){return 'ka_'}})();
 const store={
-  get(k,d){try{const v=localStorage.getItem('ka_'+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
-  set(k,v){try{localStorage.setItem('ka_'+k,JSON.stringify(v))}catch(e){}if(window.cloud)cloud.touch(k)}
+  get(k,d){try{const v=localStorage.getItem(KA+k);return v===null?d:JSON.parse(v)}catch(e){return d}},
+  set(k,v){try{localStorage.setItem(KA+k,JSON.stringify(v))}catch(e){}if(window.cloud)cloud.touch(k)}
 };
 function vibe(ms){try{navigator.vibrate&&navigator.vibrate(ms)}catch(e){}}
 
@@ -1229,6 +1249,9 @@ function twoPlayer(cfg){
   };
 }
 
+function seededRng(seed){let a=seed>>>0;return()=>{a=(a+0x6D2B79F5)>>>0;let t=a;t=Math.imul(t^t>>>15,t|1);t^=t+Math.imul(t^t>>>7,t|61);return((t^t>>>14)>>>0)/4294967296}}
+function dayKey(){const d=new Date();return d.getFullYear()*10000+(d.getMonth()+1)*100+d.getDate()}
+
 /* Claviers à l'écran : réaction dès le toucher, et un appui entre deux touches compte pour la plus proche */
 function bindKeys(kb,fn){
   kb.style.touchAction='manipulation';
@@ -1252,7 +1275,7 @@ function show(id){
   if(leaveHooks[current])leaveHooks[current]();
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===id));
   current=id;if(window.noteRecent&&id!=='vProf')noteRecent(id);if(window.notePlay)notePlay(id);
-  if(id==='vHome'){refreshHome();if(window.homeApply)homeApply();if(window.checkTrophies)checkTrophies()}
+  if(id==='vHome'){refreshHome();if(window.homeApply)homeApply();if(window.checkTrophies)checkTrophies();if(window.defiDraw)defiDraw()}
   if(enterHooks[id])enterHooks[id]();
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.go);history.pushState({v:b.dataset.go},'')}));
@@ -1625,7 +1648,7 @@ refreshHome();
   function persist(win){if(mode==='daily')store.set('wDaily',{day:todayKey(),word:target,rows,done,won:!!win})}
   function stats(){const s=store.get('wStats',{p:0,w:0,s:0});$('wSp').textContent=s.p;$('wSw').textContent=s.w;$('wSs').textContent=s.s}
   function finish(win){
-    done=true;
+    done=true;if(mode==='daily'&&window.defiResult)defiResult('mot',win?rows.length:7);
     const s=store.get('wStats',{p:0,w:0,s:0});s.p++;if(win){s.w++;s.s++}else s.s=0;store.set('wStats',s);
   }
   function afterReveal(win,lost){
@@ -1675,6 +1698,7 @@ refreshHome();
     else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase());
   });
   enterHooks.vMot=()=>{stats();if(!target)startDaily();else render()};
+  window.motDaily=startDaily;
 })();
 
 /* ---------- PUISSANCE 4 ---------- */
@@ -2351,7 +2375,7 @@ refreshHome();
     G.done=true;clearInterval(tick);save();
     const key=G.daily?'jour':G.level,best=store.get('sdkBest',{}),rec=!best[key]||G.t<best[key];
     if(rec){best[key]=G.t;store.set('sdkBest',best)}
-    if(G.daily)store.set('sdkDailyDone',G.daily);
+    if(G.daily){store.set('sdkDailyDone',G.daily);if(window.defiResult)defiResult('sdk',G.t)}
     $('sdkM').textContent=(rec?'Nouveau record ! ':'Bravo ! ')+'Grille terminée en '+fmt(G.t);$('sdkM').className='msg hi';
     sfx.play('win');vibe([40,30,40]);
     el.classList.add('won');setTimeout(()=>el.classList.remove('won'),900);
@@ -2921,7 +2945,10 @@ refreshHome();
     for(let i=src.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[src[i],src[j]]=[src[j],src[i]]}
     const out=src.slice(0,n);seen=seen.concat(out).slice(-Math.floor(QUIZ.length*.7));store.set('qzSeen',seen);return out;
   }
-  function start(m){mode=m;const n=m==='duo'?ROUND*2:ROUND;qs=pick(n);qi=0;pts=[0,0];good=[0,0];show('qzPlay');sfx.play('start');ask()}
+  let daily=false;
+  function start(m){daily=false;mode=m;const n=m==='duo'?ROUND*2:ROUND;qs=pick(n);qi=0;pts=[0,0];good=[0,0];show('qzPlay');sfx.play('start');ask()}
+  window.quizDaily=()=>{const R=seededRng(dayKey()*31+7),src=[...QUIZ.keys()];for(let i=src.length-1;i>0;i--){const j=Math.floor(R()*(i+1));[src[i],src[j]]=[src[j],src[i]]}
+    mode='solo';daily=true;qs=src.slice(0,ROUND);qi=0;pts=[0,0];good=[0,0];show('qzPlay');sfx.play('start');ask()};
   const who=()=>mode==='duo'?qi%2:0;
   function ask(){
     locked=false;const q=QUIZ[qs[qi]],ans=q.slice(2).map((t,k)=>({t,ok:k===0}));
@@ -2946,6 +2973,7 @@ refreshHome();
   }
   function end(){
     show('qzEnd');
+    if(daily&&window.defiResult)defiResult('quiz',pts[0]);
     if(mode==='solo'){
       const b=store.get('qzBest',0),rec=pts[0]>b;if(rec)store.set('qzBest',pts[0]);$('qzB').textContent=Math.max(b,pts[0]);
       $('qzEndS').textContent=pts[0];$('qzEndM').textContent=(rec?'Nouveau record ! ':'')+good[0]+' bonne'+(good[0]>1?'s':'')+' réponse'+(good[0]>1?'s':'')+' sur '+ROUND;$('qzEndR').innerHTML='';
@@ -3128,14 +3156,15 @@ refreshHome();
   const el=$('tq');let G=null,tick=null,showNum=store.get('tqNum',false);
   const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
   const save=()=>store.set('tqState',G);
-  function shuffle(n){
-    const b=[...Array(n*n).keys()].map(i=>(i+1)%(n*n));let e=n*n-1,prev=-1;
+  function shuffle(n,R){
+    R=R||Math.random;const b=[...Array(n*n).keys()].map(i=>(i+1)%(n*n));let e=n*n-1,prev=-1;
     for(let k=0;k<n*n*40;k++){const x=e%n,y=Math.floor(e/n),o=[];if(x>0)o.push(e-1);if(x<n-1)o.push(e+1);if(y>0)o.push(e-n);if(y<n-1)o.push(e+n);
-      const c=o.filter(i=>i!==prev);const j=c[Math.floor(Math.random()*c.length)];b[e]=b[j];b[j]=0;prev=e;e=j}
-    if(solved(b))return shuffle(n);return b;
+      const c=o.filter(i=>i!==prev);const j=c[Math.floor(R()*c.length)];b[e]=b[j];b[j]=0;prev=e;e=j}
+    if(solved(b))return shuffle(n,R);return b;
   }
   const solved=b=>b.every((v,i)=>v===(i+1)%b.length);
-  function newGame(n,pic){G={n,b:shuffle(n),pic:pic==null?(G?G.pic:0):pic,mv:0,t:0,done:false};save();build();render();startTimer();$('tqM').textContent='Touche une pièce alignée avec la case vide pour la faire glisser';sfx.play('start')}
+  window.taquinDaily=()=>{newGame(4,0,seededRng(dayKey()*17+3));G.daily=dayKey();save();$('tqM').textContent='Défi du jour : résous ce 4×4 en un minimum de coups'};
+  function newGame(n,pic,R){G={n,b:shuffle(n,R),pic:pic==null?(G?G.pic:0):pic,mv:0,t:0,done:false};save();build();render();startTimer();$('tqM').textContent='Touche une pièce alignée avec la case vide pour la faire glisser';sfx.play('start')}
   function startTimer(){clearInterval(tick);tick=setInterval(()=>{if(current!=='vTq'||document.hidden||!G||G.done||!G.mv)return;G.t++;$('tqT').textContent=fmt(G.t);if(G.t%5===0)save()},1000)}
   function build(){
     el.style.setProperty('--n',G.n);el.innerHTML='';const src=PICS[G.pic];
@@ -3162,7 +3191,7 @@ refreshHome();
   function win(){
     G.done=true;clearInterval(tick);const k=G.n+'×'+G.n,best=store.get('tqBest',{}),rec=!best[k]||G.mv<best[k];if(rec){best[k]=G.mv;store.set('tqBest',best)}save();
     el.classList.add('won');setTimeout(()=>el.classList.remove('won'),500);
-    $('tqM').textContent=(rec?'Nouveau record ! ':'Bravo ! ')+'Résolu en '+G.mv+' coups et '+fmt(G.t);sfx.play('win');vibe([40,30,40]);
+    $('tqM').textContent=(rec?'Nouveau record ! ':'Bravo ! ')+'Résolu en '+G.mv+' coups et '+fmt(G.t);if(G.daily===dayKey()&&window.defiResult)defiResult('tq',G.mv);sfx.play('win');vibe([40,30,40]);
   }
   const busy=()=>G&&!G.done&&G.mv>0;
   document.querySelectorAll('#tqLvl button').forEach(b=>b.addEventListener('click',()=>{if(busy()&&!confirm('Abandonner la partie en cours ?'))return;newGame(+b.dataset.n)}));
@@ -3424,8 +3453,8 @@ $('mUpd').addEventListener('click',()=>{
 /* ---------- sauvegarde en ligne (records, parties, réglages) ---------- */
 window.cloud=(function(){
   const SKIP=/^(who|mock|mocksave_|_meta)/;let meta={},dirty=new Set(),timer=null,ready=false,last=store.get('_lastSync',0),busy=false;
-  try{meta=JSON.parse(localStorage.getItem('ka__meta')||'{}')}catch(e){}
-  const saveMeta=()=>{try{localStorage.setItem('ka__meta',JSON.stringify(meta))}catch(e){}};
+  try{meta=JSON.parse(localStorage.getItem(KA+'_meta')||'{}')}catch(e){}
+  const saveMeta=()=>{try{localStorage.setItem(KA+'_meta',JSON.stringify(meta))}catch(e){}};
   const enc=k=>k.replace(/[.#$\[\]\/]/g,'_');
   function ui(){const t=$('mSyncTxt');if(!t)return;
     if(net.me!==0&&net.me!==1)t.textContent='Sauvegarde : choisis qui joue ici';
@@ -3433,8 +3462,8 @@ window.cloud=(function(){
   function touch(k){if(SKIP.test(k)||k==='_lastSync')return;meta[k]=Date.now();saveMeta();dirty.add(k);if(ready){clearTimeout(timer);timer=setTimeout(push,2500)}}
   async function push(){
     if(!ready||!dirty.size)return;const upd={};
-    dirty.forEach(k=>{const v=localStorage.getItem('ka_'+k);upd[enc(k)]={k,v:v===null?null:v,t:meta[k]||Date.now()}});dirty.clear();
-    try{busy=true;ui();await net.savePut(upd);last=Date.now();try{localStorage.setItem('ka__lastSync',JSON.stringify(last))}catch(e){}}catch(e){Object.values(upd).forEach(x=>dirty.add(x.k))}busy=false;ui();
+    dirty.forEach(k=>{const v=localStorage.getItem(KA+k);upd[enc(k)]={k,v:v===null?null:v,t:meta[k]||Date.now()}});dirty.clear();
+    try{busy=true;ui();await net.savePut(upd);last=Date.now();try{localStorage.setItem(KA+'_lastSync',JSON.stringify(last))}catch(e){}}catch(e){Object.values(upd).forEach(x=>dirty.add(x.k))}busy=false;ui();
   }
   // au démarrage : récupère ce qui est plus récent en ligne, envoie ce qui est plus récent ici
   async function sync(manual){
@@ -3444,11 +3473,11 @@ window.cloud=(function(){
     try{
       const remote=await net.saveGet();const seen=new Set();
       for(const ek in remote){const x=remote[ek];if(!x||!x.k)continue;seen.add(x.k);
-        if(!meta[x.k]||x.t>meta[x.k]){if(x.v===null)localStorage.removeItem('ka_'+x.k);else localStorage.setItem('ka_'+x.k,x.v);meta[x.k]=x.t;changed.push(x.k)}
+        if(!meta[x.k]||x.t>meta[x.k]){if(x.v===null)localStorage.removeItem(KA+x.k);else localStorage.setItem(KA+x.k,x.v);meta[x.k]=x.t;changed.push(x.k)}
         else if(meta[x.k]>x.t)dirty.add(x.k)}
       for(const k in meta)if(!seen.has(k))dirty.add(k);
       // premières données sur cet appareil : on envoie tout ce qui existe
-      for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key.startsWith('ka_'))continue;const k=key.slice(3);if(SKIP.test(k)||k==='_lastSync'||k.startsWith('_'))continue;if(!meta[k]&&!seen.has(k)){meta[k]=Date.now();dirty.add(k)}}
+      for(let i=0;i<localStorage.length;i++){const key=localStorage.key(i);if(!key.startsWith(KA))continue;const k=key.slice(KA.length);if(SKIP.test(k)||k==='_lastSync'||k.startsWith('_'))continue;if(!meta[k]&&!seen.has(k)){meta[k]=Date.now();dirty.add(k)}}
       saveMeta();ready=true;await push();last=Date.now();
     }catch(e){if(manual)toast('Sauvegarde impossible pour l\'instant',3000)}
     busy=false;ui();
@@ -3515,6 +3544,57 @@ setTimeout(()=>cloud.sync(false),1500);
   $('pSwitch').addEventListener('click',async()=>{net.setMe(null);await askWho();render()});
   enterHooks.vProf=()=>{refreshHome();render()};
   window.notePlay=id=>{if(id==='vHome'||id==='vProf')return;const p=plays();p[id]=(p[id]||0)+1;store.set('plays',p)};
+})();
+
+/* ---------- défi du jour commun ---------- */
+(function(){
+  const TYPES=[
+    {id:'mot',name:'Mot du jour',view:'vMot',img:'img/mot.webp',rule:'Le moins d\'essais gagne',low:true,f:v=>v>6?'raté':v+' essai'+(v>1?'s':''),go:()=>window.motDaily&&motDaily()},
+    {id:'sdk',name:'Sudoku du jour',view:'vSdk',img:'img/sudoku.webp',rule:'Le plus rapide gagne',low:true,f:v=>Math.floor(v/60)+':'+String(v%60).padStart(2,'0'),go:()=>$('sdkDaily').click()},
+    {id:'quiz',name:'Quiz du jour',view:'vQz',img:'img/quiz.svg',rule:'Mêmes 10 questions, le plus de points gagne',low:false,f:v=>v+' pts',go:()=>window.quizDaily&&quizDaily()},
+    {id:'tq',name:'Taquin du jour',view:'vTq',img:'img/taquin.svg',rule:'Même mélange, le moins de coups gagne',low:true,f:v=>v+' coups',go:()=>window.taquinDaily&&taquinDaily()}
+  ];
+  const today=()=>{const k=dayKey(),d=Math.floor(Date.UTC(Math.floor(k/10000),Math.floor(k/100)%100-1,k%100)/864e5);return TYPES[d%TYPES.length]};
+  let res={},unW=null,watched=0;
+  function reconcile(){ // partie du jour déjà jouée directement dans le jeu
+    const t=today(),k=dayKey();if(store.get('defiDone',{}).day===k)return;
+    const d=new Date(),wk=d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+    if(t.id==='mot'){const w=store.get('wDaily',null);if(w&&w.day===wk&&w.done)defiResult('mot',w.won?w.rows.length:7)}
+    if(t.id==='sdk'){const g=store.get('sdkState',null);if(g&&g.daily===k&&g.done)defiResult('sdk',g.t)}
+  }
+  function draw(){
+    reconcile();const t=today(),k=dayKey(),mine=store.get('defiDone',{});
+    $('defi').hidden=false;$('dfImg').src=t.img;$('dfName').textContent=t.name;$('dfRule').textContent=t.rule;
+    const done=mine.day===k;$('dfGo').textContent=done?'Revoir':'Jouer';
+    const v=[0,1].map(p=>res['p'+p]!=null?res['p'+p]:(net.me===p&&done?mine.val:null));
+    let best=-1;if(v[0]!=null&&v[1]!=null&&v[0]!==v[1])best=(t.low?v[0]<v[1]:v[0]>v[1])?0:1;
+    $('dfRes').innerHTML=['Thomas','Cindy'].map((n,p)=>'<div class="'+(p===best?'best':'')+'"><span>'+(p===best?'👑 ':'')+n+'</span><i>'+(v[p]==null?'pas encore':t.f(v[p]))+'</i></div>').join('');
+  }
+  async function watch(){
+    const k=dayKey();if(watched===k||(net.me!==0&&net.me!==1))return;
+    if(!await net.start())return;if(unW)unW();watched=k;
+    unW=net.watch('defi/'+k,v=>{res=v||{};draw()});
+    flush();
+  }
+  function flush(){ // envoie un résultat gardé hors connexion
+    const m=store.get('defiDone',{});if(m.day!==dayKey()||m.sent||(net.me!==0&&net.me!==1)||!net.ok)return;
+    const me=net.me;net.transact('defi/'+m.day,cur=>{cur=cur||{};if(cur['p'+me]==null)cur['p'+me]=m.val;return cur},true).then(()=>{m.sent=1;store.set('defiDone',m)});
+  }
+  window.defiResult=function(type,val){
+    const t=today(),k=dayKey(),m=store.get('defiDone',{});
+    if(t.id!==type||m.day===k)return; // seul le premier essai du jour compte
+    store.set('defiDone',{day:k,val});toast('Résultat du défi enregistré : '+t.f(val),3000);
+    if(net.me===0||net.me===1){watch().then(flush)}
+  };
+  $('dfGo').addEventListener('click',async()=>{
+    if(net.me!==0&&net.me!==1)await askWho();
+    const t=today();show(t.view);history.pushState({v:t.view},'');
+    if(store.get('defiDone',{}).day!==dayKey())t.go();
+    watch();
+  });
+  window.defiDraw=()=>{draw();watch()};
+  draw();setTimeout(watch,1800);
+  if(location.hostname==='localhost')window.__defi={today,TYPES};
 })();
 
 /* ---------- service worker ---------- */
