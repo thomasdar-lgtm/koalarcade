@@ -333,19 +333,24 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #dam .pc.kg::after{content:"";width:46%;height:46%;background:no-repeat center/contain url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M3 18h18l-2-11-5 5-2-7-2 7-5-5z' fill='%23fff' stroke='%2300071a' stroke-width='1.5' stroke-linejoin='round'/%3E%3C/svg%3E")}
 #dam .pc.cap{opacity:.35}
 /* ---- solitaire ---- */
-#vSol{--g:var(--felt);--cw:min(calc((100vw - 32px - 36px) / 7),60px);--ch:calc(var(--cw) * 1.4)}
-#vSol .main{background:radial-gradient(120% 80% at 50% 0%,#145a36,#0a2a1c 70%);gap:10px}
-.solTop{display:grid;grid-template-columns:repeat(7,var(--cw));gap:6px}
-.solTab{display:grid;grid-template-columns:repeat(7,var(--cw));gap:6px;flex:1;width:max-content}
-.solCol{position:relative;min-height:var(--ch)}
+#vSol{--g:var(--felt);--cw:min(calc((100vw - 16px - 24px) / 7),74px);--ch:calc(var(--cw) * 1.42)}
+#vSol .main{background:radial-gradient(120% 80% at 50% 0%,#145a36,#0a2a1c 70%);gap:10px;padding-left:8px;padding-right:8px}
+.solTop{display:grid;grid-template-columns:repeat(7,var(--cw));gap:4px}
+.solTab{display:grid;grid-template-columns:repeat(7,var(--cw));gap:4px;flex:1;width:max-content;touch-action:none}
+.solCol{position:relative;min-height:100%}
+.solCol.drop{background:#ffffff14;border-radius:8px}
+#vSol .slot.drop{border-color:var(--sun);background:#ffc93c22}
+#solDrag{position:fixed;left:0;top:0;z-index:40;pointer-events:none;filter:drop-shadow(0 10px 14px #000a)}
+#solDrag .card{transition:none}
 #vSol .slot{width:var(--cw);height:var(--ch);border-radius:8px;border:2px dashed #ffffff30;position:relative;display:grid;place-items:center;color:#ffffff40;font-size:calc(var(--cw) * .5)}
 #vSol .card{position:absolute;left:0;width:var(--cw);height:var(--ch);border-radius:7px;background:#fffdf7;box-shadow:0 1px 3px #0007;color:#1a1a2e;font-weight:900;cursor:pointer;transition:top .15s}
-#vSol .card .rk{position:absolute;left:4px;top:2px;font-size:calc(var(--cw) * .32);line-height:1}
-#vSol .card .su{position:absolute;right:3px;top:2px;font-size:calc(var(--cw) * .28);line-height:1}
+#vSol .card .rk{position:absolute;left:4px;top:3px;font-size:calc(var(--cw) * .34);line-height:1;letter-spacing:-.04em}
+#vSol .card .su{position:absolute;right:4px;top:3px;font-size:calc(var(--cw) * .3);line-height:1}
 #vSol .card .bg{position:absolute;inset:0;display:grid;place-items:center;font-size:calc(var(--cw) * .62);padding-top:22%}
 #vSol .card.red{color:#d81e3c}
 #vSol .card.down{background:repeating-linear-gradient(45deg,#2b4290 0 6px,#24357a 6px 12px);border:2px solid #fff}
 #vSol .card.hl{box-shadow:0 0 0 3px var(--sun),0 1px 3px #0007}
+#vSol .card.lift{opacity:.25}
 #vSol .card.bad{animation:shake .3s}
 .solBar{display:flex;gap:8px;width:min(94vw,440px)}
 .solBar button{flex:1;padding:10px;border-radius:12px;background:#0a2a1ccc;border:1.5px solid #ffffff25;font-weight:800;font-size:14px}
@@ -918,7 +923,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.8';
+const APP_VERSION='2.0.9';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -2685,44 +2690,96 @@ refreshHome();
       if(!G.counted){G.counted=true;store.set('solWins',store.get('solWins',0)+1);const b=store.get('solBest',0);if(!b||G.t<b)store.set('solBest',G.t)}
       save();$('solM').textContent='Gagné en '+G.moves+' coups et '+fmt(G.t)+' !';sfx.play('win');vibe([40,30,40]);render()}
   }
-  function cardEl(c,x){
+  function cardEl(c){
     const e=document.createElement('div');
     if(!c.up){e.className='card down';return e}
     e.className='card'+(red(c.s)?' red':'');e.innerHTML='<span class="rk">'+RK[c.r]+'</span><span class="su">'+SU[c.s]+'</span><span class="bg">'+SU[c.s]+'</span>';return e;
   }
+  let layout=[]; // positions des cartes de chaque colonne, pour retrouver la carte touchée
+  const cardW=()=>Math.min((document.documentElement.clientWidth-40)/7,74); // même calcul que --cw
   function render(){
     if(!G)return;
-    const cw=parseFloat(getComputedStyle($('vSol')).getPropertyValue('--cw'))||50,ch=cw*1.4;
+    const cw=cardW(),ch=cw*1.42;
     top.innerHTML='';
-    // pioche
-    const st=document.createElement('div');st.className='slot';st.textContent=G.stock.length?'':'↻';
+    const st=document.createElement('div');st.className='slot';st.dataset.z='stock';st.textContent=G.stock.length?'':'↻';
     if(G.stock.length){const e=cardEl({up:false});e.style.top='0';st.appendChild(e)}
-    st.addEventListener('click',drawStock);top.appendChild(st);
-    // défausse (3 visibles en mode tirer 3)
-    const ws=document.createElement('div');ws.className='slot';ws.style.gridColumn='span 2';ws.style.width='auto';ws.style.borderStyle=G.waste.length?'none':'dashed';
-    const vis=G.waste.slice(-(G.draw3?3:1));vis.forEach((c,k)=>{const e=cardEl(c);e.style.top='0';e.style.left=(k*cw*.42)+'px';if(k===vis.length-1){e.addEventListener('click',ev=>{ev.stopPropagation();if(!autoMove('w'))bad(e)})}ws.appendChild(e)});
+    top.appendChild(st);
+    const ws=document.createElement('div');ws.className='slot';ws.dataset.z='w';ws.style.gridColumn='span 2';ws.style.width='auto';ws.style.borderStyle=G.waste.length?'none':'dashed';
+    const vis=G.waste.slice(-(G.draw3?3:1));vis.forEach((c,k)=>{const e=cardEl(c);e.style.top='0';e.style.left=(k*cw*.42)+'px';ws.appendChild(e)});
     top.appendChild(ws);
-    // fondations
-    for(let f=0;f<4;f++){const s=document.createElement('div');s.className='slot';s.textContent=SU[f];const fd=G.found[f];
-      if(fd.length){const e=cardEl(fd[fd.length-1]);e.style.top='0';if(hl==='f'+f)e.classList.add('hl');e.addEventListener('click',()=>{if(!autoMove('f'+f))bad(e)});s.appendChild(e)}
-      top.appendChild(s)}
-    // colonnes
-    tab.innerHTML='';const avail=Math.max(ch*2,(tab.getBoundingClientRect().height||window.innerHeight-ch-260));
+    for(let f=0;f<4;f++){const sl=document.createElement('div');sl.className='slot';sl.dataset.z='f'+f;sl.textContent='A';const fd=G.found[f];
+      if(fd.length){const e=cardEl(fd[fd.length-1]);e.style.top='0';if(hl==='f'+f)e.classList.add('hl');sl.appendChild(e)}
+      top.appendChild(sl)}
+    tab.innerHTML='';layout=[];
+    const avail=Math.max(ch*2,tab.getBoundingClientRect().height||window.innerHeight-ch-260);
     G.tab.forEach((col,k)=>{
-      const d=document.createElement('div');d.className='solCol';
-      const nd=col.filter(c=>!c.up).length,nu=col.length-nd;let dn=ch*.16,up=ch*.3;
+      const d=document.createElement('div');d.className='solCol';d.dataset.z='t'+k;
+      const nd=col.filter(c=>!c.up).length,nu=col.length-nd;let dn=ch*.2,up=ch*.38;
       const need=nd*dn+Math.max(0,nu-1)*up+ch;if(need>avail){const f=(avail-ch)/(nd*dn+Math.max(0,nu-1)*up);dn*=f;up*=f}
-      let y=0;col.forEach((c,i)=>{const e=cardEl(c);e.style.top=y+'px';y+=c.up?up:dn;
-        if(c.up){e.addEventListener('click',()=>{if(!autoMove('t'+k,i))bad(e)})}
+      let y=0;const ys=[];col.forEach((c,i)=>{const e=cardEl(c);e.style.top=y+'px';ys.push(y);y+=c.up?up:dn;
         if(hl==='t'+k&&i===col.length-1)e.classList.add('hl');d.appendChild(e)});
-      if(!col.length){const s=document.createElement('div');s.className='slot';s.textContent='R';d.appendChild(s)}
-      d.style.height=(y+ch)+'px';tab.appendChild(d);
+      if(!col.length){const sl=document.createElement('div');sl.className='slot';sl.textContent='R';d.appendChild(sl)}
+      layout[k]=ys;tab.appendChild(d);
     });
     $('solMv').textContent=G.moves;$('solT').textContent=fmt(G.t);
     $('solDraw').textContent=G.draw3?'Tirer 3':'Tirer 1';
     $('solAuto').hidden=!(canAuto()&&!G.done);
     if(!G.done)$('solM').textContent='';
   }
+  // source touchée : 'w', 'fN' ou 'tN' + index de carte
+  function pick(e){
+    const z=e.target.closest('[data-z]');if(!z)return null;const k=z.dataset.z;
+    if(k==='stock')return{src:'stock'};
+    if(k==='w')return G.waste.length?{src:'w'}:null;
+    if(k[0]==='f')return G.found[+k[1]].length?{src:k}:null;
+    const c=+k[1],col=G.tab[c];if(!col.length)return null;
+    const y=e.clientY-z.getBoundingClientRect().top,ys=layout[c];let i=col.length-1;
+    for(let j=ys.length-1;j>=0;j--){if(y>=ys[j]){i=j;break}}
+    while(i<col.length&&!col[i].up)i++; // une carte cachée touchée : on prend la première visible
+    return i<col.length?{src:'t'+c,idx:i}:null;
+  }
+  function cardsOf(p){if(p.src==='w')return[G.waste[G.waste.length-1]];if(p.src[0]==='f'){const f=G.found[+p.src[1]];return[f[f.length-1]]}return G.tab[+p.src[1]].slice(p.idx)}
+  function moveTo(p,dst){ // déplacement choisi par glisser-déposer
+    const cards=cardsOf(p),c=cards[0];
+    const take=()=>{if(p.src==='w')G.waste.pop();else if(p.src[0]==='f')G.found[+p.src[1]].pop();else G.tab[+p.src[1]].splice(p.idx)};
+    if(dst[0]==='f'){const f=+dst[1];if(cards.length===1&&p.src!==dst&&canFound(c,G.found[f])){snap();take();G.found[f].push(c);hl=dst;after('merge');return true}return false}
+    if(dst[0]==='t'){const k=+dst[1];if(p.src!==dst&&canTab(c,G.tab[k])){snap();take();G.tab[k].push(...cards);hl=dst;after();return true}}
+    return false;
+  }
+  let drag=null;
+  function zoneAt(x,y){const els=document.elementsFromPoint(x,y);for(const el of els){if(el.closest('#solDrag'))continue;const z=el.closest('#vSol [data-z]');if(z&&(z.dataset.z[0]==='t'||z.dataset.z[0]==='f'))return z}return null}
+  $('vSol').addEventListener('pointerdown',e=>{
+    if(!G||G.done||e.button>0)return;const p=pick(e);if(!p)return;e.preventDefault();
+    if(p.src==='stock'){drawStock();return}
+    drag={p,x:e.clientX,y:e.clientY,moved:false,el:null,id:e.pointerId,z:null,card:e.target.closest('.card')};
+  });
+  window.addEventListener('pointermove',e=>{
+    if(!drag||e.pointerId!==drag.id)return;
+    const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
+    if(!drag.moved&&Math.hypot(dx,dy)<10)return;
+    if(!drag.moved){ // début du glisser : copie de la pile sous le doigt
+      drag.moved=true;const cw=cardW(),ch=cw*1.42;
+      const box=document.createElement('div');box.id='solDrag';box.style.width=cw+'px';
+      cardsOf(drag.p).forEach((c,i)=>{const ce=cardEl(c);ce.style.top=(i*ch*.38)+'px';box.appendChild(ce)});
+      $('vSol').appendChild(box);drag.el=box;
+      const src=drag.p.src;drag.lifted=src[0]==='t'?[...document.querySelector('[data-z='+src+']').querySelectorAll('.card')].slice(drag.p.idx):(drag.card?[drag.card]:[]);
+      drag.lifted.forEach(x=>x.classList.add('lift'));
+      const r=drag.card?drag.card.getBoundingClientRect():null;drag.ox=r?drag.x-r.left:cw/2;drag.oy=r?drag.y-r.top:ch/3;
+    }
+    drag.el.style.transform='translate('+(e.clientX-drag.ox)+'px,'+(e.clientY-drag.oy)+'px)';
+    const z=zoneAt(e.clientX,e.clientY);if(z!==drag.z){if(drag.z)drag.z.classList.remove('drop');drag.z=z;if(z)z.classList.add('drop')}
+  });
+  function endDrag(e){
+    if(!drag||e.pointerId!==drag.id)return;const d=drag;drag=null;
+    if(d.el)d.el.remove();if(d.z)d.z.classList.remove('drop');
+    if(!d.moved){ // simple toucher : meilleure destination automatique
+      if(!autoMove(d.p.src,d.p.idx)){const ce=[...document.querySelectorAll('#vSol .card')].find(x=>x.getBoundingClientRect().top<=d.y&&x.getBoundingClientRect().bottom>=d.y&&x.getBoundingClientRect().left<=d.x&&x.getBoundingClientRect().right>=d.x);bad(ce)}
+      return;
+    }
+    if(d.lifted)d.lifted.forEach(x=>x.classList.remove('lift'));
+    if(!d.z||!moveTo(d.p,d.z.dataset.z)){sfx.play('error');render()}
+  }
+  window.addEventListener('pointerup',endDrag);window.addEventListener('pointercancel',endDrag);
   $('solUndo').addEventListener('click',()=>{if(!hist.length||!G||G.done)return;const t=G.t;G=JSON.parse(hist.pop());G.t=t;hl=null;save();render();sfx.play('tick')});
   $('solAuto').addEventListener('click',autoFinish);
   $('solNew').addEventListener('click',()=>{if(G&&G.moves&&!G.done&&!confirm('Abandonner la partie en cours ?'))return;deal(G&&G.draw3);render();sfx.play('start')});
