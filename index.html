@@ -507,11 +507,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <section class="view" id="vC4">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/p4.webp" alt="" width="40" height="40"><h1>Puissance 4</h1></header>
   <div class="main">
-    <div class="mbar"><div class="seg" id="c4Mode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="mbar"><div class="seg" id="c4Mode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="c4Net" hidden></div>
     <div class="players">
       <div class="pl" id="c4P0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="c4T0"></small></div><strong id="c4A">0</strong></div>
-      <div class="pl" id="c4P1" style="--pc:var(--sun)"><span class="tok b"></span><div><b>Cindy</b><small id="c4T1"></small></div><strong id="c4B">0</strong></div>
+      <div class="pl" id="c4P1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="c4T1"></small></div><strong id="c4B">0</strong></div>
     </div>
     <div id="c4"></div>
     <div class="msg hi" id="c4M"></div>
@@ -523,7 +523,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <section class="view" id="vTtt">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/morpion.webp" alt="" width="40" height="40"><h1>Morpion</h1></header>
   <div class="main">
-    <div class="mbar"><div class="seg" id="tttMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="mbar"><div class="seg" id="tttMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="tttNet" hidden></div>
     <div class="players">
       <div class="pl" id="tttP0" style="--pc:var(--red)"><svg class="tok" viewBox="0 0 30 30" style="background:none;box-shadow:none"><path d="M7 7l16 16M23 7L7 23" stroke="var(--red)" stroke-width="5" stroke-linecap="round"/></svg><div><b>Thomas</b><small id="tttT0"></small></div><strong id="tttA">0</strong></div>
@@ -567,7 +567,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <section class="view" id="vMem">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/memory.webp" alt="" width="40" height="40"><h1>Memory</h1></header>
   <div class="main">
-    <div class="mbar"><div class="seg" id="memMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="mbar"><div class="seg" id="memMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="memNet" hidden></div>
     <div class="players">
       <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
@@ -638,7 +638,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/bataille.svg" alt="" width="40" height="40"><h1>Bataille</h1>
     <div class="chips"><div class="chip"><small>Thomas</small><b id="bnA">0</b></div><div class="chip"><small>Cindy</small><b id="bnB">0</b></div></div></header>
   <div class="main">
-    <div class="mbar"><div class="seg" id="bnMode"><button data-m="local">Sur ce téléphone</button><button data-m="online">En ligne</button></div></div>
+    <div class="mbar"><div class="seg" id="bnMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="bnNet" hidden></div>
     <div id="bnPlace">
       <div class="msg hi" id="bnTitle"></div>
@@ -682,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.8.3';
+const APP_VERSION='1.9.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -825,48 +825,65 @@ function askWho(){
 }
 function whoUI(){$('mWhoTxt').textContent=net.me===0||net.me===1?'Ce téléphone : '+NAMES[net.me]:'Choisir qui joue ici'}
 
-/* Brique commune aux jeux à deux : mode « ce téléphone » ou « en ligne ».
-   cfg : key, fresh(prev), render(S,prev,ctx), loadLocal(), saveLocal(S) */
+/* Brique commune aux jeux à deux : « ce téléphone », « contre l'IA » ou « en ligne ».
+   cfg : key, fresh(prev), render(S,prev,ctx), loadLocal(), saveLocal(S), scoreField ('sc'),
+         ai(S,ctx,niveau) -> {fn, delay} ou null (coup de l'IA, qui joue toujours le joueur 1) */
+const AI_LV=['Facile','Moyen','Difficile'];
+let aiLevel=store.get('aiLevel',1); // 0 facile, 1 moyen, 2 difficile
 function twoPlayer(cfg){
-  const seg=$(cfg.key+'Mode'),st=$(cfg.key+'Net');
-  let mode=store.get(cfg.key+'Mode','local'),S=null,unW=null,unP=null,other=false,gen=0;
+  const seg=$(cfg.key+'Mode'),st=$(cfg.key+'Net'),view=seg.closest('.view'),field=cfg.scoreField||'sc';
+  let mode=store.get(cfg.key+'Mode','local'),S=null,unW=null,unP=null,other=false,gen=0,aiT=null;
+  if(mode==='ai'&&!cfg.ai)mode='local';
+  if(!cfg.ai){const b=seg.querySelector('[data-m=ai]');if(b)b.remove()}
   const ctx={
     get online(){return mode==='online'},
-    get me(){return net.me},
+    get ai(){return mode==='ai'},
+    get me(){return mode==='online'?net.me:0},
     // peut-on agir pour le joueur p depuis ce téléphone ?
-    mine(p){return mode==='local'||p===net.me},
+    mine(p){return mode==='local'||(mode==='ai'?p===0:p===net.me)},
     act(fn){
-      if(mode==='local'){const r=fn(clone(S));if(r){const p=S;S=r;cfg.saveLocal(S);cfg.render(S,p,ctx)}return}
+      if(mode!=='online'){const r=fn(clone(S));if(r){const p=S;S=r;save();draw(S,p)}return}
       net.transact(cfg.key,cur=>cur?fn(cur):null);
     },
-    get state(){return S}
+    get state(){return S},
+    get level(){return aiLevel}
   };
+  function save(){if(mode==='local')cfg.saveLocal(S);else if(mode==='ai')store.set(cfg.key+'AIScore',S[field])}
+  function load(){const L=cfg.loadLocal();if(mode==='ai')L[field]=store.get(cfg.key+'AIScore',[0,0]);return L}
+  function names(){NAMES[1]=mode==='ai'?'Koala':'Cindy';view.querySelectorAll('[data-p1]').forEach(e=>e.textContent=NAMES[1])}
+  function draw(cur,prev){
+    names();cfg.render(cur,prev,ctx);
+    clearTimeout(aiT);
+    if(mode==='ai'&&cfg.ai&&current===view.id){const m=cfg.ai(cur,ctx,aiLevel);if(m){const g=gen;aiT=setTimeout(()=>{if(g===gen&&S===cur)ctx.act(m.fn)},m.delay||650)}}
+  }
   function status(t,on){st.textContent=t;st.classList.toggle('on',!!on)}
+  function aiStatus(){status('Contre Koala, niveau '+AI_LV[aiLevel].toLowerCase()+' (touche ici pour changer)',true)}
   function stopOnline(){if(unW){unW();unW=null}if(unP){unP();unP=null}}
-  function segUI(){seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));st.hidden=mode!=='online'}
+  function segUI(){seg.querySelectorAll('button').forEach(b=>b.classList.toggle('on',b.dataset.m===mode));st.hidden=mode==='local';if(mode==='ai')aiStatus()}
+  st.addEventListener('click',()=>{if(mode!=='ai')return;aiLevel=(aiLevel+1)%3;store.set('aiLevel',aiLevel);aiStatus();sfx.play('tick')});
   async function goOnline(){
     const g=++gen;status('Connexion…');
     const k=await net.start();if(g!==gen)return;
     if(!k){status(window.FIREBASE_CONFIG?'Connexion à Firebase impossible, vérifie ta connexion':'Le jeu en ligne sera disponible dès que Firebase sera configuré');return}
     await askWho();if(g!==gen)return;
-    const names=()=>NAMES[1-net.me]+(other?' est en ligne':' n\'est pas encore là');
-    unP=net.presence(o=>{other=o;if(mode==='online')status('Tu joues '+NAMES[net.me]+' · '+names(),o)});
+    const nm=()=>NAMES[1-net.me]+(other?' est en ligne':' n\'est pas encore là');
+    unP=net.presence(o=>{other=o;if(mode==='online')status('Tu joues '+NAMES[net.me]+' · '+nm(),o)});
     let first=true;
     unW=net.watch(cfg.key,v=>{
       if(g!==gen)return;
       if(v===null){if(first)net.transact(cfg.key,cur=>cur||cfg.fresh(null),true);first=false;return}
-      first=false;const p=S;S=v;cfg.render(S,p,ctx);
+      first=false;const p=S;S=v;draw(S,p);
     });
   }
   function setMode(m){
-    gen++;stopOnline();mode=m;store.set(cfg.key+'Mode',m);segUI();
-    if(m==='local'){const p=null;S=cfg.loadLocal();cfg.render(S,p,ctx)}else goOnline();
+    gen++;clearTimeout(aiT);stopOnline();mode=m;store.set(cfg.key+'Mode',m);names();segUI();
+    if(m==='online')goOnline();else{S=load();draw(S,null)}
   }
   seg.querySelectorAll('button').forEach(b=>b.addEventListener('click',()=>{if(b.dataset.m!==mode){sfx.play('tick');setMode(b.dataset.m)}}));
   return{
     ctx,
-    enter(){segUI();if(mode==='online'){if(!unW)goOnline()}else{if(!S)S=cfg.loadLocal();cfg.render(S,null,ctx)}},
-    leave(){if(mode==='online'){gen++;stopOnline();S=null}}
+    enter(){names();segUI();if(mode==='online'){if(!unW)goOnline()}else{if(!S)S=load();draw(S,null)}},
+    leave(){gen++;clearTimeout(aiT);NAMES[1]='Cindy';if(mode==='online'){stopOnline();S=null}}
   };
 }
 
@@ -1334,12 +1351,42 @@ refreshHome();
       if(prev&&!prev.over){setTimeout(()=>{hl();sfx.play('win');vibe([40,30,40])},dl)}else hl();
     }else if(S.over&&prev&&!prev.over)setTimeout(()=>sfx.play('draw'),400);
     $('c4A').textContent=S.sc[0];$('c4B').textContent=S.sc[1];
-    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('c4P'+p).classList.toggle('on',on);$('c4T'+p).textContent=on?(ctx.online&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('c4P'+p).classList.toggle('on',on);$('c4T'+p).textContent=on?((ctx.online||ctx.ai)&&p!==ctx.me?'Réfléchit…':'À toi de jouer'):''});
     clearTimeout(flashT);
-    $('c4M').textContent=S.over?(S.win?NAMES[+S.b[+S.win.split(',')[0]]]+' gagne la manche !':'Match nul'):(ctx.online&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
+    $('c4M').textContent=S.over?(S.win?NAMES[+S.b[+S.win.split(',')[0]]]+' gagne la manche !':'Match nul'):((ctx.online||ctx.ai)&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
   }
+
+  // IA : minimax avec élagage alpha-bêta
+  function aiCol(S,lv){
+    const b=S.b.split(''),valid=c=>b[c]==='.',order=[3,2,4,1,5,0,6];
+    const drop=(c,ch)=>{for(let r=H-1;r>=0;r--)if(b[r*W+c]==='.'){b[r*W+c]=ch;return r*W+c}return -1};
+    const won=(i,ch)=>{const r=Math.floor(i/W),c=i%W;for(const[dr,dc]of[[0,1],[1,0],[1,1],[1,-1]]){let n=1;for(const s of[1,-1]){let rr=r+dr*s,cc=c+dc*s;while(rr>=0&&rr<H&&cc>=0&&cc<W&&b[rr*W+cc]===ch){n++;rr+=dr*s;cc+=dc*s}}if(n>=4)return true}return false};
+    function evalWin(w){let a=0,o=0,e=0;for(const x of w){if(x==='1')a++;else if(x==='0')o++;else e++}if(a===4)return 1000;if(a===3&&e===1)return 6;if(a===2&&e===2)return 2;if(o===3&&e===1)return -8;if(o===2&&e===2)return -2;return 0}
+    function heur(){let sc=0;for(let r=0;r<H;r++)if(b[r*W+3]==='1')sc+=3;else if(b[r*W+3]==='0')sc-=3;
+      for(let r=0;r<H;r++)for(let c=0;c<W;c++)for(const[dr,dc]of[[0,1],[1,0],[1,1],[1,-1]]){const er=r+dr*3,ec=c+dc*3;if(er<0||er>=H||ec<0||ec>=W)continue;const w=[];for(let k=0;k<4;k++)w.push(b[(r+dr*k)*W+c+dc*k]);sc+=evalWin(w)}return sc}
+    function mm(d,a,be,maxi){
+      if(d===0)return heur();
+      let best=maxi?-1e9:1e9,any=false;
+      for(const c of order){if(!valid(c))continue;any=true;const i=drop(c,maxi?'1':'0');
+        let v;if(won(i,maxi?'1':'0'))v=maxi?100000+d:-100000-d;else v=mm(d-1,a,be,!maxi);
+        b[i]='.';
+        if(maxi){if(v>best)best=v;if(best>a)a=best}else{if(v<best)best=v;if(best<be)be=best}
+        if(a>=be)break}
+      return any?best:0;
+    }
+    const cols=order.filter(valid);
+    if(lv===0&&Math.random()<.4){ // facile : souvent un coup au hasard, mais gagne ou bloque quand c'est évident
+      for(const c of cols){const i=drop(c,'1');const w=won(i,'1');b[i]='.';if(w)return c}
+      for(const c of cols){const i=drop(c,'0');const w=won(i,'0');b[i]='.';if(w)return c}
+      return cols[Math.floor(Math.random()*cols.length)];
+    }
+    const depth=[2,4,6][lv];let best=-1e10,bc=cols[0];
+    for(const c of cols){const i=drop(c,'1');const v=won(i,'1')?1e9:mm(depth-1,-1e10,1e10,false);b[i]='.';if(v>best){best=v;bc=c}}
+    return bc;
+  }
+  function ai(S,ctx,lv){if(S.over||S.turn!==1)return null;const c=aiCol(S,lv);return{fn:s=>move(s,c,1),delay:600}}
   const game=twoPlayer({
-    key:'c4',fresh,render,
+    key:'c4',fresh,render,ai,
     loadLocal(){const st=store.get('c4Starter',0);return{...fresh(null),sc:store.get('c4Score',[0,0]),starter:st,turn:st}},
     saveLocal(S){store.set('c4Score',S.sc);store.set('c4Starter',S.starter)}
   });
