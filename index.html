@@ -571,7 +571,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
     <div class="netst" id="memNet" hidden></div>
     <div class="players">
       <div class="pl" id="memP0" style="--pc:var(--red)"><span class="tok a"></span><div><b>Thomas</b><small id="memT0"></small></div><strong id="memA">0</strong></div>
-      <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b>Cindy</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
+      <div class="pl" id="memP1" style="--pc:var(--sun)"><span class="tok b"></span><div><b data-p1>Cindy</b><small id="memT1"></small></div><strong id="memB">0</strong></div>
     </div>
     <div id="mem"></div>
     <div class="msg hi" id="memM"></div>
@@ -682,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.9.1';
+const APP_VERSION='1.9.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1687,7 +1687,7 @@ refreshHome();
     return S;
   }
   function back(S,mv){if(S.mv!==mv||ups(S).length!==2)return null;S.up='';S.turn=1-S.turn;S.mv++;S.ev='back';return S}
-  let built=-1,backT=null;
+  let built=-1,backT=null,mem={},memG=-1;
   function build(S){
     el.innerHTML='';faces(S).forEach((v,i)=>{
       const d=document.createElement('button');d.className='card';d.setAttribute('aria-label','Carte '+(i+1));
@@ -1695,7 +1695,28 @@ refreshHome();
       d.addEventListener('click',()=>tap(i));el.appendChild(d);
     });built=S.g;
   }
+  function remember(S,ctx){ // mémoire imparfaite de l'IA selon le niveau
+    if(memG!==S.g){mem={};memG=S.g}
+    if(!ctx.ai)return;const F=faces(S),keep=[.35,.7,.97][ctx.level];
+    ups(S).forEach(i=>{if(!(i in mem))mem[i]=Math.random()<keep?F[i]:null});
+  }
+  function ai(S,ctx){
+    if(S.over||S.turn!==1||S.ev==='miss')return null;
+    const F=faces(S),u=ups(S),open=[...Array(N).keys()].filter(i=>S.ok[i]==='-'&&!u.includes(i));
+    const known=i=>mem[i]!=null&&S.ok[i]==='-',rnd=a=>a[Math.floor(Math.random()*a.length)];
+    const unknown=open.filter(i=>!known(i));let pick;
+    if(u.length===0){
+      for(const i of open)if(known(i)){const j=open.find(k=>k!==i&&known(k)&&mem[k]===mem[i]);if(j!==undefined){pick=i;break}}
+      if(pick===undefined)pick=unknown.length?rnd(unknown):rnd(open);
+    }else{
+      const f=F[u[0]],j=open.find(k=>known(k)&&mem[k]===f);
+      pick=j!==undefined?j:(unknown.length?rnd(unknown):rnd(open));
+    }
+    if(pick===undefined)return null;
+    return{fn:s=>flip(s,pick,1),delay:u.length?700:900};
+  }
   function render(S,prev,ctx){
+    remember(S,ctx);
     if(built!==S.g||el.children.length!==N)build(S);
     const u=ups(S),evt=prev&&prev.g===S.g&&prev.mv!==S.mv?S.ev:'';
     for(let i=0;i<N;i++){
@@ -1714,11 +1735,11 @@ refreshHome();
       backT=setTimeout(()=>ctx.act(s=>back(s,mv)),mineTurn?BACK:BACK+1800);
     }
     $('memA').textContent=S.pairs[0];$('memB').textContent=S.pairs[1];
-    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('memP'+p).classList.toggle('on',on);$('memT'+p).textContent=on?(ctx.online&&p!==ctx.me?'Cherche une paire…':'À toi de jouer'):'Victoires '+S.wins[p]});
-    $('memM').textContent=S.over?(S.pairs[0]===S.pairs[1]?'Égalité, '+S.pairs[0]+' paires chacun':NAMES[S.pairs[0]>S.pairs[1]?0:1]+' gagne avec '+Math.max(...S.pairs)+' paires !'):(ctx.online&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
+    [0,1].forEach(p=>{const on=!S.over&&S.turn===p;$('memP'+p).classList.toggle('on',on);$('memT'+p).textContent=on?((ctx.online||ctx.ai)&&p!==ctx.me?'Cherche une paire…':'À toi de jouer'):'Victoires '+S.wins[p]});
+    $('memM').textContent=S.over?(S.pairs[0]===S.pairs[1]?'Égalité, '+S.pairs[0]+' paires chacun':NAMES[S.pairs[0]>S.pairs[1]?0:1]+' gagne avec '+Math.max(...S.pairs)+' paires !'):((ctx.online||ctx.ai)&&S.turn!==ctx.me?'Au tour de '+NAMES[S.turn]:'');
   }
   const game=twoPlayer({
-    key:'mem',fresh,render,
+    key:'mem',fresh,render,ai,scoreField:'wins',
     loadLocal(){const S=fresh({starter:store.get('memStarter',0),wins:store.get('memScore',[0,0]),g:Date.now()%100000});return S},
     saveLocal(S){store.set('memScore',S.wins);store.set('memStarter',S.starter)}
   });
