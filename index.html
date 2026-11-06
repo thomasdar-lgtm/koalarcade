@@ -385,6 +385,19 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .mmList{display:flex;flex-wrap:wrap;gap:6px;justify-content:center;width:min(94vw,440px)}
 .mmList span{padding:5px 10px;border-radius:99px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:14px}
 .mmList span.ok{text-decoration:line-through;color:var(--mut);border-color:transparent;background:color-mix(in srgb,var(--g) 18%,var(--deep))}
+/* ---- taquin ---- */
+#vTq{--g:var(--pink)}
+#tq{--w:min(92vw,calc(100vh - 360px),420px);width:var(--w);height:var(--w);flex:none;position:relative;border-radius:18px;background:var(--deep);box-shadow:0 0 0 2px var(--line),0 10px 26px #0008;touch-action:none}
+#tq .tl{position:absolute;left:0;top:0;width:calc((var(--w) - 8px) / var(--n) - 4px);height:calc((var(--w) - 8px) / var(--n) - 4px);border-radius:12px;
+  transform:translate(calc(4px + var(--x) * (var(--w) - 8px) / var(--n) + 2px),calc(4px + var(--y) * (var(--w) - 8px) / var(--n) + 2px));transition:transform .12s ease-out;
+  display:grid;place-items:center;font-weight:900;font-size:calc(var(--w) / var(--n) * .38);color:#fff;cursor:pointer;background-size:calc(var(--w) - 8px) calc(var(--w) - 8px);box-shadow:inset 0 -4px 0 #0003}
+#tq .tl.num{background:linear-gradient(180deg,#ff8fc4,#e0478f)}
+#tq .tl.ok{box-shadow:inset 0 -4px 0 #0003,0 0 0 2px #2fe39a}
+#tq .tl i{position:absolute;right:5px;bottom:3px;font-style:normal;font-size:calc(var(--w) / var(--n) * .2);text-shadow:0 1px 3px #000c}
+#tq.won .tl{animation:pop .4s ease-out}
+.tqOpts{display:flex;gap:8px;width:min(92vw,420px)}
+.tqOpts .seg{flex:1}
+#tqPic{flex:none;width:48px;height:42px;border-radius:12px;background:var(--plate);box-shadow:0 3px 0 #030a1f;background-size:cover;background-position:center;border:2px solid var(--line)}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -518,6 +531,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vMm" style="--g:var(--teal)">
           <img class="art" src="img/motsmeles.svg" alt="" width="160" height="160">
           <b>Mots mêlés</b><span class="rec" id="hvMm"></span>
+        </button>
+        <button class="tile" data-go="vTq" style="--g:var(--pink)">
+          <img class="art" src="img/taquin.svg" alt="" width="160" height="160">
+          <b>Taquin</b><span class="rec" id="hvTq"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -857,6 +874,18 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- TAQUIN -->
+<section class="view" id="vTq">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/taquin.svg" alt="" width="40" height="40"><h1>Taquin</h1>
+    <div class="chips"><div class="chip"><small>coups</small><b id="tqMv">0</b></div><div class="chip"><small>temps</small><b id="tqT">0:00</b></div></div></header>
+  <div class="main">
+    <div class="tqOpts"><div class="seg" id="tqLvl"><button data-n="3">3×3</button><button data-n="4">4×4</button><button data-n="5">5×5</button></div><button id="tqPic" aria-label="Changer d'image"></button></div>
+    <div id="tq"></div>
+    <div class="msg hi" id="tqM">Touche une pièce alignée avec la case vide pour la faire glisser</div>
+    <div class="row"><button class="btn" id="tqNew">Mélanger</button><button class="btn ghost" id="tqNum">Afficher les numéros</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -885,7 +914,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="quiz.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.0.5';
+const APP_VERSION='2.0.6';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1127,6 +1156,7 @@ function refreshHome(){
   const qzb=store.get('qzBest',0);$('hvQz').textContent=qzb?'Record '+qzb+' points':'136 questions';
   const pgs=store.get('pongScore',[0,0]);$('hvPong').innerHTML=(pgs[0]||pgs[1])?duo(pgs[0],pgs[1]):'Premier à 7 points';
   const mmw=store.get('mmWins',0);$('hvMm').textContent=mmw?mmw+' grille'+(mmw>1?'s':'')+' terminée'+(mmw>1?'s':''):'Trouve les mots cachés';
+  const tqb=store.get('tqBest',{});const tqk=Object.keys(tqb).sort();$('hvTq').textContent=tqk.length?'Record '+tqk[tqk.length-1]+' : '+tqb[tqk[tqk.length-1]]+' coups':'Remets l\'image en ordre';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2908,6 +2938,58 @@ refreshHome();
   enterHooks.vMm=()=>{if(!G){const s=store.get('mmState',null);if(s&&s.grid&&s.words)G=s}if(!G){newGame();return}build();render();startTimer();if(G.done)$('mmM').textContent='Grille terminée ! Lance une nouvelle grille'};
   leaveHooks.vMm=()=>{clearInterval(tick);if(G)save()};
   if(location.hostname==='localhost')window.__mm=()=>G; // aide aux tests locaux uniquement
+})();
+
+/* ---------- TAQUIN ---------- */
+(function(){
+  const PICS=['logo.webp','img/snake.webp','img/2048.webp','img/mot.webp','img/p4.webp','img/duel.webp','img/demineur.webp','img/briques.webp','img/morpion.webp','img/memory.webp','img/sudoku.webp','img/flappy.webp','img/pendu.webp','img/bataille.webp',''];
+  const el=$('tq');let G=null,tick=null,showNum=store.get('tqNum',false);
+  const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  const save=()=>store.set('tqState',G);
+  function shuffle(n){
+    const b=[...Array(n*n).keys()].map(i=>(i+1)%(n*n));let e=n*n-1,prev=-1;
+    for(let k=0;k<n*n*40;k++){const x=e%n,y=Math.floor(e/n),o=[];if(x>0)o.push(e-1);if(x<n-1)o.push(e+1);if(y>0)o.push(e-n);if(y<n-1)o.push(e+n);
+      const c=o.filter(i=>i!==prev);const j=c[Math.floor(Math.random()*c.length)];b[e]=b[j];b[j]=0;prev=e;e=j}
+    if(solved(b))return shuffle(n);return b;
+  }
+  const solved=b=>b.every((v,i)=>v===(i+1)%b.length);
+  function newGame(n,pic){G={n,b:shuffle(n),pic:pic==null?(G?G.pic:0):pic,mv:0,t:0,done:false};save();build();render();startTimer();$('tqM').textContent='Touche une pièce alignée avec la case vide pour la faire glisser';sfx.play('start')}
+  function startTimer(){clearInterval(tick);tick=setInterval(()=>{if(current!=='vTq'||document.hidden||!G||G.done||!G.mv)return;G.t++;$('tqT').textContent=fmt(G.t);if(G.t%5===0)save()},1000)}
+  function build(){
+    el.style.setProperty('--n',G.n);el.innerHTML='';const src=PICS[G.pic];
+    for(let v=1;v<G.n*G.n;v++){const d=document.createElement('div');d.className='tl'+(src?'':' num');d.dataset.v=v;
+      const sx=(v-1)%G.n,sy=Math.floor((v-1)/G.n);
+      if(src){d.style.backgroundImage='url('+src+')';d.style.backgroundPosition=(G.n>1?sx/(G.n-1)*100:0)+'% '+(G.n>1?sy/(G.n-1)*100:0)+'%'}
+      d.innerHTML=src?'<i>'+v+'</i>':v;d.addEventListener('pointerdown',e=>{e.preventDefault();tap(v)});el.appendChild(d)}
+    $('tqPic').style.backgroundImage=src?'url('+src+')':'none';$('tqPic').textContent=src?'':'123';
+  }
+  function render(){
+    G.b.forEach((v,i)=>{if(!v)return;const d=el.querySelector('[data-v="'+v+'"]');d.style.setProperty('--x',i%G.n);d.style.setProperty('--y',Math.floor(i/G.n));d.classList.toggle('ok',v===i+1&&!PICS[G.pic])});
+    el.querySelectorAll('.tl i').forEach(x=>x.style.display=showNum?'':'none');
+    $('tqMv').textContent=G.mv;$('tqT').textContent=fmt(G.t);$('tqNum').textContent=showNum?'Masquer les numéros':'Afficher les numéros';$('tqNum').hidden=!PICS[G.pic];
+    document.querySelectorAll('#tqLvl button').forEach(b=>b.classList.toggle('on',+b.dataset.n===G.n));
+  }
+  function tap(v){
+    if(!G||G.done)return;const i=G.b.indexOf(v),e=G.b.indexOf(0),n=G.n,xi=i%n,yi=Math.floor(i/n),xe=e%n,ye=Math.floor(e/n);
+    if(xi!==xe&&yi!==ye){sfx.play('error');return}
+    // fait glisser toute la rangée entre la pièce et la case vide
+    const step=xi===xe?(yi<ye?-n:n):(xi<xe?-1:1);let c=e;while(c!==i){const nx=c+step;G.b[c]=G.b[nx];G.b[nx]=0;c=nx}
+    G.mv++;sfx.play('move');vibe(6);save();render();
+    if(solved(G.b))win();
+  }
+  function win(){
+    G.done=true;clearInterval(tick);const k=G.n+'×'+G.n,best=store.get('tqBest',{}),rec=!best[k]||G.mv<best[k];if(rec){best[k]=G.mv;store.set('tqBest',best)}save();
+    el.classList.add('won');setTimeout(()=>el.classList.remove('won'),500);
+    $('tqM').textContent=(rec?'Nouveau record ! ':'Bravo ! ')+'Résolu en '+G.mv+' coups et '+fmt(G.t);sfx.play('win');vibe([40,30,40]);
+  }
+  const busy=()=>G&&!G.done&&G.mv>0;
+  document.querySelectorAll('#tqLvl button').forEach(b=>b.addEventListener('click',()=>{if(busy()&&!confirm('Abandonner la partie en cours ?'))return;newGame(+b.dataset.n)}));
+  $('tqPic').addEventListener('click',()=>{if(busy()&&!confirm('Changer d\'image relance la partie. Continuer ?'))return;newGame(G.n,(G.pic+1)%PICS.length)});
+  $('tqNew').addEventListener('click',()=>{if(busy()&&!confirm('Mélanger à nouveau ?'))return;newGame(G.n)});
+  $('tqNum').addEventListener('click',()=>{showNum=!showNum;store.set('tqNum',showNum);render();sfx.play('tick')});
+  enterHooks.vTq=()=>{if(!G){const s=store.get('tqState',null);if(s&&s.b&&s.n)G=s}if(!G){G={n:3,pic:0};newGame(3,0);return}build();render();startTimer();if(G.done)$('tqM').textContent='Résolu ! Mélange pour rejouer'};
+  leaveHooks.vTq=()=>{clearInterval(tick);if(G)save()};
+  if(location.hostname==='localhost')window.__tq={get:()=>G,tap}; // aide aux tests locaux uniquement
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
