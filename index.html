@@ -660,7 +660,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <div class="duel">
     <div class="half top idle" id="dA"><span class="sc" id="dAs">0</span><span class="nm" id="dAn">Cindy</span><span class="ms" id="dAm"></span><span class="netst" id="duelNet" hidden></span></div>
     <div class="dmid"><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><button class="btn" id="dGo">Lancer</button>
-      <div class="seg mini" id="duelMode"><button data-m="local" aria-label="Sur ce téléphone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="online" aria-label="En ligne"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
+      <div class="seg mini" id="duelMode"><button data-m="local" aria-label="Sur ce téléphone"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="3" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M10 18h4" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="ai" aria-label="Contre l'IA"><svg viewBox="0 0 24 24"><rect x="4" y="7" width="16" height="12" rx="4" fill="none" stroke="currentColor" stroke-width="2.2"/><circle cx="9.5" cy="13" r="1.6" fill="currentColor"/><circle cx="14.5" cy="13" r="1.6" fill="currentColor"/><path d="M12 7V4M12 4h.01" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button><button data-m="online" aria-label="En ligne"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2.2"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18" fill="none" stroke="currentColor" stroke-width="2"/></svg></button></div>
       <button class="back noback" id="dRst" aria-label="Scores à zéro"><svg viewBox="0 0 24 24" style="width:22px;height:22px"><path d="M4 12a8 8 0 1 0 2.4-5.7M4 4v5h5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button></div>
     <div class="half idle" id="dB"><span class="sc" id="dBs">0</span><span class="nm" id="dBn">Thomas</span><span class="ms" id="dBm"></span></div>
   </div>
@@ -682,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.9.3';
+const APP_VERSION='1.9.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -2180,16 +2180,16 @@ refreshHome();
   const NOW=ctx=>ctx.online?net.now():localNow();
   function finish(s,w,why){s.win=w;s.why=why;s.phase='done';s.sc=[s.sc[0],s.sc[1]];s.sc[w]++;return s}
   function seat(ctx){ // quel joueur occupe chaque moitié
-    const bottom=ctx.online?ctx.me:0;return{b:bottom,a:1-bottom};
+    const bottom=ctx.online?ctx.me:0;return{b:bottom,a:1-bottom}; // contre l'IA : moi en bas, Koala en haut
   }
   function paint(cls,S,ctx,msg){
     const st=seat(ctx);
     ['a','b'].forEach(k=>{
       const p=st[k],h=H[k],top=k==='a';
       let c=typeof cls==='function'?cls(p):cls;
-      h.className='half'+(top&&!ctx.online?' top':'')+(top&&ctx.online?' opp':'')+' '+c;
+      const far=ctx.online||ctx.ai;h.className='half'+(top&&!far?' top':'')+(top&&far?' opp':'')+' '+c;
       h.style.setProperty('--pc',PC[p]);
-      $('d'+k.toUpperCase()+'n').textContent=NAMES[p]+(ctx.online&&p===ctx.me?' (toi)':'');
+      $('d'+k.toUpperCase()+'n').textContent=NAMES[p]+((ctx.online||ctx.ai)&&p===ctx.me?' (toi)':'');
       $('d'+k.toUpperCase()+'s').textContent=S.sc[p];
       $('d'+k.toUpperCase()+'m').textContent=typeof msg==='function'?msg(p):msg;
     });
@@ -2197,7 +2197,7 @@ refreshHome();
   function render(S,prev,ctx){
     clearTimeout(goT);
     const fr=prev&&prev.round===S.round&&prev.phase===S.phase&&prev.win===S.win;
-    if(S.phase==='idle'){paint('idle',S,ctx,ctx.online?'Appuie sur Lancer quand vous êtes prêts':'Pose ton doigt près de ta zone');$('dGo').textContent='Lancer';return}
+    if(S.phase==='idle'){paint('idle',S,ctx,ctx.online?'Appuie sur Lancer quand vous êtes prêts':ctx.ai?'Appuie sur Lancer pour défier Koala':'Pose ton doigt près de ta zone');$('dGo').textContent='Lancer';return}
     if(S.phase==='wait'&&S.win===-1){
       const left=S.goAt-NOW(ctx),mine=p=>S.r[p]>=0;
       const goNow=()=>{paint(p=>mine(p)?'wait':'go',S,ctx,p=>mine(p)?S.r[p]+' ms, on attend '+NAMES[1-p]:'Touche !');if(!fr){vibe(20);sfx.play('go')}};
@@ -2212,10 +2212,19 @@ refreshHome();
     const w=S.win;
     paint(p=>p===w?'win':'lose',S,ctx,p=>(p===w?'Gagné ! ':'Perdu… ')+S.why);
     $('dGo').textContent='Rejouer';
-    if(prev&&prev.win===-1&&lastRound!==S.round){lastRound=S.round;vibe([40,30,40]);sfx.play(S.why.startsWith('Faux')?'buzz':(ctx.online&&w!==ctx.me?'lose':'win'))}
+    if(prev&&prev.win===-1&&lastRound!==S.round){lastRound=S.round;vibe([40,30,40]);sfx.play(S.why.startsWith('Faux')?'buzz':((ctx.online||ctx.ai)&&w!==ctx.me?'lose':'win'))}
+  }
+
+  // IA : temps de réaction selon le niveau, et un rare faux départ
+  function ai(S,ctx,lv){
+    if(S.phase!=='wait'||S.win!==-1||S.r[1]!==-2)return null;
+    const R=S.round,now=localNow();
+    if(Math.random()<[.06,.03,.01][lv]){const at=S.goAt-200-Math.random()*500;if(at<=now)return null;return{fn:s=>(s.round!==R||s.win!==-1)?null:finish(s,0,'Faux départ de Koala'),delay:at-now}}
+    const ms=Math.round([[380,560],[260,360],[190,250]][lv].reduce((a,b)=>a+Math.random()*(b-a)));
+    return{fn:s=>{if(s.round!==R||s.win!==-1)return null;s.r=[s.r[0],ms];return finish(s,1,ms+' ms')},delay:Math.max(0,S.goAt+ms-now)};
   }
   const game=twoPlayer({
-    key:'duel',fresh,render,
+    key:'duel',fresh,render,ai,
     loadLocal(){return{...fresh(null),sc:store.get('duelScore',[0,0])}},
     saveLocal(S){store.set('duelScore',S.sc)}
   });
