@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160">
+<defs><linearGradient id="bg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#1d4f8f"/><stop offset="1" stop-color="#0a1a3a"/></linearGradient></defs>
+<rect x="3" y="3" width="154" height="154" rx="32" fill="url(#bg)" stroke="#5aa9ff" stroke-width="5"/>
+<g fill="#f4f7ff"><rect x="22" y="58" width="22" height="22" rx="4"/><rect x="46" y="58" width="22" height="22" rx="4"/><rect x="70" y="58" width="22" height="22" rx="4"/><rect x="94" y="58" width="22" height="22" rx="4"/><rect x="118" y="58" width="22" height="22" rx="4"/>
+<rect x="70" y="10" width="22" height="22" rx="4"/><rect x="70" y="34" width="22" height="22" rx="4"/><rect x="70" y="82" width="22" height="22" rx="4"/><rect x="70" y="106" width="22" height="22" rx="4"/><rect x="70" y="130" width="22" height="22" rx="4" fill="#ffc93c"/></g>
+<g font-family="Raleway,sans-serif" font-weight="900" font-size="15" fill="#0b1a3a" text-anchor="middle"><text x="33" y="75">K</text><text x="57" y="75">O</text><text x="81" y="75">A</text><text x="105" y="75">L</text><text x="129" y="75">A</text><text x="81" y="27">P</text><text x="81" y="51">L</text><text x="81" y="99">G</text><text x="81" y="123">E</text></g>
+</svg>
