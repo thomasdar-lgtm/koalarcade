@@ -533,6 +533,26 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #cCover{position:fixed;inset:0;z-index:30;background:radial-gradient(circle at 50% 40%,#3a2a0a,#00071a 75%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;padding:24px}
 #cCover[hidden]{display:none}
 #cCover h3{font-weight:900;font-size:26px}
+/* ---- motus à deux ---- */
+#vMt2{--g:var(--volt)}
+#vMt2 .main{gap:8px}
+.m2Top{display:flex;align-items:center;gap:10px;width:min(94vw,440px)}
+.m2Top .pl{flex:1;padding:6px 10px}
+.m2Mini{display:grid;grid-template-columns:repeat(5,9px);gap:2px}
+.m2Mini i{width:9px;height:9px;border-radius:2px;background:#1b2650}
+.m2Mini i.g{background:var(--mint)}.m2Mini i.y{background:var(--sun)}.m2Mini i.x{background:#33406e}
+#m2Grid{display:grid;grid-template-rows:repeat(6,1fr);gap:6px;width:min(70vw,280px)}
+#m2Grid .wr{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+#m2Grid .wc{aspect-ratio:1;border:2px solid var(--line);border-radius:10px;display:grid;place-items:center;font-size:26px;font-weight:900;background:var(--deep)}
+#m2Grid .wc.f{border-color:var(--mut)}
+#m2Grid .wc.hintL{color:#8a97c7}
+#m2Grid .wc.g{background:var(--mint);border-color:var(--mint);color:#032417}
+#m2Grid .wc.y{background:var(--sun);border-color:var(--sun);color:#2b1d00;border-radius:50%}
+#m2Grid .wc.x{background:#1b2650;border-color:#1b2650;color:var(--mut)}
+#m2Grid .wc.who0{box-shadow:inset 0 -3px 0 var(--red)}#m2Grid .wc.who1{box-shadow:inset 0 -3px 0 var(--sun)}
+#m2Kb{display:flex;flex-direction:column;gap:6px;width:100%;max-width:500px;margin-top:auto}
+#m2Kb .kr{display:flex;gap:4px;justify-content:center}
+#m2Kb .k.g{background:var(--mint);color:#032417}#m2Kb .k.y{background:var(--sun);color:#2b1d00}#m2Kb .k.x{background:#0a1430;color:#4b5884;box-shadow:none}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -729,6 +749,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vCou" style="--g:var(--sun)">
           <img class="art" src="img/couleurs.svg" alt="" width="160" height="160">
           <b>Couleurs</b><span class="rec" id="hvCou"></span>
+        </button>
+        <button class="tile" data-go="vMt2" style="--g:var(--volt)">
+          <img class="art" src="img/motus.svg" alt="" width="160" height="160">
+          <b>Motus à deux</b><span class="rec" id="hvMt2"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1102,6 +1126,23 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <div id="cCover" hidden><img src="logo.webp" alt="" width="80" height="80"><h3 id="cCoverT"></h3><p class="msg">L'autre joueur ne doit pas regarder l'écran</p><button class="btn" id="cCoverB"></button></div>
 </section>
 
+<!-- MOTUS A DEUX -->
+<section class="view" id="vMt2">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/motus.svg" alt="" width="40" height="40"><h1>Motus à deux</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="mt2Mode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="mt2Net" hidden></div>
+    <div class="m2Top">
+      <div class="pl" id="m2P0" style="--pc:var(--red)"><div><b>Thomas</b><small id="m2T0"></small></div><div class="m2Mini" id="m2Mini0"></div><strong id="m2A">0</strong></div>
+      <div class="pl" id="m2P1" style="--pc:var(--sun)"><div><b data-p1>Cindy</b><small id="m2T1"></small></div><div class="m2Mini" id="m2Mini1"></div><strong id="m2B">0</strong></div>
+    </div>
+    <div id="m2Grid"></div>
+    <div class="msg hi" id="m2M"></div>
+    <div id="m2Kb"></div>
+    <button class="btn ghost" id="m2New">Nouveau mot</button>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1133,7 +1174,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.3.1';
+const APP_VERSION='2.3.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1405,6 +1446,7 @@ function refreshHome(){
   const mcw=store.get('mcWins',0);$('hvMc').textContent=mcw?mcw+' grille'+(mcw>1?'s':'')+' remplie'+(mcw>1?'s':''):'Grilles toujours nouvelles';
   const ymb=store.get('yamsBest',0);$('hvYams').textContent=ymb?'Record '+ymb:'5 dés, 13 coups';
   const cos=store.get('couScore',[0,0]);$('hvCou').innerHTML=(cos[0]||cos[1])?duo(cos[0],cos[1]):'Vide ta main en premier';
+  const m2s=store.get('mt2Score',[0,0]);$('hvMt2').innerHTML=(m2s[0]||m2s[1])?duo(m2s[0],m2s[1]):'Le premier qui trouve';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -3634,6 +3676,90 @@ refreshHome();
   enterHooks.vCou=()=>{revealed=-1;hold=-1;game.enter()};
   leaveHooks.vCou=()=>{clearTimeout(holdT);hold=-1;game.leave()};
   if(location.hostname==='localhost')window.__cou={state:()=>ctx.state,playable,play,pick,pass,aiMove};
+})();
+
+/* ---------- MOTUS À DEUX ---------- */
+(function(){
+  // à deux ici : chacun son tour sur la même grille ; en ligne et contre l'IA : course, même mot, chacun sa grille
+  const ROWS=6,grid=$('m2Grid'),kb=$('m2Kb');
+  function score(g,t){const res=Array(5).fill('x'),cnt={};for(let i=0;i<5;i++){if(g[i]===t[i])res[i]='g';else cnt[t[i]]=(cnt[t[i]]||0)+1}
+    for(let i=0;i<5;i++){if(res[i]!=='g'&&cnt[g[i]]){res[i]='y';cnt[g[i]]--}}return res.join('')}
+  const fresh=prev=>{const st=prev?prev.starter:0;return{w:MOTS_SOLUTIONS[Math.floor(Math.random()*MOTS_SOLUTIONS.length)],r:[[],[]],shared:[],turn:st,starter:st,over:false,win:-1,mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0]}};
+  function guess(S,p,g,race){
+    if(S.over||g.length!==5||!MOTS_VALIDES.has(g)||g[0]!==S.w[0])return null;
+    if(race){if(S.r[p].length>=ROWS)return null;S.r=[S.r[0].slice(),S.r[1].slice()];S.r[p].push(g)}
+    else{if(S.turn!==p||S.shared.length>=ROWS)return null;S.shared=S.shared.concat({g,p})}
+    S.mv++;S.lastP=p;
+    if(g===S.w){S.over=true;S.win=p;S.sc=[S.sc[0],S.sc[1]];S.sc[p]++;S.starter=1-S.starter;return S}
+    if(race){if(S.r[0].length>=ROWS&&S.r[1].length>=ROWS){S.over=true;S.starter=1-S.starter}}
+    else{if(S.shared.length>=ROWS){S.over=true;S.starter=1-S.starter}else S.turn=1-p}
+    return S;
+  }
+  // ----- IA : déduit le mot à partir des indices, à son rythme -----
+  let due={k:'',t:0};
+  function candidates(S){const rows=S.r[1];return MOTS_SOLUTIONS.filter(w=>w[0]===S.w[0]&&rows.every(g=>score(g,w)===score(g,S.w)))}
+  function ai(S,ctx,lv){
+    if(S.over||S.r[1].length>=ROWS)return null;
+    let c=candidates(S);let g;
+    if(lv===0&&Math.random()<.5){const pool=[...MOTS_VALIDES].filter(w=>w[0]===S.w[0]);g=pool[Math.floor(Math.random()*pool.length)]}
+    else g=c.length?c[Math.floor(Math.random()*c.length)]:S.w;
+    // l'heure du prochain essai est fixée une fois : les essais du joueur ne retardent pas Koala
+    const n=S.r[1].length,key=S.w+':'+n,now=Date.now();
+    if(due.k!==key)due={k:key,t:now+[16000,10000,6500][lv]*(.7+Math.random()*.6)};
+    return{fn:s=>s.r[1].length===n&&s.w===S.w?guess(s,1,g,true):null,delay:Math.max(0,due.t-now)};
+  }
+  // ----- affichage -----
+  let cur='';
+  for(let r=0;r<ROWS;r++){const rw=document.createElement('div');rw.className='wr';for(let c=0;c<5;c++){const ce=document.createElement('div');ce.className='wc';rw.appendChild(ce)}grid.appendChild(rw)}
+  ['AZERTYUIOP','QSDFGHJKLM','⏎WXCVBN⌫'].forEach(r=>{const rw=document.createElement('div');rw.className='kr';[...r].forEach(ch=>{const k=document.createElement('button');k.className='k'+(ch==='⏎'||ch==='⌫'?' w':'');k.dataset.k=ch;k.textContent=ch==='⏎'?'OK':ch==='⌫'?'⌫':ch;rw.appendChild(k)});kb.appendChild(rw)});
+  const race=ctx=>ctx.online||ctx.ai;
+  function rowsFor(S,ctx){if(race(ctx))return S.r[ctx.me].map(g=>({g,p:ctx.me}));return S.shared}
+  function mini(S,p){const rows=S.r[p];let h='';for(let r=0;r<ROWS;r++){const sc=rows[r]?score(rows[r],S.w):'';for(let c=0;c<5;c++)h+='<i class="'+(sc[c]||'')+'"></i>'}return h}
+  function render(S,prev,ctx){
+    const rows=rowsFor(S,ctx),R=race(ctx),me=R?ctx.me:S.turn;
+    if(prev&&(prev.w!==S.w))cur='';
+    const canType=!S.over&&(R?S.r[ctx.me].length<ROWS:ctx.mine(S.turn));
+    const keys={};
+    for(let r=0;r<ROWS;r++){const rw=grid.children[r];
+      if(r<rows.length){const sc=score(rows[r].g,S.w);for(let c=0;c<5;c++){const ce=rw.children[c];ce.textContent=rows[r].g[c];ce.className='wc '+sc[c]+(R?'':' who'+rows[r].p);const L=rows[r].g[c],o={g:3,y:2,x:1};if(!keys[L]||o[sc[c]]>o[keys[L]])keys[L]=sc[c]}}
+      else if(r===rows.length&&canType){for(let c=0;c<5;c++){const ce=rw.children[c];const ch=cur[c]||(c===0?S.w[0]:'');ce.textContent=ch;ce.className='wc'+(cur[c]?' f':ch?' hintL':'')}}
+      else for(let c=0;c<5;c++){const ce=rw.children[c];ce.textContent=S.over&&r===rows.length&&!rows.some(x=>x.g===S.w)?S.w[c]:'';ce.className='wc'}}
+    kb.querySelectorAll('.k').forEach(k=>{const s=keys[k.dataset.k];k.className='k'+(k.dataset.k==='⏎'||k.dataset.k==='⌫'?' w':'')+(s?' '+s:'')});
+    $('m2Mini0').innerHTML=R?mini(S,0):'';$('m2Mini1').innerHTML=R?mini(S,1):'';
+    $('m2A').textContent=S.sc[0];$('m2B').textContent=S.sc[1];
+    [0,1].forEach(p=>{$('m2P'+p).classList.toggle('on',!S.over&&(R?p===ctx.me:S.turn===p));$('m2T'+p).textContent=R?(S.r[p].length+'/'+ROWS+' essais'):(!S.over&&S.turn===p?'À toi':'')});
+    let m;
+    if(S.over)m=S.win<0?'Personne n\'a trouvé : c\'était '+S.w:(R?(S.win===ctx.me?'Gagné, tu as trouvé '+S.w+' !':NAMES[S.win]+' a trouvé '+S.w+' avant toi'):NAMES[S.win]+' trouve '+S.w+' !');
+    else if(R)m=S.r[ctx.me].length>=ROWS?'Plus d\'essai, on attend '+NAMES[1-ctx.me]:'Trouve le mot avant '+NAMES[1-ctx.me]+' !';
+    else m='À '+NAMES[S.turn]+' de proposer un mot';
+    $('m2M').textContent=m;
+    if(prev&&prev.mv!==S.mv){const last=S.lastP;if(S.over)sfx.play(S.win<0?'draw':(R&&S.win!==ctx.me?'lose':'win'));else sfx.play(last===ctx.me||!R?'key':'tick')}
+  }
+  const game=twoPlayer({
+    key:'mt2',fresh,render,ai,
+    loadLocal(){const st=store.get('mt2Starter',0);return{...fresh(null),sc:store.get('mt2Score',[0,0]),starter:st,turn:st}},
+    saveLocal(S){store.set('mt2Score',S.sc);store.set('mt2Starter',S.starter)}
+  });
+  const ctx=game.ctx;
+  function press(ch){
+    const S=ctx.state;if(!S||S.over)return;const R=race(ctx);
+    if(R?S.r[ctx.me].length>=ROWS:!ctx.mine(S.turn))return;
+    if(ch==='⌫'){cur=cur.slice(0,-1);if(cur.length===0)cur='';sfx.play('tick')}
+    else if(ch==='⏎'){
+      const g=(cur.length?cur:'');if(g.length<5){$('m2M').textContent='Il faut 5 lettres';sfx.play('error');return}
+      if(g[0]!==S.w[0]){$('m2M').textContent='Le mot commence par '+S.w[0];sfx.play('error');return}
+      if(!MOTS_VALIDES.has(g)){$('m2M').textContent='Mot inconnu';sfx.play('error');return}
+      const p=R?ctx.me:S.turn;cur='';ctx.act(s=>guess(s,p,g,R));return;
+    }
+    else{if(!cur.length&&ch!==S.w[0])cur=S.w[0];if(cur.length<5)cur+=ch;sfx.play('key')}
+    render(S,S,ctx);
+  }
+  bindKeys(kb,press);
+  document.addEventListener('keydown',e=>{if(current!=='vMt2')return;if(e.key==='Enter')press('⏎');else if(e.key==='Backspace')press('⌫');else if(/^[a-zA-Z]$/.test(e.key))press(e.key.toUpperCase())});
+  $('m2New').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&(S.shared.length||S.r[0].length)&&!confirm('Passer à un nouveau mot ?'))return;cur='';ctx.act(s=>fresh(s))});
+  enterHooks.vMt2=()=>{cur='';game.enter()};
+  leaveHooks.vMt2=()=>game.leave();
+  if(location.hostname==='localhost')window.__mt2={state:()=>ctx.state,score,candidates};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
