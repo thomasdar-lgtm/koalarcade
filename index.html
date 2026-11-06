@@ -636,7 +636,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <!-- BATAILLE NAVALE -->
 <section class="view" id="vBn">
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/bataille.svg" alt="" width="40" height="40"><h1>Bataille</h1>
-    <div class="chips"><div class="chip"><small>Thomas</small><b id="bnA">0</b></div><div class="chip"><small>Cindy</small><b id="bnB">0</b></div></div></header>
+    <div class="chips"><div class="chip"><small>Thomas</small><b id="bnA">0</b></div><div class="chip"><small data-p1>Cindy</small><b id="bnB">0</b></div></div></header>
   <div class="main">
     <div class="mbar"><div class="seg" id="bnMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
     <div class="netst" id="bnNet" hidden></div>
@@ -682,7 +682,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.9.2';
+const APP_VERSION='1.9.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -2057,6 +2057,7 @@ refreshHome();
   }
   function viewer(S,ctx){
     if(ctx.online)return ctx.me;
+    if(ctx.ai)return 0;
     if(hold>=0)return hold;
     if(S.phase==='place')return S.ready[0]?1:0;
     return S.turn;
@@ -2064,18 +2065,18 @@ refreshHome();
   function render(S,prev,ctx){
     const newShot=prev&&prev.mv!==S.mv&&S.last&&S.last.i>=0&&S.phase!=='place';
     // en local, après un tir raté, on laisse le tireur voir le résultat avant de cacher l'écran
-    if(!ctx.online&&newShot&&S.phase==='play'&&prev.turn!==S.turn){hold=prev.turn;clearTimeout(holdT);holdT=setTimeout(()=>{hold=-1;if(ctx.state)render(ctx.state,ctx.state,ctx)},1100)}
+    if(!ctx.online&&!ctx.ai&&newShot&&S.phase==='play'&&prev.turn!==S.turn){hold=prev.turn;clearTimeout(holdT);holdT=setTimeout(()=>{hold=-1;if(ctx.state)render(ctx.state,ctx.state,ctx)},1100)}
     const v=viewer(S,ctx);
     cells(big,SZ);cells(small,SZ);
     // écran « passe le téléphone » en local
-    const needCover=!ctx.online&&S.phase!=='over'&&hold<0&&revealed!==v;
+    const needCover=!ctx.online&&!ctx.ai&&S.phase!=='over'&&hold<0&&revealed!==v;
     cover.hidden=!needCover;if(needCover){$('bnCoverT').textContent='Passe le téléphone à '+NAMES[v];$('bnCoverB').textContent='Je suis '+NAMES[v]}
     $('bnA').textContent=S.sc[0];$('bnB').textContent=S.sc[1];
     if(S.phase==='place'){
       $('bnPlace').hidden=false;$('bnPlay').hidden=true;$('bnStatus').textContent='';
       if(S.ready[v]){
         paintGrid(big,S.ships[v],null,true,new Set(),-1);
-        $('bnTitle').textContent='Ta flotte est prête';$('bnM').textContent='En attente de '+NAMES[1-v]+'…';
+        $('bnTitle').textContent='Ta flotte est prête';$('bnM').textContent=ctx.ai?'Koala place sa flotte…':'En attente de '+NAMES[1-v]+'…';
         $('bnShuffle').hidden=true;$('bnReady').hidden=true;
       }else{
         if(draftFor!==v||!draft){draft=randomFleet();draftFor=v}
@@ -2094,19 +2095,56 @@ refreshHome();
     $('bnMine').textContent='Ta flotte · '+(FLEET.length-sunkMine.size)+'/'+FLEET.length+' à flot';
     const R={miss:'À l\'eau',hit:'Touché !',sunk:'Touché, coulé !',win:'Touché, coulé !'};
     let m;
-    if(S.phase==='over')m=ctx.online?(S.win===v?'Victoire ! Toute la flotte de '+NAMES[o]+' est coulée':'Défaite… '+NAMES[S.win]+' a coulé ta flotte'):NAMES[S.win]+' gagne ! La flotte de '+NAMES[1-S.win]+' est coulée';
+    if(S.phase==='over')m=(ctx.online||ctx.ai)?(S.win===v?'Victoire ! Toute la flotte de '+NAMES[o]+' est coulée':'Défaite… '+NAMES[S.win]+' a coulé ta flotte'):NAMES[S.win]+' gagne ! La flotte de '+NAMES[1-S.win]+' est coulée';
     else if(S.turn===v)m=(S.last&&S.last.p===v&&S.last.r!=='miss'?R[S.last.r]+' Rejoue. ':'')+'À toi de tirer';
-    else m=(S.last&&S.last.p===v?R[S.last.r]+' ':'')+(ctx.online?NAMES[o]+' vise…':'');
-    if(ctx.online&&S.phase==='play'&&S.last&&S.last.p===o&&S.last.r!=='miss')m=NAMES[o]+' : '+R[S.last.r].toLowerCase()+' '+m;
+    else m=(S.last&&S.last.p===v?R[S.last.r]+' ':'')+((ctx.online||ctx.ai)?NAMES[o]+' vise…':'');
+    if((ctx.online||ctx.ai)&&S.phase==='play'&&S.last&&S.last.p===o&&S.last.r!=='miss')m=NAMES[o]+' : '+R[S.last.r].toLowerCase()+' '+m;
     $('bnStatus').textContent=m;$('bnStatus').className='msg'+(S.turn===v||S.phase==='over'?' hi':'');
     if(newShot){
       const r=S.last.r;
       if(r==='miss')sfx.play('tick');else if(r==='hit'){sfx.play('merge',64);vibe(30)}else{sfx.play('die');vibe([60,30,60])}
-      if(S.phase==='over')setTimeout(()=>sfx.play(ctx.online&&S.win!==ctx.me?'lose':'win'),500);
+      if(S.phase==='over')setTimeout(()=>sfx.play((ctx.online||ctx.ai)&&S.win!==ctx.me?'lose':'win'),500);
     }
   }
+
+  // IA : 0 = au hasard, 1 = chasse puis vise autour des touches, 2 = calcul des positions les plus probables
+  function aiShot(S,lv){
+    const sh=S.shots[1],tgt=S.ships[0],sunk=sunkSet(tgt,sh),free=[...Array(SZ).keys()].filter(i=>sh[i]==='.');
+    const rnd=a=>a[Math.floor(Math.random()*a.length)];
+    if(lv===0)return rnd(free);
+    const open=[...Array(SZ).keys()].filter(i=>sh[i]==='x'&&!sunk.has(tgt[i])); // touches pas encore coulées
+    const nb=i=>{const x=i%N,y=(i-x)/N,o=[];if(x>0)o.push(i-1);if(x<N-1)o.push(i+1);if(y>0)o.push(i-N);if(y<N-1)o.push(i+N);return o};
+    if(lv===1){
+      if(open.length){
+        let c=[];
+        if(open.length>1){const h=open.every(i=>Math.floor(i/N)===Math.floor(open[0]/N));const srt=open.slice().sort((a,b)=>a-b),st=h?1:N,a=srt[0]-st,b=srt[srt.length-1]+st;
+          if(h){if(a>=0&&Math.floor(a/N)===Math.floor(srt[0]/N))c.push(a);if(b<SZ&&Math.floor(b/N)===Math.floor(srt[0]/N))c.push(b)}else{if(a>=0)c.push(a);if(b<SZ)c.push(b)}
+          c=c.filter(i=>sh[i]==='.')}
+        if(!c.length)c=[...new Set(open.flatMap(nb))].filter(i=>sh[i]==='.');
+        if(c.length)return rnd(c);
+      }
+      return rnd(free);
+    }
+    // niveau 2 : densité de probabilité sur les navires restants
+    const left=[];for(let k=0;k<FLEET.length;k++)if(!sunk.has(IDS[k]))left.push(FLEET[k]);
+    const blocked=i=>sh[i]==='o'||(sh[i]==='x'&&sunk.has(tgt[i]));
+    const score=Array(SZ).fill(0);
+    for(const L of left)for(const hz of[true,false])for(let y=0;y<(hz?N:N-L+1);y++)for(let x=0;x<(hz?N-L+1:N);x++){
+      const cells=[];for(let k=0;k<L;k++)cells.push((y+(hz?0:k))*N+x+(hz?k:0));
+      if(cells.some(blocked))continue;
+      const hits=cells.filter(i=>sh[i]==='x').length,w=hits?1+hits*30:1;
+      cells.forEach(i=>{if(sh[i]==='.')score[i]+=w});
+    }
+    let best=-1,bi=[];free.forEach(i=>{const v=score[i]+((i%N+Math.floor(i/N))%2===0&&!open.length?.5:0);if(v>best){best=v;bi=[i]}else if(v===best)bi.push(i)});
+    return rnd(bi.length?bi:free);
+  }
+  function ai(S,ctx,lv){
+    if(S.phase==='place'&&!S.ready[1])return{fn:s=>{if(s.phase!=='place'||s.ready[1])return null;s.ships=[s.ships[0],randomFleet()];s.ready=[s.ready[0],true];if(s.ready[0])s.phase='play';s.mv++;return s},delay:400};
+    if(S.phase!=='play'||S.turn!==1||S.win!==-1)return null;
+    const i=aiShot(S,lv);return{fn:s=>fire(s,1,i),delay:850};
+  }
   const game=twoPlayer({
-    key:'bn',fresh,render,
+    key:'bn',fresh,render,ai,
     loadLocal(){const st=store.get('bnStarter',0);return{...fresh(null),sc:store.get('bnScore',[0,0]),starter:st,turn:st}},
     saveLocal(S){store.set('bnScore',S.sc);store.set('bnStarter',S.starter)}
   });
