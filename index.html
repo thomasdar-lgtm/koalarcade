@@ -443,6 +443,28 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #mcKb .kr{display:flex;gap:4px;justify-content:center}
 .mcTools{display:flex;gap:8px;width:min(94vw,460px)}
 .mcTools button{flex:1;padding:9px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line);font-weight:800;font-size:14px}
+/* ---- profil et trophées ---- */
+#vProf{--g:var(--sun)}
+.prof{width:100%;max-width:520px;display:flex;align-items:center;gap:14px;background:var(--plate);border:1.5px solid var(--line);border-radius:20px;padding:14px}
+.prof>div:nth-child(2){flex:1;min-width:0}
+.prof h2{font-weight:900;font-size:24px}.prof p{color:var(--mut);font-weight:700;font-size:13px}
+.pAv{width:64px;height:64px;border-radius:50%;padding:4px;background:var(--pc,var(--red));flex:none}
+.pAv img{width:100%;height:100%;border-radius:50%;object-fit:cover;background:var(--night)}
+.pStats{width:100%;max-width:520px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.pStats div{background:var(--deep);border:1.5px solid var(--line);border-radius:14px;padding:10px;text-align:center}
+.pStats b{display:block;font-weight:900;font-size:24px;color:var(--g)}.pStats small{color:var(--mut);font-weight:700;font-size:12px}
+.trophies{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.tr{background:var(--deep);border:1.5px solid var(--line);border-radius:14px;padding:8px 4px;display:flex;flex-direction:column;align-items:center;gap:4px;text-align:center}
+.tr .ic{font-size:26px;filter:grayscale(1);opacity:.35}
+.tr b{font-weight:800;font-size:11px;line-height:1.15}
+.tr small{font-size:10px;color:var(--mut);font-weight:600;line-height:1.15}
+.tr.on{border-color:var(--sun);background:color-mix(in srgb,var(--sun) 12%,var(--deep))}
+.tr.on .ic{filter:none;opacity:1}
+.pGames{display:flex;flex-direction:column;gap:6px}
+.pGames div{display:flex;align-items:center;gap:10px;background:var(--deep);border-radius:12px;padding:6px 10px 6px 6px}
+.pGames img{width:36px;height:36px;border-radius:9px}
+.pGames span{flex:1;font-weight:800;font-size:14px}
+.pGames em{font-style:normal;color:var(--mut);font-weight:700;font-size:12px;text-align:right}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -956,6 +978,17 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PROFIL -->
+<section class="view" id="vProf">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><h1>Mon profil</h1></header>
+  <div class="main">
+    <div class="prof"><div class="pAv" id="pAv"><img src="logo.webp" alt=""></div><div><h2 id="pName"></h2><p id="pSub"></p></div><button class="btn ghost" id="pSwitch">Changer</button></div>
+    <div class="pStats" id="pStats"></div>
+    <div class="sec"><h2 id="pTrH">Trophées</h2><div class="trophies" id="pTr"></div></div>
+    <div class="sec"><h2>Par jeu</h2><div class="pGames" id="pGames"></div></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -970,6 +1003,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <div id="menu" hidden><div class="pop" role="menu">
   <button class="it" id="mUpd" role="menuitem"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 1 1-2.4-5.7M20 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg>Vérifier les mises à jour</button>
   <button class="it" id="mSnd" role="menuitem"><svg viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4z" fill="currentColor"/><path id="sndWave" d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/><path id="sndOff" d="M16 9l6 6M22 9l-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg><span id="sndTxt"></span></button>
+  <button class="it" id="mProf" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 4h10v4a5 5 0 0 1-10 0z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/><path d="M7 6H4a3 3 0 0 0 3 4M17 6h3a3 3 0 0 1-3 4M12 13v4M8 20h8" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"/></svg><span>Mon profil et trophées</span></button>
   <button class="it" id="mSync" role="menuitem"><svg viewBox="0 0 24 24"><path d="M7 18a4.5 4.5 0 0 1-.5-9A6 6 0 0 1 18 9.5a4 4 0 0 1-.5 8.5z" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linejoin="round"/><path d="M12 11v5m-2.5-2.5L12 16l2.5-2.5" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/></svg><span id="mSyncTxt">Sauvegarde en ligne</span></button>
   <button class="it" id="mWho" role="menuitem"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4" fill="currentColor"/><path d="M4 21a8 8 0 0 1 16 0z" fill="currentColor"/></svg><span id="mWhoTxt"></span></button>
   <div class="vline" id="mVer"></div>
@@ -986,7 +1020,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.2.1';
+const APP_VERSION='2.2.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1155,7 +1189,7 @@ function twoPlayer(cfg){
     get state(){return S},
     get level(){return aiLevel}
   };
-  function save(){if(mode==='local')cfg.saveLocal(S);else if(mode==='ai')store.set(cfg.key+'AIScore',S[field])}
+  function save(){if(mode==='local')cfg.saveLocal(S);else if(mode==='ai'){const old=store.get(cfg.key+'AIScore',[0,0]);if(S[field][0]>old[0]&&aiLevel===2)store.set('aiHardWins',store.get('aiHardWins',0)+1);store.set(cfg.key+'AIScore',S[field])}}
   function load(){const L=cfg.loadLocal();if(mode==='ai')L[field]=store.get(cfg.key+'AIScore',[0,0]);return L}
   function names(){NAMES[1]=mode==='ai'?'Koala':'Cindy';view.querySelectorAll('[data-p1]').forEach(e=>e.textContent=NAMES[1])}
   function draw(cur,prev){
@@ -1174,7 +1208,8 @@ function twoPlayer(cfg){
     if(!k){status(window.FIREBASE_CONFIG?'Connexion à Firebase impossible, vérifie ta connexion':'Le jeu en ligne sera disponible dès que Firebase sera configuré');return}
     await askWho();if(g!==gen)return;
     const nm=()=>NAMES[1-net.me]+(other?' est en ligne':' n\'est pas encore là');
-    unP=net.presence(o=>{other=o;if(mode==='online')status('Tu joues '+NAMES[net.me]+' · '+nm(),o)});
+    let counted=false;
+    unP=net.presence(o=>{other=o;if(o&&!counted){counted=true;store.set('onlinePlays',store.get('onlinePlays',0)+1)}if(mode==='online')status('Tu joues '+NAMES[net.me]+' · '+nm(),o)});
     let first=true;
     unW=net.watch(cfg.key,v=>{
       if(g!==gen)return;
@@ -1216,8 +1251,8 @@ const leaveHooks={},enterHooks={};
 function show(id){
   if(leaveHooks[current])leaveHooks[current]();
   document.querySelectorAll('.view').forEach(v=>v.classList.toggle('on',v.id===id));
-  current=id;if(window.noteRecent)noteRecent(id);
-  if(id==='vHome'){refreshHome();if(window.homeApply)homeApply()}
+  current=id;if(window.noteRecent&&id!=='vProf')noteRecent(id);if(window.notePlay)notePlay(id);
+  if(id==='vHome'){refreshHome();if(window.homeApply)homeApply();if(window.checkTrophies)checkTrophies()}
   if(enterHooks[id])enterHooks[id]();
 }
 document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>{show(b.dataset.go);history.pushState({v:b.dataset.go},'')}));
@@ -3428,6 +3463,59 @@ window.cloud=(function(){
 $('mSync').addEventListener('click',()=>{$('menu').hidden=true;cloud.sync(true)});
 cloud.ui();
 setTimeout(()=>cloud.sync(false),1500);
+
+/* ---------- profil, statistiques et trophées ---------- */
+(function(){
+  const G=k=>store.get(k,null),n=v=>v||0,ai=k=>(G(k+'AIScore')||[0,0])[0];
+  const plays=()=>store.get('plays',{}),tot=()=>Object.values(plays()).reduce((a,b)=>a+b,0);
+  const T=[
+    ['🐾','Premier pas','Jouer à un jeu',()=>tot()>=1],
+    ['🧭','Explorateur','Essayer 10 jeux différents',()=>Object.keys(plays()).length>=10],
+    ['🗺️','Touche-à-tout','Essayer tous les jeux',()=>Object.keys(plays()).length>=document.querySelectorAll('#homeMain .tile').length],
+    ['💯','Fidèle','Lancer 100 parties',()=>tot()>=100],
+    ['🐍','Charmeur','20 pommes au Snake',()=>n(G('snkBest'))>=20],
+    ['🐉','Grand serpent','50 pommes au Snake',()=>n(G('snkBest'))>=50],
+    ['🔢','Calculateur','5 000 points au 2048',()=>n(G('t2Best'))>=5000],
+    ['🧱','Bâtisseur','10 000 points au Tetris',()=>n(G('tetBest'))>=10000],
+    ['🪶','Envol','10 arbres au Flappy Koala',()=>n(G('flBest'))>=10],
+    ['🏓','Briseur','1 500 points au Casse-briques',()=>n(G('bbBest'))>=1500],
+    ['🔤','Lexicologue','Trouver 5 mots du jour',()=>n((G('wStats')||{}).w)>=5],
+    ['🎈','Sauveteur','Trouver 10 mots au Pendu',()=>n((G('pdStats')||{}).w)>=10],
+    ['✏️','Cruciverbiste','Remplir 3 grilles de mots croisés',()=>n(G('mcWins'))>=3],
+    ['🔍','Œil de lynx','Finir 5 grilles de mots mêlés',()=>n(G('mmWins'))>=5],
+    ['🧠','Logicien','Finir un Sudoku difficile',()=>!!(G('sdkBest')||{}).difficile],
+    ['💣','Démineur expert','Gagner en niveau expert',()=>!!(G('mineBest')||{}).expert],
+    ['🃏','Patience','Gagner 3 Solitaires',()=>n(G('solWins'))>=3],
+    ['🧩','Glisseur','Résoudre un Taquin 4×4',()=>!!(G('tqBest')||{})['4×4']],
+    ['🎓','Érudit','8 000 points au Quiz',()=>n(G('qzBest'))>=8000],
+    ['🤖','Plus fort que Koala','Battre l\'IA à un jeu à deux',()=>['c4','ttt','mem','bn','dam','duel','pong'].some(k=>ai(k)>0)],
+    ['🏆','Maître','Battre l\'IA difficile 5 fois',()=>n(G('aiHardWins'))>=5],
+    ['❤️','En couple','Jouer en ligne avec l\'autre',()=>n(G('onlinePlays'))>=1]
+  ];
+  window.TROPHIES=T;
+  const unlocked=()=>T.filter(t=>{try{return t[3]()}catch(e){return false}}).map(t=>t[1]);
+  // annonce des trophées gagnés depuis la dernière fois
+  window.checkTrophies=function(){
+    const got=unlocked(),known=store.get('trophies',null);
+    if(known===null){store.set('trophies',got);return}
+    const fresh=got.filter(x=>!known.includes(x));
+    if(fresh.length){store.set('trophies',got);toast('🏆 Trophée débloqué : '+fresh.join(', '),3500);sfx.play('win')}
+  };
+  function render(){
+    const me=net.me===0||net.me===1?net.me:null,pl=plays(),got=unlocked();
+    $('pName').textContent=me===null?'Joueur':['Thomas','Cindy'][me];
+    $('pAv').style.setProperty('--pc',me===1?'var(--sun)':'var(--red)');
+    $('pSub').textContent=me===null?'Choisis qui joue sur ce téléphone':'Sur ce téléphone';
+    $('pStats').innerHTML='<div><b>'+tot()+'</b><small>parties</small></div><div><b>'+Object.keys(pl).length+'</b><small>jeux essayés</small></div><div><b>'+got.length+'/'+T.length+'</b><small>trophées</small></div>';
+    $('pTr').innerHTML=T.map(t=>'<div class="tr'+(got.includes(t[1])?' on':'')+'"><span class="ic">'+t[0]+'</span><b>'+t[1]+'</b><small>'+t[2]+'</small></div>').join('');
+    const tiles=[...document.querySelectorAll('#homeMain .tile[data-go]')].sort((a,b)=>(pl[b.dataset.go]||0)-(pl[a.dataset.go]||0));
+    $('pGames').innerHTML=tiles.map(t=>'<div><img src="'+t.querySelector('.art').getAttribute('src')+'" alt=""><span>'+t.dataset.name+'</span><em>'+(pl[t.dataset.go]||0)+' partie'+((pl[t.dataset.go]||0)>1?'s':'')+'<br>'+(t.querySelector('.rec').textContent||'')+'</em></div>').join('');
+  }
+  $('mProf').addEventListener('click',()=>{$('menu').hidden=true;show('vProf');history.pushState({v:'vProf'},'')});
+  $('pSwitch').addEventListener('click',async()=>{net.setMe(null);await askWho();render()});
+  enterHooks.vProf=()=>{refreshHome();render()};
+  window.notePlay=id=>{if(id==='vHome'||id==='vProf')return;const p=plays();p[id]=(p[id]||0)+1;store.set('plays',p)};
+})();
 
 /* ---------- service worker ---------- */
 if('serviceWorker' in navigator){
