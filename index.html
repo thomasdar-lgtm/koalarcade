@@ -19,7 +19,7 @@
 :root{
   --night:#00071a;--deep:#07112b;--plate:#0e1b40;--line:#1b2a5c;
   --ink:#eef2ff;--mut:#8a97c7;
-  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;
+  --red:#ff3b4e;--sun:#ffc93c;--mint:#2fe39a;--orange:#ff8a3d;--sky:#5aa9ff;--volt:#b26bff;--blue:#4a86ff;--pink:#ff6fb5;--teal:#19d3c5;--lime:#b8f34a;--ocean:#2ec4ff;--coral:#ff7a8a;--cyan:#3ee6ff;
   --g:var(--sun);
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
@@ -304,6 +304,17 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #bnPlace,#bnPlay{display:contents}#bnPlace[hidden],#bnPlay[hidden]{display:none}
 #bnCover h3{font-weight:900;font-size:26px}
 #bnCover p{color:var(--mut);font-weight:700}
+/* ---- tetris ---- */
+#vTet{--g:var(--cyan)}
+.tetRow{display:flex;gap:10px;align-items:flex-start}
+#tetCv{display:block;touch-action:none;border-radius:14px;box-shadow:0 0 0 2px var(--line),0 10px 26px #0008}
+.tetSide{display:flex;flex-direction:column;gap:8px;width:86px}
+.tetSide .chip{text-align:left}
+#tetNext{width:86px;height:86px;border-radius:12px;background:var(--deep);border:1.5px solid var(--line)}
+.tetPad{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;width:min(94vw,440px);margin-top:auto}
+.tetPad button{height:58px;border-radius:16px;background:linear-gradient(180deg,#1a2a5e,#101d47);box-shadow:inset 0 2px 0 #ffffff1a,0 4px 0 #030a1f;display:grid;place-items:center;color:var(--mut)}
+.tetPad button:active{transform:translateY(3px);box-shadow:0 1px 0 #030a1f;background:color-mix(in srgb,var(--g) 40%,#101d47);color:var(--ink)}
+.tetPad svg{width:26px;height:26px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -422,6 +433,11 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <img class="art" src="img/pendu.webp" alt="" width="160" height="160">
           <b>Pendu</b><span class="rec" id="hPd"></span>
         </button>
+        <button class="tile" data-go="vTet" style="--g:var(--cyan)">
+          <img class="art" src="img/tetris.svg" alt="" width="160" height="160">
+          <b>Tetris</b><span class="rec" id="hvTet"></span>
+        </button>
+        <!-- fin solo -->
       </div>
     </div>
 
@@ -448,6 +464,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
           <img class="art" src="img/bataille.webp" alt="" width="160" height="160">
           <b>Bataille navale</b><span class="rec" id="hBn"></span>
         </button>
+        <!-- fin duo -->
       </div>
     </div>
     <div class="ver" id="ver"></div>
@@ -655,6 +672,26 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   <div id="bnCover" hidden><img src="img/bataille.webp" alt="" width="90" height="90"><h3 id="bnCoverT"></h3><p>L'autre joueur ne doit pas regarder l'écran</p><button class="btn" id="bnCoverB"></button></div>
 </section>
 
+<!-- TETRIS -->
+<section class="view" id="vTet">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/tetris.svg" alt="" width="40" height="40"><h1>Tetris</h1>
+    <div class="chips"><div class="chip"><small>score</small><b id="tetS">0</b></div><div class="chip"><small>record</small><b id="tetB">0</b></div></div></header>
+  <div class="main">
+    <div class="tetRow">
+      <div class="snkWrap"><canvas id="tetCv"></canvas>
+        <div class="ov" id="tetOv"><h3 id="tetOt">Tetris</h3><p id="tetOp">Glisse pour déplacer, touche pour tourner, glisse vers le bas pour faire tomber</p><button class="btn" id="tetGo">Jouer</button></div></div>
+      <div class="tetSide"><canvas id="tetNext"></canvas><div class="chip"><small>niveau</small><b id="tetL">1</b></div><div class="chip"><small>lignes</small><b id="tetN">0</b></div></div>
+    </div>
+    <div class="tetPad">
+      <button data-a="left" aria-label="Gauche"><svg viewBox="0 0 24 24"><path d="M15 5l-8 7 8 7z" fill="currentColor"/></svg></button>
+      <button data-a="right" aria-label="Droite"><svg viewBox="0 0 24 24"><path d="M9 5l8 7-8 7z" fill="currentColor"/></svg></button>
+      <button data-a="rot" aria-label="Tourner"><svg viewBox="0 0 24 24"><path d="M19 12a7 7 0 1 1-2-5M19 4v5h-5" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button data-a="soft" aria-label="Descendre"><svg viewBox="0 0 24 24"><path d="M5 9l7 8 7-8z" fill="currentColor"/></svg></button>
+      <button data-a="hard" aria-label="Faire tomber"><svg viewBox="0 0 24 24"><path d="M5 5l7 7 7-7M5 12l7 7 7-7" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    </div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -682,7 +719,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="mots.js"></script>
 <script>
 'use strict';
-const APP_VERSION='1.9.5';
+const APP_VERSION='2.0.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -918,6 +955,7 @@ function refreshHome(){
   const sdd=store.get('sdkDailyDone',0),sdn=new Date(),sdk=sdn.getFullYear()*10000+(sdn.getMonth()+1)*100+sdn.getDate();$('hSdk').textContent=sdd===sdk?'Grille du jour terminée':'Une grille du jour t\'attend';
   const flb=store.get('flBest',0);$('hFl').textContent=flb?'Record '+flb:'Pas encore de record';
   const pds=store.get('pdStats',{p:0,w:0});$('hPd').textContent=pds.p?pds.w+' mot'+(pds.w>1?'s':'')+' trouvé'+(pds.w>1?'s':''):'Sauve le koala';
+  const tb=store.get('tetBest',0);$('hvTet').textContent=tb?'Record '+tb:'Pas encore de record';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -2169,6 +2207,103 @@ refreshHome();
   enterHooks.vBn=()=>{revealed=-1;hold=-1;game.enter()};
   leaveHooks.vBn=()=>{clearTimeout(holdT);hold=-1;game.leave()};
   if(location.hostname==='localhost')window.__bn=()=>ctx.state; // aide aux tests locaux uniquement
+})();
+
+/* ---------- TETRIS ---------- */
+(function(){
+  const COLS=10,ROWS=20,cv=$('tetCv'),ctx=cv.getContext('2d'),nx=$('tetNext'),nctx=nx.getContext('2d'),ov=$('tetOv');
+  const SHAPES={I:[[0,1],[1,1],[2,1],[3,1]],O:[[1,0],[2,0],[1,1],[2,1]],T:[[1,0],[0,1],[1,1],[2,1]],S:[[1,0],[2,0],[0,1],[1,1]],Z:[[0,0],[1,0],[1,1],[2,1]],J:[[0,0],[0,1],[1,1],[2,1]],L:[[2,0],[0,1],[1,1],[2,1]]};
+  const COL={I:'#3ee6ff',O:'#ffc93c',T:'#b26bff',S:'#2fe39a',Z:'#ff3b4e',J:'#4a86ff',L:'#ff8a3d'};
+  let cs=24,board,cur,next,bag=[],score,lines,level,state='idle',raf=null,last=0,acc=0,lockT=0,clearing=null,flashT=0;
+  function size(){
+    const h=Math.min(window.innerHeight-300,(window.innerWidth-32-96)*2,560);cs=Math.max(14,Math.floor(h/ROWS));
+    const dpr=window.devicePixelRatio||1;cv.width=COLS*cs*dpr;cv.height=ROWS*cs*dpr;cv.style.width=COLS*cs+'px';cv.style.height=ROWS*cs+'px';ctx.setTransform(dpr,0,0,dpr,0,0);
+    nx.width=86*dpr;nx.height=86*dpr;nctx.setTransform(dpr,0,0,dpr,0,0);draw();
+  }
+  function take(){if(!bag.length){bag=Object.keys(SHAPES);for(let i=bag.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[bag[i],bag[j]]=[bag[j],bag[i]]}}return bag.pop()}
+  function piece(t){return{t,cells:SHAPES[t].map(c=>c.slice()),x:3,y:t==='I'?-1:0}}
+  const fits=(cells,x,y)=>cells.every(([cx,cy])=>{const X=x+cx,Y=y+cy;return X>=0&&X<COLS&&Y<ROWS&&(Y<0||!board[Y][X])});
+  function rotate(dir){
+    if(cur.t==='O')return;
+    const n=cur.t==='I'?4:3,rc=cur.cells.map(([x,y])=>dir>0?[n-1-y,x]:[y,n-1-x]);
+    for(const k of[0,-1,1,-2,2])if(fits(rc,cur.x+k,cur.y)){cur.cells=rc;cur.x+=k;lockT=0;sfx.play('tick');return}
+    if(fits(rc,cur.x,cur.y-1)){cur.cells=rc;cur.y--;lockT=0;sfx.play('tick')}
+  }
+  function move(dx){if(fits(cur.cells,cur.x+dx,cur.y)){cur.x+=dx;lockT=0;sfx.play('move')}}
+  const speed=()=>Math.max(70,800*Math.pow(.86,level-1));
+  function spawn(){cur=next?piece(next):piece(take());next=take();if(!fits(cur.cells,cur.x,cur.y))over();drawNext()}
+  function lock(){
+    for(const[cx,cy]of cur.cells){const Y=cur.y+cy;if(Y<0){over();return}board[Y][cur.x+cx]=cur.t}
+    const full=[];for(let y=0;y<ROWS;y++)if(board[y].every(Boolean))full.push(y);
+    if(full.length){clearing={rows:full,t:0};sfx.play(full.length>=4?'win':'merge',64<<full.length);vibe(full.length>=4?[40,30,40]:20)}else{sfx.play('key');spawn()}
+  }
+  function finishClear(){
+    const n=clearing.rows.length;board=board.filter((r,y)=>!clearing.rows.includes(y));while(board.length<ROWS)board.unshift(Array(COLS).fill(null));
+    score+=[0,100,300,500,800][n]*level;lines+=n;const nl=Math.floor(lines/10)+1;if(nl>level){level=nl;flashT=1.2}
+    clearing=null;hud();spawn();
+  }
+  function hard(){if(state!=='play'||clearing)return;let d=0;while(fits(cur.cells,cur.x,cur.y+1)){cur.y++;d++}score+=d*2;hud();lock();acc=0}
+  function soft(){if(state!=='play'||clearing)return;if(fits(cur.cells,cur.x,cur.y+1)){cur.y++;score+=1;hud();acc=0}}
+  function hud(){$('tetS').textContent=score;$('tetL').textContent=level;$('tetN').textContent=lines;$('tetB').textContent=Math.max(store.get('tetBest',0),score)}
+  function over(){
+    state='over';const b=store.get('tetBest',0);
+    if(score>b){store.set('tetBest',score);$('tetOt').textContent='Nouveau record !';sfx.play('win')}else{$('tetOt').textContent='Partie terminée';sfx.play('lose')}
+    $('tetOp').textContent='Score '+score+', '+lines+' ligne'+(lines>1?'s':'');$('tetGo').textContent='Rejouer';ov.hidden=false;vibe([80,40,80]);hud();
+  }
+  function start(){board=Array.from({length:ROWS},()=>Array(COLS).fill(null));score=0;lines=0;level=1;next=null;bag=[];clearing=null;acc=0;flashT=0;hud();spawn();state='play';ov.hidden=true;sfx.play('start');startLoop()}
+  function block(c,x,y,col,a){
+    c.globalAlpha=a==null?1:a;c.fillStyle=col;const r=Math.max(2,cs*.18),s=cs-2;
+    c.beginPath();c.moveTo(x+1+r,y+1);c.arcTo(x+1+s,y+1,x+1+s,y+1+s,r);c.arcTo(x+1+s,y+1+s,x+1,y+1+s,r);c.arcTo(x+1,y+1+s,x+1,y+1,r);c.arcTo(x+1,y+1,x+1+s,y+1,r);c.fill();
+    c.fillStyle='rgba(255,255,255,.3)';c.fillRect(x+4,y+3,s-6,Math.max(2,cs*.14));c.fillStyle='rgba(0,0,0,.2)';c.fillRect(x+3,y+s-Math.max(2,cs*.14),s-4,Math.max(2,cs*.14));c.globalAlpha=1;
+  }
+  function draw(){
+    ctx.fillStyle='#060f2a';ctx.fillRect(0,0,COLS*cs,ROWS*cs);
+    ctx.strokeStyle='rgba(138,151,199,.07)';ctx.lineWidth=1;for(let x=1;x<COLS;x++){ctx.beginPath();ctx.moveTo(x*cs,0);ctx.lineTo(x*cs,ROWS*cs);ctx.stroke()}for(let y=1;y<ROWS;y++){ctx.beginPath();ctx.moveTo(0,y*cs);ctx.lineTo(COLS*cs,y*cs);ctx.stroke()}
+    if(!board)return;
+    for(let y=0;y<ROWS;y++)for(let x=0;x<COLS;x++)if(board[y][x]){const fl=clearing&&clearing.rows.includes(y);block(ctx,x*cs,y*cs,fl?'#fff':COL[board[y][x]],fl?1-clearing.t*3:1)}
+    if(cur&&state==='play'&&!clearing){
+      let gy=cur.y;while(fits(cur.cells,cur.x,gy+1))gy++;
+      for(const[cx,cy]of cur.cells)if(gy+cy>=0){ctx.strokeStyle=COL[cur.t];ctx.globalAlpha=.45;ctx.lineWidth=2;ctx.strokeRect((cur.x+cx)*cs+2,(gy+cy)*cs+2,cs-4,cs-4);ctx.globalAlpha=1}
+      for(const[cx,cy]of cur.cells)if(cur.y+cy>=0)block(ctx,(cur.x+cx)*cs,(cur.y+cy)*cs,COL[cur.t]);
+    }
+    if(flashT>0){ctx.globalAlpha=Math.min(1,flashT);ctx.fillStyle='#3ee6ff';ctx.font='900 '+Math.round(cs*1.4)+'px Raleway,sans-serif';ctx.textAlign='center';ctx.fillText('Niveau '+level,COLS*cs/2,ROWS*cs*.4);ctx.globalAlpha=1}
+  }
+  function drawNext(){
+    nctx.fillStyle='#07112b';nctx.fillRect(0,0,86,86);if(!next)return;
+    const c=SHAPES[next],w=Math.max(...c.map(p=>p[0]))+1,h=Math.max(...c.map(p=>p[1]))+1,s=18,ox=(86-w*s)/2,oy=(86-h*s)/2,keep=cs;cs=s;
+    c.forEach(([x,y])=>block(nctx,ox+x*s,oy+y*s,COL[next]));cs=keep;
+  }
+  function loop(t){
+    const dt=Math.min(50,t-last);last=t;
+    if(state==='play'){
+      if(clearing){clearing.t+=dt/1000;if(clearing.t>.3)finishClear()}
+      else{acc+=dt;if(acc>=speed()){acc=0;if(fits(cur.cells,cur.x,cur.y+1)){cur.y++;lockT=0}else{lockT+=speed();if(lockT>=Math.max(400,speed()))lock()}}}
+      if(flashT>0)flashT-=dt/1000;
+    }
+    draw();raf=requestAnimationFrame(loop);
+  }
+  function startLoop(){if(raf===null){last=performance.now();raf=requestAnimationFrame(loop)}}
+  function stopLoop(){if(raf!==null){cancelAnimationFrame(raf);raf=null}}
+  const act={left:()=>move(-1),right:()=>move(1),rot:()=>rotate(1),soft,hard};
+  document.querySelectorAll('.tetPad button').forEach(b=>{
+    let rep=null;const a=b.dataset.a;
+    b.addEventListener('pointerdown',e=>{e.preventDefault();if(state!=='play'||clearing)return;act[a]();vibe(6);if(a==='left'||a==='right'||a==='soft'){clearInterval(rep);rep=setTimeout(()=>{rep=setInterval(()=>{if(state==='play'&&!clearing)act[a]()},60)},220)}});
+    const stop=()=>{clearTimeout(rep);clearInterval(rep);rep=null};b.addEventListener('pointerup',stop);b.addEventListener('pointerleave',stop);b.addEventListener('pointercancel',stop);
+  });
+  // gestes sur la grille : glisser = déplacer, toucher = tourner, glisser vers le bas = faire tomber
+  let gx=0,gy=0,moved=0,gt=0;
+  cv.addEventListener('pointerdown',e=>{gx=e.clientX;gy=e.clientY;moved=0;gt=performance.now()});
+  cv.addEventListener('pointermove',e=>{if(!e.buttons&&e.pointerType==='mouse')return;if(state!=='play'||clearing)return;const dx=e.clientX-gx;if(Math.abs(dx)>=cs){move(dx>0?1:-1);gx+=dx>0?cs:-cs;moved++}});
+  cv.addEventListener('pointerup',e=>{if(state!=='play'||clearing)return;const dy=e.clientY-gy,dt=performance.now()-gt;if(dy>cs*3&&dt<350)hard();else if(!moved&&Math.abs(dy)<cs)rotate(1)});
+  document.addEventListener('keydown',e=>{if(current!=='vTet'||state!=='play'||clearing)return;const m={ArrowLeft:'left',ArrowRight:'right',ArrowUp:'rot',ArrowDown:'soft',' ':'hard'}[e.key];if(m){e.preventDefault();act[m]()}});
+  $('tetGo').addEventListener('click',()=>{if(state==='paused'){state='play';ov.hidden=true;startLoop()}else start()});
+  const pause=()=>{if(state==='play'){state='paused';$('tetOt').textContent='En pause';$('tetOp').textContent='Score '+score;$('tetGo').textContent='Reprendre';ov.hidden=false}};
+  enterHooks.vTet=()=>{hud();size();startLoop()};
+  leaveHooks.vTet=()=>{pause();stopLoop()};
+  document.addEventListener('visibilitychange',()=>{if(document.hidden&&current==='vTet')pause()});
+  window.addEventListener('resize',()=>{if(current==='vTet')size()});
+  if(location.hostname==='localhost')window.__tet=()=>({board,cur,score,lines,level,state}); // aide aux tests locaux uniquement
+  score=0;lines=0;level=1;
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
