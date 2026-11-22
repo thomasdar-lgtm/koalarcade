@@ -682,6 +682,31 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .anDone span{background:var(--plate);padding:5px 9px;border-radius:9px;font-weight:800;letter-spacing:1px;box-shadow:0 0 0 2px var(--line)}
 .anDone span.miss{color:#ff8a9a}
 #anDone[hidden],#anBtns[hidden],#anGo[hidden]{display:none}
+/* ---- petit bac ---- */
+#vPb{--g:var(--teal)}
+#vPb .main{gap:12px;position:relative}
+.pbHead{display:flex;gap:12px;align-items:center;width:min(94vw,440px)}
+.pbLetter{width:70px;height:70px;flex:none;border-radius:18px;display:grid;place-items:center;font-size:44px;font-weight:900;color:var(--night);background:linear-gradient(180deg,#5ff0e2,#19d3c5);box-shadow:0 5px 0 #0e8f85}
+.pbLetter.spin{animation:pop .4s}
+.pbInfo{flex:1;display:flex;flex-direction:column;gap:8px}
+.pbInfo b{font-weight:900;color:var(--mut)}
+#vPb .lgTime u{background:linear-gradient(90deg,#19d3c5,#5aa9ff)}
+.pbList{display:flex;flex-direction:column;gap:8px;width:min(94vw,440px)}
+.pbRow{display:flex;align-items:center;gap:8px;background:var(--plate);border-radius:14px;padding:6px 8px 6px 12px;box-shadow:0 0 0 2px var(--line)}
+.pbRow label{width:92px;flex:none;font-weight:800;font-size:13px;color:var(--mut)}
+.pbRow input{flex:1;min-width:0;height:40px;border-radius:10px;border:none;background:var(--deep);color:#fff;font:800 17px Raleway,sans-serif;padding:0 10px;text-transform:uppercase;box-shadow:inset 0 0 0 2px var(--line)}
+.pbRow input:focus{outline:none;box-shadow:inset 0 0 0 2px var(--teal)}
+.pbRow input:disabled{opacity:.6}
+.pbRev{flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px;min-width:0}
+.pbRev button{min-width:0;border-radius:10px;padding:7px 8px;font-weight:800;font-size:14px;text-align:left;background:var(--deep);color:#fff;box-shadow:inset 0 0 0 2px var(--line);display:flex;justify-content:space-between;gap:4px;align-items:center}
+.pbRev button span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pbRev button i{font-style:normal;font-weight:900;flex:none}
+.pbRev button.ok{box-shadow:inset 0 0 0 2px #2fe39a}.pbRev button.ok i{color:#2fe39a}
+.pbRev button.no{opacity:.55;text-decoration:line-through}.pbRev button.no i{color:#ff4d5e;text-decoration:none}
+.pbRev button.empty{opacity:.35}
+.pbCover{position:absolute;inset:0;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:5;text-align:center;padding:20px}
+.pbCover p{font-size:22px;font-weight:900;margin:0}
+.pbCover[hidden]{display:none}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -930,6 +955,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vMt2" style="--g:var(--volt)">
           <img class="art" src="img/motus.webp" alt="" width="160" height="160">
           <b>Motus à deux</b><span class="rec" id="hvMt2"></span>
+        </button>
+        <button class="tile" data-go="vPb" style="--g:var(--teal)">
+          <img class="art" src="img/petitbac.svg" alt="" width="160" height="160">
+          <b>Petit bac</b><span class="rec" id="hvPb"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1481,6 +1510,24 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PETIT BAC -->
+<section class="view" id="vPb">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/petitbac.svg" alt="" width="40" height="40"><h1>Petit bac</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="pbMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="pbNet" hidden></div>
+    <div class="m2Top">
+      <div class="pl" id="pbP0" style="--pc:var(--red)"><div><b>Joueur 1</b><small id="pbT0"></small></div><strong id="pbA">0</strong></div>
+      <div class="pl" id="pbP1" style="--pc:var(--sun)"><div><b data-p1>Joueur 2</b><small id="pbT1"></small></div><strong id="pbB">0</strong></div>
+    </div>
+    <div class="pbHead"><div class="pbLetter" id="pbL">?</div><div class="pbInfo"><b id="pbR">Manche 1</b><div class="lgTime"><u id="pbBar"></u></div></div></div>
+    <div class="pbList" id="pbList"></div>
+    <div class="msg hi" id="pbM"></div>
+    <div class="row"><button class="btn" id="pbGo">Stop !</button></div>
+    <div class="pbCover" id="pbCover" hidden><p id="pbCoverT"></p><button class="btn" id="pbCoverB"></button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1512,7 +1559,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.6.0';
+const APP_VERSION='2.6.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1797,6 +1844,7 @@ function refreshHome(){
   const lgb=store.get('lgBest',0);$('hvLg').textContent=lgb?'Record '+lgb+' points':'9 lettres, un mot, 45 secondes';
   const cbb=store.get('cbBest',0);$('hvCb').textContent=cbb?'Record '+cbb+' points':'6 plaques, 1 nombre à trouver';
   const anb=store.get('anBest',0);$('hvAn').textContent=anb?'Record '+anb+' points':'Remets les lettres en ordre';
+  $('hvPb').textContent='Une lettre, six catégories';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5634,6 +5682,84 @@ refreshHome();
   enterHooks.vAn=()=>{$('anB').textContent=store.get('anBest',0);if(!st){$('anBtns').hidden=true;$('anBar').style.width='100%'}};
   leaveHooks.vAn=()=>{if(st&&st.on)end()};
   if(location.hostname==='localhost')window.__an={get:()=>st,start,pool:POOL};
+})();
+
+/* ---------- PETIT BAC ---------- */
+(function(){
+  const CATS=['Prénom','Animal','Fruit, légume','Pays, ville','Métier','Objet'];
+  const BANK=[
+    'Adam Alice Antoine Agathe Bernard Benoit Brigitte Camille Charles Chloe Cindy Damien David Denise Emma Eric Fabrice Fanny Gabriel Gaelle Hugo Helene Ines Isabelle Jules Julie Karim Kevin Laura Louis Lea Manon Marc Marie Nathalie Nicolas Olivier Oceane Paul Pauline Pierre Quentin Raphael Rose Sarah Simon Theo Thomas Ugo Valerie Victor William Xavier Yann Yasmine Zoe',
+    'Abeille Ane Antilope Baleine Blaireau Castor Chat Chameau Dauphin Dindon Elephant Ecureuil Faucon Fourmi Girafe Gorille Herisson Hibou Iguane Impala Jaguar Kangourou Koala Lapin Lion Loup Mouton Marmotte Narval Ours Otarie Panda Perroquet Phoque Renard Requin Sanglier Serpent Tigre Tortue Vache Vautour Wapiti Yack Zebre',
+    'Abricot Ananas Artichaut Banane Brocoli Cerise Carotte Citron Courgette Datte Endive Epinard Figue Fraise Framboise Groseille Goyave Haricot Igname Kiwi Kaki Litchi Laitue Mangue Melon Navet Noix Orange Olive Oignon Poire Pomme Prune Poireau Radis Raisin Salsifis Tomate Topinambour Vanille Yuzu',
+    'Allemagne Algerie Bordeaux Belgique Bresil Canada Chine Dax Danemark Espagne Egypte France Finlande Grece Geneve Hongrie Inde Italie Irlande Japon Jordanie Kenya Lyon Luxembourg Maroc Marseille Mexique Nantes Norvege Oslo Oran Paris Portugal Quebec Rome Russie Suede Suisse Toulouse Tunisie Uruguay Ukraine Venise Vietnam Washington Yemen Zurich',
+    'Avocat Architecte Boulanger Boucher Coiffeur Charpentier Dentiste Docteur Electricien Ecrivain Facteur Fleuriste Garagiste Guide Horloger Hotesse Infirmier Ingenieur Jardinier Journaliste Libraire Macon Medecin Notaire Opticien Patissier Plombier Pompier Policier Restaurateur Serveur Soudeur Tailleur Urbaniste Veterinaire Vendeur Yogi Zoologiste',
+    'Aiguille Assiette Balai Bougie Ciseaux Couteau Chaise Eponge Echarpe Fourchette Flute Gant Guitare Horloge Hamac Impermeable Jumelles Journal Kayak Lampe Livre Marteau Miroir Nappe Ordinateur Oreiller Parapluie Peigne Quille Rateau Regle Stylo Sac Table Tasse Valise Verre Wok Yoyo'].map(s=>s.split(' '));
+  const LETTERS='ABCDEFGHIJLMNOPRSTV';
+  const TIME=120;
+  const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z]/g,'');
+  let draft=['','','','','',''],tick=null,lastRound=-1,list=$('pbList');
+  function fresh(prev){
+    const used=prev&&prev.used?prev.used:'';let L;do L=LETTERS[Math.floor(Math.random()*LETTERS.length)];while(used.includes(L)&&used.length<LETTERS.length);
+    return{letter:L,used:(used.length>=LETTERS.length-1?'':used)+L,round:prev?prev.round+1:1,phase:'write',ans:[null,null],done:[false,false],cur:0,stopBy:-1,valid:null,t0:Date.now(),sc:prev?prev.sc:[0,0],mv:prev?prev.mv+1:0}}
+  const validAns=(a,L)=>{const n=norm(a);return n.length>=2&&n[0]===L};
+  function score(S){const pts=[0,0],per=[[],[]];for(let i=0;i<6;i++){const v=[0,1].map(p=>S.valid[p][i]),a=[0,1].map(p=>norm(S.ans[p][i]));
+    [0,1].forEach(p=>{let x=0;if(v[p])x=v[1-p]&&a[0]===a[1]?1:2;per[p].push(x);pts[p]+=x})}return{pts,per}}
+  function toReview(S){S.phase='review';S.valid=[0,1].map(p=>S.ans[p].map(a=>validAns(a,S.letter)));return S}
+  function submit(S,p,ans,stop){if(S.phase!=='write'&&S.phase!=='stop')return null;if(S.done[p])return null;S.ans=S.ans.slice();S.ans[p]=ans.slice();S.done=S.done.slice();S.done[p]=true;if(stop&&S.phase==='write'){S.phase='stop';S.stopBy=p}S.mv++;
+    if(S.done[0]&&S.done[1])toReview(S);return S}
+  function koalaAnswers(L,lv){return BANK.map(list=>{const c=list.filter(w=>norm(w)[0]===L);return c.length&&Math.random()<[.45,.7,.9][lv]?c[Math.floor(Math.random()*c.length)]:''})}
+  function ai(S,ctx,lv){
+    if(S.phase!=='write'&&S.phase!=='stop')return null;if(S.done[1])return null;
+    // Koala écrit pendant que tu joues ; il dit « Stop » au bout d'un moment
+    if(S.phase==='stop'||S.done[0])return{fn:s=>submit(s,1,koalaAnswers(s.letter,lv),false),delay:600};
+    const left=TIME*1000-(Date.now()-S.t0);return{fn:s=>submit(s,1,koalaAnswers(s.letter,lv),true),delay:Math.max(1000,left-[10,35,55][lv]*1000)};
+  }
+  function me(ctx,S){return ctx.online?ctx.me:ctx.ai?0:S.cur}
+  function render(S,prev,ctx){
+    const m=me(ctx,S),R=S.phase==='review';
+    if(S.round!==lastRound){lastRound=S.round;draft=['','','','','',''];$('pbL').classList.remove('spin');void $('pbL').offsetWidth;$('pbL').classList.add('spin');if(prev)sfx.play('start')}
+    $('pbL').textContent=S.letter;$('pbR').textContent='Manche '+S.round;$('pbA').textContent=S.sc[0];$('pbB').textContent=S.sc[1];
+    // écran de passage en local
+    const cover=!ctx.online&&!ctx.ai&&S.phase==='write'&&S.cur===1&&!coverOk;
+    $('pbCover').hidden=!cover;if(cover){$('pbCoverT').textContent='Passe le téléphone à '+NAMES[1]+' : même lettre, '+S.letter+' !';$('pbCoverB').textContent='Je suis '+NAMES[1]}
+    if(R){const sc=score(S);
+      list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label>'+c+'</label><div class="pbRev">'+[0,1].map(p=>{const a=S.ans[p][i]||'',v=S.valid[p][i];return'<button data-p="'+p+'" data-i="'+i+'" class="'+(!a?'empty':v?'ok':'no')+'"><span>'+(a?a.toUpperCase():'—')+'</span><i>'+(a?(v?'+'+sc.per[p][i]:'✕'):'')+'</i></button>'}).join('')+'</div></div>').join('');
+      $('pbT0').textContent='+'+sc.pts[0]+' cette manche';$('pbT1').textContent='+'+sc.pts[1]+' cette manche';
+      $('pbM').textContent='Touche une réponse pour la refuser ou l\'accepter';$('pbGo').textContent='Manche suivante';$('pbGo').disabled=false;
+      if(prev&&prev.phase!=='review')sfx.play('win');
+    }else{
+      const writing=!S.done[m]&&(ctx.online||ctx.ai||S.cur===m);
+      if(!list.querySelector('input')||prev&&prev.round!==S.round||!prev){list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label>'+c+'</label><input data-i="'+i+'" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>').join('');
+        list.querySelectorAll('input').forEach(inp=>{inp.value=draft[+inp.dataset.i];inp.addEventListener('input',()=>{draft[+inp.dataset.i]=inp.value})})}
+      list.querySelectorAll('input').forEach(inp=>{inp.disabled=!writing;inp.placeholder=S.letter+'…'});
+      [0,1].forEach(p=>$('pbT'+p).textContent=S.done[p]?'a fini':(ctx.online||ctx.ai||S.cur===p)?'écrit…':'');
+      $('pbGo').textContent='Stop !';$('pbGo').disabled=!writing;
+      $('pbM').textContent=S.phase==='stop'?NAMES[S.stopBy]+' a dit stop !':writing?'Trouve un mot commençant par '+S.letter+' dans chaque catégorie':'On attend '+NAMES[1-m]+'…';
+      if(S.phase==='stop'&&prev&&prev.phase==='write')sfx.play('error');
+      // l'autre a dit stop : on envoie ce qu'on a
+      if(S.phase==='stop'&&(ctx.online||ctx.ai)&&!S.done[m]){const d=draft.slice();setTimeout(()=>ctx.act(s=>submit(s,m,d,false)),0)}
+    }
+    clearInterval(tick);
+    if(!R){tick=setInterval(()=>{const s=ctx.state;if(!s||s.phase==='review'){clearInterval(tick);return}const t0=ctx.online||ctx.ai?s.t0:(s.cur===1?(s.t1||s.t0):s.t0),left=TIME-(Date.now()-t0)/1000;
+      $('pbBar').style.width=Math.max(0,left/TIME*100)+'%';if(left<=0){clearInterval(tick);const m2=me(ctx,s);if(!s.done[m2])doStop()}},250)}else $('pbBar').style.width='0%';
+  }
+  let coverOk=false;
+  const game=twoPlayer({key:'pb',fresh,render,ai,
+    loadLocal(){return{...fresh(store.get('pbLast',null)),sc:store.get('pbScore',[0,0])}},
+    saveLocal(S){store.set('pbScore',S.sc);store.set('pbLast',{used:S.used,round:S.round-1,mv:0,sc:S.sc})}});
+  const ctx=game.ctx;
+  function doStop(){const S=ctx.state;if(!S)return;const m=me(ctx,S);
+    if(!ctx.online&&!ctx.ai&&S.cur===0){ctx.act(s=>{if(s.done[0])return null;s.ans=[draft.slice(),null];s.done=[true,false];s.cur=1;s.t1=Date.now();s.mv++;return s});coverOk=false;draft=['','','','','',''];list.innerHTML='';ctx.act(s=>s);return}
+    ctx.act(s=>submit(s,m,draft,true));sfx.play('key')}
+  $('pbGo').addEventListener('click',()=>{const S=ctx.state;if(!S)return;
+    if(S.phase==='review'){const sc=score(S);ctx.act(s=>{if(s.phase!=='review')return null;const n=fresh(s);n.sc=[s.sc[0]+sc.pts[0],s.sc[1]+sc.pts[1]];return n});coverOk=false;return}
+    doStop()});
+  list.addEventListener('click',e=>{const b=e.target.closest('.pbRev button');if(!b)return;const S=ctx.state;if(!S||S.phase!=='review')return;const p=+b.dataset.p,i=+b.dataset.i;if(!S.ans[p][i])return;
+    ctx.act(s=>{if(s.phase!=='review')return null;s.valid=s.valid.map(r=>r.slice());s.valid[p][i]=!s.valid[p][i];s.mv++;return s});sfx.play('tick')});
+  $('pbCoverB').addEventListener('click',()=>{coverOk=true;const S=ctx.state;if(S){S.t1=Date.now();render(S,S,ctx)}});
+  enterHooks.vPb=()=>{coverOk=false;lastRound=-1;game.enter()};
+  leaveHooks.vPb=()=>{clearInterval(tick);game.leave()};
+  if(location.hostname==='localhost')window.__pb={get:()=>ctx.state,draft:d=>{draft=d.slice()},stop:doStop,score};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */

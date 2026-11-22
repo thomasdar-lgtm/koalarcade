@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0d5a63"/><stop offset="1" stop-color="#062b33"/></linearGradient></defs>
+<rect width="160" height="160" rx="34" fill="url(#bg)"/>
+<rect x="22" y="22" width="52" height="52" rx="12" fill="#19d3c5"/><text x="48" y="62" font-family="sans-serif" font-weight="900" font-size="38" text-anchor="middle" fill="#062b33">P</text>
+<g font-family="sans-serif" font-weight="800" font-size="12" fill="#cfe0ff"><text x="84" y="36">Prénom</text><text x="84" y="56">Animal</text><text x="84" y="76">Pays</text></g>
+<g fill="#0e1b40" stroke="#1b2a5c" stroke-width="2"><rect x="22" y="88" width="116" height="20" rx="6"/><rect x="22" y="114" width="116" height="20" rx="6"/></g>
+<g font-family="sans-serif" font-weight="900" font-size="13" fill="#fff"><text x="30" y="103">PAULINE</text><text x="30" y="129">PANDA</text></g>
+<g font-family="sans-serif" font-weight="900" font-size="13" fill="#2fe39a"><text x="114" y="103">+2</text><text x="114" y="129">+1</text></g></svg>
