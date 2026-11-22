@@ -622,6 +622,36 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #px.won .pk.x::after{content:''}
 #pxMode,#pxTool{flex:none}#pxMode{width:min(94vw,460px)}
 #pxTool button{min-width:96px}
+/* habillage picross : atelier de pixel art */
+#vPx .main{background:radial-gradient(70% 40% at 50% 0%,#19d3c540,transparent 70%),linear-gradient(#ffffff06 1px,transparent 1px) 0 0/18px 18px,linear-gradient(90deg,#ffffff06 1px,transparent 1px) 0 0/18px 18px,linear-gradient(180deg,#0a2a3a,#05121c 75%);gap:12px}
+#pxWrap{padding:10px;border-radius:20px;background:linear-gradient(180deg,#14385a,#0c2440);box-shadow:inset 0 0 0 2px #ffffff1c,0 0 0 4px #0a1a2e,0 0 0 6px #19d3c566,0 14px 30px #000b}
+#px .pq{border-radius:8px 8px 0 0;margin:0 1px;padding-bottom:4px;color:#e6fbff;text-shadow:0 1px 0 #0008}
+#px .pq:nth-child(even){background:#ffffff0c}
+#px .pr{border-radius:8px 0 0 8px;margin:1px 0;color:#e6fbff;text-shadow:0 1px 0 #0008}
+#px .pr:nth-child(4n+2){background:#ffffff0c}
+#px .pq.ok,#px .pr.ok{color:#ffffff40;text-decoration:line-through;text-decoration-thickness:2px}
+#px .pq.hl,#px .pr.hl{background:#19d3c544}
+#px .pk{background:linear-gradient(145deg,#f7fbff,#e3ebfa);border-right:1px solid #c3cde6;border-bottom:1px solid #c3cde6}
+#px .pk.r5{border-right:2px solid #2a3c6a}#px .pk.b5{border-bottom:2px solid #2a3c6a}
+#px .pk.f{background:linear-gradient(145deg,#2a3f86,#16224f);box-shadow:inset 2px 2px 0 #ffffff26,inset -2px -2px 0 #0005;animation:pxIn .18s ease-out}
+@keyframes pxIn{from{transform:scale(.4)}}
+#px .pk.x::after{color:#9aa8cc;font-size:calc(var(--cs)*.55)}
+#px .pk.e{background:#ffe0e5}#px .pk.e::after{color:#e8283c}
+#px .pk.hl{background:#dff9f6}#px .pk.f.hl{background:linear-gradient(145deg,#33509e,#1c2c62)}
+#px.won .pk.f{background:linear-gradient(145deg,color-mix(in srgb,var(--fc) 70%,#fff),var(--fc));box-shadow:inset 2px 2px 0 #fff6,inset -2px -2px 0 #0003;animation:pxWin .5s cubic-bezier(.2,1.6,.4,1) both;animation-delay:var(--d)}
+@keyframes pxWin{0%{transform:scale(.2) rotate(-20deg)}100%{transform:none}}
+#px.won .pk:not(.f){background:#f7fbff;border-color:transparent}
+#px.won{animation:none}
+.pxGal{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;width:min(94vw,460px)}
+.pxGal[hidden]{display:none}
+.pxGal>div{width:34px;height:34px;border-radius:9px;background:#ffffff10;box-shadow:inset 0 0 0 1.5px #ffffff22;display:grid;grid-template-columns:repeat(10,1fr);padding:3px;overflow:hidden}
+.pxGal>div b{grid-column:1/-1;grid-row:1/-1;display:grid;place-items:center;font-size:13px;font-weight:900;color:#ffffff55}
+.pxGal>div.ok{background:#f7fbff}.pxGal>div i.on{background:#19d3c5;border-radius:1px}
+.pxGal>div.cur{box-shadow:0 0 0 2.5px #ffc93c,0 0 12px #ffc93c88}
+#pxTool button{display:flex;align-items:center;justify-content:center;gap:7px}
+.pxIc{width:16px;height:16px;border-radius:4px;display:grid;place-items:center;font-style:normal;font-weight:900;font-size:13px;background:#ffffff22}
+.pxIc.f{background:linear-gradient(145deg,#2a3f86,#16224f);box-shadow:inset 0 0 0 1.5px #ffffff55}
+
 /* ---- mot le plus long ---- */
 #vLg{--g:var(--volt)}
 #vLg .main{gap:12px}
@@ -1630,10 +1660,11 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
   <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/picross.svg" alt="" width="40" height="40"><h1>Picross</h1>
     <div class="chips"><div class="chip"><small>erreurs</small><b id="pxE">0</b></div><div class="chip"><small>temps</small><b id="pxT">0:00</b></div></div></header>
   <div class="main">
-    <div class="seg" id="pxMode"><button data-m="img">Images</button><button data-m="5">5×5</button><button data-m="10">10×10</button><button data-m="15">15×15</button></div>
+    <div class="seg" id="pxMode"><button data-m="img">🖼️ Images</button><button data-m="5">5×5</button><button data-m="10">10×10</button><button data-m="15">15×15</button></div>
+    <div class="pxGal" id="pxGal"></div>
     <div id="pxWrap"><div id="px"></div></div>
     <div class="msg" id="pxM">Les nombres indiquent les groupes de cases à noircir, dans l'ordre</div>
-    <div class="row"><div class="seg" id="pxTool"><button data-t="1" class="on">■ Remplir</button><button data-t="2">✕ Croix</button></div><button class="btn ghost" id="pxNew">Suivante</button></div>
+    <div class="row"><div class="seg" id="pxTool"><button data-t="1" class="on"><i class="pxIc f"></i>Remplir</button><button data-t="2" class="x"><i class="pxIc">✕</i>Croix</button></div><button class="btn ghost" id="pxNew">Suivante</button></div>
   </div>
 </section>
 
@@ -1798,7 +1829,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.6.7';
+const APP_VERSION='2.6.8';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -5687,10 +5718,12 @@ refreshHome();
     el.style.setProperty('--cs',cs+'px');el.style.gridTemplateColumns=Math.ceil(maxR*cs*.62)+'px repeat('+n+','+cs+'px)';el.style.gridTemplateRows=Math.ceil(maxC*cs*.5+4)+'px repeat('+n+','+cs+'px)';
     let h='<div></div>';CC.forEach((cl,c)=>h+='<div class="pq" data-c="'+c+'">'+(cl.length?cl:[0]).map(v=>'<span>'+v+'</span>').join('')+'</div>');
     for(let r=0;r<n;r++){h+='<div class="pr" data-r="'+r+'">'+(RC[r].length?RC[r]:[0]).map(v=>'<span>'+v+'</span>').join('')+'</div>';
-      for(let c=0;c<n;c++)h+='<div class="pk'+((c+1)%5===0&&c<n-1?' r5':'')+((r+1)%5===0&&r<n-1?' b5':'')+'" data-i="'+(r*n+c)+'"></div>'}
+      for(let c=0;c<n;c++)h+='<div class="pk'+((c+1)%5===0&&c<n-1?' r5':'')+((r+1)%5===0&&r<n-1?' b5':'')+'" data-i="'+(r*n+c)+'" style="--d:'+((r+c)*28)+'ms"></div>'}
     el.innerHTML=h;el.classList.toggle('won',G.done);el.style.setProperty('--fc',['#19d3c5','#ff6fb5','#ffc93c','#2fe39a','#5aa9ff','#b26bff','#ff8a3d'][(G.idx>=0?G.idx:G.n)%7]);render();
-    document.querySelectorAll('#pxMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===G.mode));
+    document.querySelectorAll('#pxMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===G.mode));gallery();
   }
+  function gallery(){const g=$('pxGal');g.hidden=G.mode!=='img';if(g.hidden)return;const s=solved();
+    g.innerHTML=IMGS.map((im,i)=>{const ok=s.includes(i),cur=i===G.idx;let cells='';if(ok)for(const ch of im[1])cells+='<i'+(ch==='#'?' class="on"':'')+'></i>';return'<div class="'+(ok?'ok':'')+(cur?' cur':'')+'" title="'+(ok?im[0]:'?')+'">'+(ok?cells:'<b>'+(i+1)+'</b>')+'</div>'}).join('')}
   function lineDone(cells){return cells.every(i=>G.cells[i]===1||!S(Math.floor(i/G.n),i%G.n)?(S(Math.floor(i/G.n),i%G.n)?G.cells[i]===1:true):false)}
   function render(hl){
     const n=G.n;el.querySelectorAll('.pk').forEach(d=>{const i=+d.dataset.i,v=G.cells[i];d.className='pk'+((i%n+1)%5===0&&i%n<n-1?' r5':'')+((Math.floor(i/n)+1)%5===0&&Math.floor(i/n)<n-1?' b5':'')+(v===1?' f':v===2?' x':v===3?' x e':'')+(hl&&(Math.floor(i/n)===hl[0]||i%n===hl[1])?' hl':'')});
@@ -5711,7 +5744,7 @@ refreshHome();
     if(ok){G.done=true;clearInterval(tick);for(let i=0;i<G.n*G.n;i++)if(G.cells[i]!==1)G.cells[i]=2;el.classList.add('won');
       if(G.mode==='img'){const s=solved();if(!s.includes(G.idx)){s.push(G.idx);store.set('pxSolved',s)}}
       store.set('pxWins',store.get('pxWins',0)+1);
-      $('pxM').textContent=(G.name?'C\'était : '+G.name+' ! ':'Grille terminée ! ')+fmt(G.t)+(G.err?' · '+G.err+' erreur'+(G.err>1?'s':''):' · sans faute');sfx.play('win');vibe([40,30,40])}
+      gallery();$('pxM').textContent=(G.name?'C\'était : '+G.name+' ! ':'Grille terminée ! ')+fmt(G.t)+(G.err?' · '+G.err+' erreur'+(G.err>1?'s':''):' · sans faute');sfx.play('win');vibe([40,30,40])}
     save();
   }
   const cellAt=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);return t&&t.closest?t.closest('#px .pk'):null};
