@@ -983,6 +983,36 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 #upd .btn{--g:var(--sun);padding:11px 16px}
 @keyframes updIn{from{transform:translateY(130%)}}
 @media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+/* habillage othello / échecs / petits chevaux : salon de jeux en bois */
+#vOt .main,#vCh .main,#vPc .main{background:radial-gradient(80% 45% at 50% 0%,#ffcf8a22,transparent 70%),repeating-linear-gradient(92deg,#ffffff05 0 2px,transparent 2px 9px),linear-gradient(180deg,#2a1a10,#120a05 75%)}
+#ot{background:linear-gradient(135deg,#0f5a35,#0a3d24);gap:0;padding:8px;box-shadow:inset 0 0 0 2px #0006,0 0 0 5px #5a3418,0 0 0 9px #8a5a33,0 0 0 11px #c48a4a,0 16px 34px #000c}
+#ot .q{border-radius:0;background:radial-gradient(circle at 50% 40%,#2fae6c,#1e8450);box-shadow:inset 0 0 0 .5px #0a3d24aa}
+#ot .q:nth-child(19)::before,#ot .q:nth-child(23)::before,#ot .q:nth-child(43)::before,#ot .q:nth-child(47)::before{content:'';position:absolute;right:-3px;bottom:-3px;width:6px;height:6px;border-radius:50%;background:#0a3d24;z-index:1}
+#ot .q.mv::after{left:18%;top:18%;width:64%;height:64%;background:none;border:2.5px dashed #ffffff55}
+#ot[data-t="0"] .q.mv:hover::after{background:#0b0d1844}
+#ot .d{inset:7%;box-shadow:0 4px 0 #0008,0 6px 8px #0006}
+#ot .d.c0{background:radial-gradient(circle at 35% 28%,#6a7090,#1a1d2e 55%,#05060c);box-shadow:inset 0 -3px 0 #ffffff14,0 4px 0 #000a,0 6px 8px #0006}
+#ot .d.c1{background:radial-gradient(circle at 35% 28%,#ffffff,#eef0f8 50%,#b9c0d6);box-shadow:inset 0 -3px 0 #0001,0 4px 0 #6a7090,0 6px 8px #0006}
+#ot .q.last{box-shadow:inset 0 0 0 3px #ffc93c88}
+#chb{box-shadow:0 0 0 5px #4a2a12,0 0 0 9px #8a5a33,0 0 0 11px #c48a4a,0 16px 34px #000c}
+#chb .s.l{background:linear-gradient(135deg,#f6e2bf,#ecd2a6)}#chb .s.d{background:linear-gradient(135deg,#b98a5e,#9c6d45)}
+#chb .s svg{filter:drop-shadow(0 3px 2px #0008)}
+#chb .s.sel svg{transform:translateY(-6%) scale(1.06);filter:drop-shadow(0 6px 4px #0009)}
+#chb .s.mv::after{width:28%;height:28%;background:radial-gradient(circle,#1f6a3a99,#1f6a3a44)}
+#chb .s.cap::after{border-color:#c4102e99}
+#vOt .pl,#vCh .pl,#vPc .pl{background:linear-gradient(180deg,#ffffff12,#ffffff05);border-color:#ffffff1c}
+#vOt .pl.on,#vCh .pl.on,#vPc .pl.on{border-color:var(--pc);box-shadow:0 0 18px color-mix(in srgb,var(--pc) 40%,transparent)}
+#vCh .tok,#vOt .tok{box-shadow:0 0 0 2px #ffffff33}
+#vCh .chk{background:#f6e2bf}
+#pcb{box-shadow:0 0 0 5px #4a2a12,0 0 0 9px #8a5a33,0 0 0 11px #c48a4a,0 16px 34px #000c}
+#pcb .c{border:.5px solid #00000018;box-shadow:inset 0 2px 0 #ffffff55,inset 0 -2px 0 #0000001a}
+#pcb .c.t{background:linear-gradient(145deg,#ffffff,#eef0f6)}
+#pcb .c.r{background:linear-gradient(145deg,#ff7a87,#e8394c)}#pcb .c.y{background:linear-gradient(145deg,#ffe07a,#f2b705)}#pcb .c.g{background:linear-gradient(145deg,#5ce0a0,#22a865)}#pcb .c.b{background:linear-gradient(145deg,#7ab8ff,#2f7ae0)}
+#pcb .c.sf{background:linear-gradient(145deg,#ffffff,#eef0f6);position:relative}#pcb .c.sf::after{content:'★';position:absolute;inset:0;display:grid;place-items:center;color:#c9a14a;font-size:calc(var(--w)/26)}
+.pcSt{background:radial-gradient(circle at 50% 35%,#ffffff,#f1ece0);box-shadow:inset 0 0 0 3px #0002,inset 0 -6px 0 #0001,0 6px 12px #0004}
+.pcSt i{background:radial-gradient(circle at 50% 60%,#0000001a,#00000008);box-shadow:inset 0 3px 6px #0004}
+.pcH svg{filter:drop-shadow(0 3px 2px #0009)}
+.pcDie{background:linear-gradient(145deg,#ffffff,#e3e7f5 60%,#c9cfe6);box-shadow:inset 0 -4px 0 #0001,0 6px 0 #8a97c7,0 10px 18px #0008}
 </style>
 </head>
 <body>
@@ -1857,7 +1887,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.7.0';
+const APP_VERSION='2.7.1';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -6109,7 +6139,7 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
   for(let i=0;i<64;i++){const q=document.createElement('div');q.className='q';q.dataset.i=i;el.appendChild(q)}
   function render(S,prev,ctx){
     const fresh_=prev&&prev.mv!==S.mv&&prev.b!==S.b,[a,c]=count(S.b),canPlay=!S.over&&ctx.mine(S.turn),ms=canPlay?moves(S.b,S.turn):[];
-    [...el.children].forEach((q,i)=>{const v=S.b[i];q.className='q'+(ms.includes(i)?' mv':'')+(i===S.last?' last':'');
+    el.dataset.t=S.turn;[...el.children].forEach((q,i)=>{const v=S.b[i];q.className='q'+(ms.includes(i)?' mv':'')+(i===S.last?' last':'');
       if(v==='.'){q.innerHTML='';return}const cls='d c'+v+(fresh_&&i===S.last?' new':fresh_&&S.flips.includes(i)?' flip':'');
       let d=q.firstChild;if(!d){d=document.createElement('i');q.appendChild(d)}d.className=cls});
     $('otA').textContent=S.sc[0];$('otB').textContent=S.sc[1];
@@ -6144,7 +6174,8 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
     b:'<circle cx="50" cy="16" r="6"/><path d="M50 22c-12 8-18 18-18 28 0 8 6 14 18 14s18-6 18-14c0-10-6-20-18-28z"/><path d="M52 34l-8 12" stroke="var(--eye)" stroke-width="4" stroke-linecap="round"/><rect x="40" y="64" width="20" height="8"/><rect x="26" y="74" width="48" height="12" rx="4"/>',
     q:'<circle cx="20" cy="26" r="6"/><circle cx="35" cy="18" r="6"/><circle cx="50" cy="14" r="6"/><circle cx="65" cy="18" r="6"/><circle cx="80" cy="26" r="6"/><path d="M20 30l10 34h40l10-34-14 18-8-26-8 26-8-26-8 26z"/><rect x="26" y="66" width="48" height="8" rx="3"/><rect x="22" y="76" width="56" height="10" rx="4"/>',
     k:'<path d="M46 6h8v8h8v8h-8v8h-8v-8h-8v-8h8z"/><path d="M50 32c-18 0-28 8-26 20 2 8 8 12 10 16h32c2-4 8-8 10-16 2-12-8-20-26-20z"/><rect x="28" y="68" width="44" height="8" rx="3"/><rect x="24" y="78" width="52" height="10" rx="4"/>'};
-  const svgP=c=>{const w=c===c.toUpperCase(),t=c.toLowerCase();return'<svg viewBox="0 0 100 100" style="--eye:'+(w?'#1b2033':'#e8e3d6')+'"><g fill="'+(w?'#f7f3ea':'#2a2f45')+'" stroke="'+(w?'#1b2033':'#0b0d18')+'" stroke-width="3.2" stroke-linejoin="round">'+PATH[t]+'</g></svg>'};
+  let gid=0;const svgP=c=>{const w=c===c.toUpperCase(),t=c.toLowerCase(),id='chg'+(++gid);
+    return'<svg viewBox="0 0 100 100" style="--eye:'+(w?'#3a2f20':'#e8e3d6')+'"><defs><linearGradient id="'+id+'" x1="0" y1="0" x2="1" y2="1">'+(w?'<stop offset="0" stop-color="#ffffff"/><stop offset=".55" stop-color="#f3e6c8"/><stop offset="1" stop-color="#c9a873"/>':'<stop offset="0" stop-color="#5a6080"/><stop offset=".5" stop-color="#22263a"/><stop offset="1" stop-color="#07080f"/>')+'</linearGradient></defs><g fill="url(#'+id+')" stroke="'+(w?'#4a3a22':'#05060c')+'" stroke-width="3" stroke-linejoin="round">'+PATH[t]+'</g></svg>'};
   // ----- règles -----
   const isW=c=>c!=='.'&&c===c.toUpperCase(),colOf=c=>c==='.'?null:isW(c)?'w':'b';
   const N8=[-17,-15,-10,-6,6,10,15,17],KD=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
