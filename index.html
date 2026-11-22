@@ -743,6 +743,34 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .chPromo>div{background:var(--plate);border-radius:18px;padding:16px;box-shadow:0 0 0 2px var(--line);text-align:center}
 .chPromo p{margin:0 0 10px;font-weight:900}
 #chPromoL{display:flex;gap:8px}#chPromoL button{width:64px;height:64px;border-radius:12px;background:#f0d9b5}#chPromoL svg{width:90%;height:90%}
+/* ---- petits chevaux ---- */
+#vPc{--g:var(--red)}
+#vPc header h1{font-size:19px}
+.pcTok0{background:radial-gradient(circle at 35% 30%,#ff8a95,#c4102e)}.pcTok1{background:radial-gradient(circle at 35% 30%,#ffe082,#c49a00)}
+#pcb{--w:min(94vw,calc(100vh - 320px),440px);width:var(--w);height:var(--w);flex:none;position:relative;display:grid;grid-template-columns:repeat(15,1fr);grid-template-rows:repeat(15,1fr);border-radius:16px;overflow:hidden;background:#f7f3ea;box-shadow:0 0 0 3px #1b2a5c,0 12px 28px #000a}
+#pcb .c{border:.5px solid #0002}
+#pcb .c.t{background:#fff}
+#pcb .c.r{background:#ff5d6c}#pcb .c.y{background:#ffd23f}#pcb .c.g{background:#3fd08a}#pcb .c.b{background:#4a9dff}
+#pcb .c.sf{background-image:radial-gradient(circle,#0002 18%,transparent 20%)}
+#pcb .st{border:none;display:grid;place-items:center}
+#pcb .st i{width:70%;height:70%;border-radius:18%;background:#fffa;box-shadow:inset 0 0 0 3px #0001}
+#pcb .ctr{grid-column:7/10;grid-row:7/10;background:conic-gradient(from 45deg,#ffd23f 0 25%,#4a9dff 0 50%,#ff5d6c 0 75%,#3fd08a 0)}
+#pcHorses{position:absolute;inset:0;pointer-events:none}
+.pcH{position:absolute;width:calc(var(--w)/15);height:calc(var(--w)/15);display:grid;place-items:center;transition:left .28s ease,top .28s ease;pointer-events:auto;cursor:pointer;z-index:2}
+.pcH svg{width:115%;height:115%;filter:drop-shadow(0 2px 2px #0007)}
+.pcH.can svg{animation:pcB .6s ease-in-out infinite alternate}
+@keyframes pcB{to{transform:translateY(-14%) scale(1.08)}}
+.pcH.fin{opacity:.0}
+.pcDie{position:absolute;left:50%;top:50%;width:calc(var(--w)*.17);height:calc(var(--w)*.17);transform:translate(-50%,-50%);border-radius:18%;background:linear-gradient(145deg,#fff,#dfe4f7);box-shadow:0 5px 0 #8a97c7,0 8px 16px #0006;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);padding:calc(var(--w)*.02);box-sizing:border-box;z-index:3}
+.pcDie i{display:block;width:66%;height:66%;place-self:center;border-radius:50%;background:#1b2033;visibility:hidden}
+.pcDie i.on{visibility:visible}
+.pcDie.go{box-shadow:0 5px 0 #8a97c7,0 0 0 4px var(--pcc,#ff4d5e),0 8px 16px #0006;animation:pcG 1s ease-in-out infinite alternate}
+@keyframes pcG{to{transform:translate(-50%,-50%) scale(1.08)}}
+.pcDie.roll{animation:pcR .5s ease-out}
+@keyframes pcR{0%{transform:translate(-50%,-50%) rotate(0) scale(.8)}60%{transform:translate(-50%,-50%) rotate(300deg) scale(1.15)}100%{transform:translate(-50%,-50%) rotate(360deg)}}
+#pcN{flex:none}#pcN button{white-space:nowrap;padding:8px 12px}
+.pcSt{position:absolute;width:30.67%;height:30.67%;border-radius:18%;background:#fffd;box-shadow:inset 0 0 0 3px #0002;display:grid;grid-template-columns:1fr 1fr;padding:3%;gap:4%}
+.pcSt i{border-radius:50%;background:#0000000f;box-shadow:inset 0 2px 4px #0003;margin:14%}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -1003,6 +1031,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vCh" style="--g:var(--wood)">
           <img class="art" src="img/echecs.svg" alt="" width="160" height="160">
           <b>Échecs</b><span class="rec" id="hvCh"></span>
+        </button>
+        <button class="tile" data-go="vPc" style="--g:var(--red)">
+          <img class="art" src="img/chevaux.svg" alt="" width="160" height="160">
+          <b>Petits chevaux</b><span class="rec" id="hvPc"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1605,6 +1637,22 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PETITS CHEVAUX -->
+<section class="view" id="vPc">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/chevaux.svg" alt="" width="40" height="40"><h1>Petits chevaux</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="pcMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="pcNet" hidden></div>
+    <div class="players">
+      <div class="pl" id="pcP0" style="--pc:var(--red)"><span class="tok pcTok0"></span><div><b>Joueur 1</b><small id="pcT0"></small></div><strong id="pcA">0</strong></div>
+      <div class="pl" id="pcP1" style="--pc:var(--sun)"><span class="tok pcTok1"></span><div><b data-p1>Joueur 2</b><small id="pcT1"></small></div><strong id="pcB">0</strong></div>
+    </div>
+    <div id="pcb"><div id="pcHorses"></div><button id="pcDie" class="pcDie" aria-label="Lancer le dé"></button></div>
+    <div class="msg hi" id="pcM"></div>
+    <div class="row"><div class="seg" id="pcN"><button data-n="2">2 chevaux</button><button data-n="4">4 chevaux</button></div><button class="btn ghost" id="pcNew">Nouvelle partie</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1636,7 +1684,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.6.3';
+const APP_VERSION='2.6.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1924,6 +1972,7 @@ function refreshHome(){
   $('hvPb').textContent='Une lettre, six catégories';
   const ots=store.get('otScore',[0,0]);$('hvOt').textContent=ots[0]+ots[1]?ots[0]+' – '+ots[1]:'Encadre et retourne';
   const chs=store.get('chScore',[0,0]);$('hvCh').textContent=chs[0]+chs[1]?chs[0]+' – '+chs[1]:'Échec et mat !';
+  const pcs=store.get('pcScore',[0,0]);$('hvPc').textContent=pcs[0]+pcs[1]?pcs[0]+' – '+pcs[1]:'La course aux dés';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -6036,6 +6085,97 @@ refreshHome();
   enterHooks.vCh=()=>{sel=-1;game.enter()};
   leaveHooks.vCh=()=>game.leave();
   if(location.hostname==='localhost')window.__ch={get:()=>ctx.state,legal,colP,aiMove,play:m=>ctx.act(s=>play(s,s.turn,m)),fresh,make,perft:(P,col,d)=>{if(!d)return 1;let n=0;for(const m of legal(P,col)){const q=make(P,m);n+=window.__ch.perft(q,col==='w'?'b':'w',d-1)}return n}};
+})();
+
+/* ---------- PETITS CHEVAUX ---------- */
+(function(){
+  const T=[[1,6],[2,6],[3,6],[4,6],[5,6],[6,5],[6,4],[6,3],[6,2],[6,1],[6,0],[7,0],[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[9,6],[10,6],[11,6],[12,6],[13,6],[14,6],[14,7],[14,8],[13,8],[12,8],[11,8],[10,8],[9,8],[8,9],[8,10],[8,11],[8,12],[8,13],[8,14],[7,14],[6,14],[6,13],[6,12],[6,11],[6,10],[6,9],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8],[0,7],[0,6]];
+  const START=[0,26],HOME=[[[1,7],[2,7],[3,7],[4,7],[5,7]],[[13,7],[12,7],[11,7],[10,7],[9,7]]],CENTER=[[6.4,7],[7.6,7]];
+  const STABLE=[[[1.5,1.5],[3.5,1.5],[1.5,3.5],[3.5,3.5]],[[10.5,10.5],[12.5,10.5],[10.5,12.5],[12.5,12.5]]];
+  const FIN=56,SAFE=new Set([0,8,13,21,26,34,39,47]);
+  const el=$('pcb'),hz=$('pcHorses'),dieEl=$('pcDie');
+  let nH=store.get('pcN',4);
+  // plateau
+  (function build(){const col=(x,y)=>{if(x<6&&y<6)return'r';if(x>8&&y<6)return'g';if(x<6&&y>8)return'b';if(x>8&&y>8)return'y';return''};
+    const trackIdx={};T.forEach(([x,y],i)=>trackIdx[x+','+y]=i);
+    let h='';for(let y=0;y<15;y++)for(let x=0;x<15;x++){if(x>=6&&x<=8&&y>=6&&y<=8){if(x===6&&y===6)h+='<div class="c ctr"></div>';continue}
+      let cls='c';const q=col(x,y);if(q)cls+=' '+q;
+      const ti=trackIdx[x+','+y];if(ti!==undefined){cls+=' t';if(ti===0)cls+=' r';if(ti===26)cls+=' y';if(ti===13)cls+=' g';if(ti===39)cls+=' b';if(SAFE.has(ti)&&![0,13,26,39].includes(ti))cls+=' sf'}
+      if(y===7&&x>=1&&x<=5)cls='c r';if(y===7&&x>=9&&x<=13)cls='c y';if(x===7&&y>=1&&y<=5)cls='c g';if(x===7&&y>=9&&y<=13)cls='c b';
+      h+='<div class="'+cls+'">'+(cls.includes(' st')?'<i></i>':'')+'</div>'}
+    [[0,0],[9,0],[0,9],[9,9]].forEach(([x,y])=>{h+='<div class="pcSt" style="left:'+((x+.7)/15*100)+'%;top:'+((y+.7)/15*100)+'%">'+'<i></i>'.repeat(4)+'</div>'});
+    el.insertAdjacentHTML('afterbegin',h)})();
+  const HORSE=c=>'<svg viewBox="0 0 100 100"><path d="M30 86h44c0-16-2-30-8-42-5-10-12-18-20-22l-2-8-6 8c-8 4-14 12-16 22l-4 12c-1 5 3 8 8 7l10-6c2 6-2 12-8 18-4 4-2 7 2 11z" fill="'+c[0]+'" stroke="'+c[1]+'" stroke-width="4" stroke-linejoin="round"/><circle cx="44" cy="34" r="3.5" fill="#fff"/><circle cx="44" cy="34" r="1.8" fill="#1b2033"/></svg>';
+  const HC=[['#ff4d5e','#8a0f1f'],['#ffd23f','#8a6a00']];
+  // ----- règles -----
+  function fresh(prev){const n=prev&&prev.n?prev.n:nH,st=prev?1-prev.starter:0;return{n,pos:[Array(n).fill(-1),Array(n).fill(-1)],turn:st,starter:st,die:0,rolled:false,over:false,win:-1,mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0],last:null,note:'',six:0}}
+  const absIdx=(p,k)=>(START[p]+k)%52;
+  function target(S,p,h,d){const k=S.pos[p][h];if(k===-1)return d===6?0:null;if(k===FIN)return null;const t=k+d;if(t>FIN)return null;return t}
+  function legalH(S,p){const out=[];if(!S.rolled)return out;for(let h=0;h<S.n;h++){const t=target(S,p,h,S.die);if(t==null)continue;
+    // pas deux de ses chevaux sur la même case (sauf arrivée)
+    if(t<FIN&&S.pos[p].some((k,j)=>j!==h&&k===t))continue;out.push(h)}return out}
+  function roll(S,p){if(S.over||S.turn!==p||S.rolled)return null;S.die=1+Math.floor(Math.random()*6);S.rolled=true;S.mv++;S.note='';S.last=null;
+    if(!legalH(S,p).length){S.note='nomove';S.rolled=false;if(S.die!==6)S.turn=1-p}return S}
+  function move(S,p,h){
+    if(S.over||S.turn!==p||!S.rolled||!legalH(S,p).includes(h))return null;const t=target(S,p,h,S.die);S.pos=S.pos.map(a=>a.slice());S.pos[p][h]=t;S.last={p,h};S.note='';
+    if(t<=50){const a=absIdx(p,t),o=1-p;S.pos[o].forEach((k,j)=>{if(k>=0&&k<=50&&absIdx(o,k)===a&&!SAFE.has(a)){S.pos[o][j]=-1;S.note='cap'}})}
+    if(t===FIN)S.note=S.note||'fin';
+    S.rolled=false;S.mv++;
+    if(S.pos[p].every(k=>k===FIN)){S.over=true;S.win=p;S.sc=S.sc.slice();S.sc[p]++;return S}
+    if(S.die!==6)S.turn=1-p;
+    return S;
+  }
+  // ----- IA -----
+  function aiPick(S,lv){const hs=legalH(S,1);if(!hs.length)return-1;if(lv===0&&Math.random()<.5)return hs[Math.floor(Math.random()*hs.length)];
+    const sc=h=>{const k=S.pos[1][h],t=target(S,1,h,S.die);let s=t;if(k===-1)s+=40;if(t===FIN)s+=60;
+      if(t<=50){const a=absIdx(1,t);if(S.pos[0].some(x=>x>=0&&x<=50&&absIdx(0,x)===a)&&!SAFE.has(a))s+=80;if(SAFE.has(a))s+=10;
+        // danger : un cheval adverse juste derrière
+        if(lv===2&&!SAFE.has(a)&&S.pos[0].some(x=>x>=0&&x<=50&&((a-absIdx(0,x)+52)%52)>=1&&((a-absIdx(0,x)+52)%52)<=6))s-=25}
+      if(t>50)s+=15;return s+Math.random()*(lv===1?8:2)};
+    return hs.sort((a,b)=>sc(b)-sc(a))[0]}
+  function ai(S,ctx,lv){if(S.over||S.turn!==1)return null;if(!S.rolled)return{fn:s=>roll(s,1),delay:S.note==='nomove'?1100:750};const h=aiPick(S,lv);if(h<0)return null;return{fn:s=>move(s,1,h),delay:700}}
+  // ----- affichage -----
+  const PIPS={1:[4],2:[0,8],3:[0,4,8],4:[0,2,6,8],5:[0,2,4,6,8],6:[0,2,3,5,6,8]};
+  dieEl.innerHTML='<i></i>'.repeat(9);
+  function cellXY(p,h,S){const k=S.pos[p][h];if(k===-1)return STABLE[p][h];if(k===FIN)return CENTER[p];if(k<=50)return T[absIdx(p,k)];return HOME[p][k-51]}
+  function render(S,prev,ctx){
+    const can=!S.over&&ctx.mine(S.turn),hs=can?legalH(S,S.turn):[];
+    // chevaux
+    if(hz.children.length!==2*S.n){hz.innerHTML='';for(let p=0;p<2;p++)for(let h=0;h<S.n;h++){const d=document.createElement('div');d.className='pcH';d.dataset.p=p;d.dataset.h=h;d.innerHTML=HORSE(HC[p]);hz.appendChild(d)}}
+    const occ={};
+    [...hz.children].forEach(d=>{const p=+d.dataset.p,h=+d.dataset.h,[x,y]=cellXY(p,h,S),k=S.pos[p][h],key=x+','+y;const n=occ[key]=(occ[key]||0)+1;
+      const off=n>1&&k!==-1?(n-1)*.22:0;d.style.left=((x+off)/15*100)+'%';d.style.top=((y-off)/15*100)+'%';d.style.zIndex=2+n;
+      d.classList.toggle('can',p===S.turn&&hs.includes(h));d.style.opacity=k===FIN?.85:1;d.style.transform=k===FIN?'scale(.8)':''});
+    // dé
+    dieEl.querySelectorAll('i').forEach((i,k)=>i.classList.toggle('on',!!S.die&&PIPS[S.die].includes(k)));
+    dieEl.classList.toggle('go',can&&!S.rolled);dieEl.style.setProperty('--pcc',S.turn?'#ffd23f':'#ff4d5e');
+    if(prev&&prev.mv!==S.mv&&S.die&&(prev.die!==S.die||prev.rolled!==S.rolled)&&(S.rolled||S.note==='nomove')){dieEl.classList.remove('roll');void dieEl.offsetWidth;dieEl.classList.add('roll');sfx.play('tick')}
+    $('pcA').textContent=S.sc[0];$('pcB').textContent=S.sc[1];
+    [0,1].forEach(p=>{const done=S.pos[p].filter(k=>k===FIN).length;$('pcT'+p).textContent=done+' / '+S.n+' arrivé'+(done>1?'s':'');$('pcP'+p).classList.toggle('on',!S.over&&S.turn===p)});
+    const who=NAMES[S.turn],me=(ctx.online||ctx.ai)&&ctx.mine(S.turn);let m;
+    if(S.over)m=(ctx.online||ctx.ai)?(S.win===ctx.me?'Gagné ! Tous tes chevaux sont arrivés':NAMES[S.win]+' gagne la course'):NAMES[S.win]+' gagne la course !';
+    else if(S.note==='nomove')m='Pas de coup possible avec un '+S.die+(S.die===6?', rejoue !':'. Au tour de '+who);
+    else if(S.rolled)m=(me?'Tu as fait ':who+' a fait ')+S.die+' : '+(can?'choisis un cheval':'il choisit…');
+    else m=(S.note==='cap'?'Capturé ! ':S.note==='fin'?'Un cheval arrive ! ':'')+(S.die===6&&prev&&!S.over&&S.last&&S.last.p===S.turn?'6 : on rejoue ! ':'')+(me?'À toi : lance le dé':can?'À '+who+' : lance le dé':'Au tour de '+who);
+    $('pcM').textContent=m;
+    if(prev&&prev.mv!==S.mv){if(S.over)sfx.play((ctx.online||ctx.ai)&&S.win!==ctx.me?'lose':'win');else if(S.note==='cap'){sfx.play('die');vibe([40,30,40])}else if(S.note==='fin')sfx.play('win');else if(S.last&&prev.rolled)sfx.play('key')}
+    document.querySelectorAll('#pcN button').forEach(b=>b.classList.toggle('on',+b.dataset.n===S.n));
+    // un seul coup possible : on le joue tout seul
+    clearTimeout(autoT);if(can&&S.rolled&&hs.length===1&&!(ctx.ai&&S.turn===1)){const g=S.mv;autoT=setTimeout(()=>{if(ctx.state&&ctx.state.mv===g)ctx.act(s=>move(s,s.turn,hs[0]))},650)}
+  }
+  let autoT=null;
+  const game=twoPlayer({key:'pc',fresh,render,ai,
+    loadLocal(){const s=store.get('pcState',null);if(s&&s.pos)return s;return{...fresh(null),sc:store.get('pcScore',[0,0])}},
+    saveLocal(S){store.set('pcScore',S.sc);store.set('pcState',S)}});
+  const ctx=game.ctx;
+  dieEl.addEventListener('click',()=>{const S=ctx.state;if(!S||S.over||!ctx.mine(S.turn)||S.rolled)return;ctx.act(s=>roll(s,s.turn))});
+  hz.addEventListener('click',e=>{const d=e.target.closest('.pcH');if(!d)return;const S=ctx.state;if(!S||!ctx.mine(S.turn))return;const p=+d.dataset.p,h=+d.dataset.h;if(p!==S.turn)return;
+    if(!S.rolled){dieEl.click();return}if(!legalH(S,p).includes(h)){sfx.play('error');return}clearTimeout(autoT);ctx.act(s=>move(s,p,h))});
+  document.querySelectorAll('#pcN button').forEach(b=>b.addEventListener('click',()=>{const n=+b.dataset.n;if(ctx.state&&ctx.state.n===n)return;const S=ctx.state;if(S&&!S.over&&S.mv&&!confirm('Recommencer avec '+n+' chevaux ?'))return;nH=n;store.set('pcN',n);ctx.act(s=>{const f=fresh(s);f.n=n;f.pos=[Array(n).fill(-1),Array(n).fill(-1)];return f})}));
+  $('pcNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.mv&&!confirm('Recommencer la partie ?'))return;ctx.act(s=>fresh(s))});
+  enterHooks.vPc=()=>game.enter();
+  leaveHooks.vPc=()=>{clearTimeout(autoT);game.leave()};
+  if(location.hostname==='localhost')window.__pc={get:()=>ctx.state,legalH,roll:()=>ctx.act(s=>roll(s,s.turn)),move:h=>ctx.act(s=>move(s,s.turn,h)),setDie:d=>ctx.act(s=>{s.die=d;s.rolled=true;s.mv++;return s})};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
