@@ -752,6 +752,30 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 #vAn .anAns b.h{background:linear-gradient(180deg,#fff1c9,#ffc93c);color:#3a2600}
 #vAn .anDone span{background:linear-gradient(180deg,#ffffff1c,#ffffff08)}
 /* ---- petit bac ---- */
+/* habillage petit bac : cahier d'écolier */
+#vPb .main{background:radial-gradient(80% 50% at 50% 0%,#19d3c533,transparent 70%),linear-gradient(180deg,#0b2a33,#05141c 70%)}
+#vPb .pbHead{padding:10px 12px;border-radius:22px;background:linear-gradient(180deg,#ffffff14,#ffffff06);box-shadow:inset 0 0 0 1.5px #ffffff22,0 8px 22px #0006}
+.pbReel{padding:5px;border-radius:20px;background:linear-gradient(180deg,#3a4a7a,#1b2a5c);box-shadow:inset 0 3px 8px #0008,0 0 0 2px #19d3c5}
+#vPb .pbLetter{width:66px;height:66px;font-size:46px;border-radius:15px;background:linear-gradient(180deg,#ffffff,#d6fff9 50%,#9ff0e6);color:#0b3a40;box-shadow:inset 0 -5px 0 #0002,0 3px 0 #0e8f85;text-shadow:0 2px 0 #fff}
+#vPb .pbLetter.rolling{filter:blur(1.2px);transform:translateY(-2px)}
+#vPb .pbLetter.spin{animation:tile .5s cubic-bezier(.2,1.6,.4,1)}
+#vPb .pbInfo{gap:3px}#vPb .pbInfo b{color:#fff;font-size:18px}#vPb .pbInfo small{color:#9fe6de;font-weight:700;font-size:12px;line-height:1.25}
+#vPb .ring{--rc:#19d3c5;box-shadow:0 0 18px #19d3c544}#vPb .ring::before{background:radial-gradient(circle at 40% 35%,#123c48,#06171d)}
+#vPb .pbList{position:relative;gap:0;padding:14px 10px 10px 40px;border-radius:14px;background:repeating-linear-gradient(180deg,transparent 0 51px,#9cc3e8 51px 53px),linear-gradient(180deg,#fffdf3,#f6efd8);background-position:0 14px,0 0;box-shadow:0 10px 26px #000a,inset 0 0 0 1px #0001}
+#vPb .pbList::before{content:'';position:absolute;left:30px;top:0;bottom:0;width:2px;background:#ff8a9a}
+#vPb .pbList::after{content:'';position:absolute;left:9px;top:18px;bottom:18px;width:10px;background:radial-gradient(circle,#05141c 4px,transparent 5px) 0 0/10px 52px repeat-y}
+#vPb .pbRow{background:none;box-shadow:none;border-radius:0;height:53px;padding:0 0 0 4px}
+#vPb .pbRow label{color:#3a4a7a;font-size:13px;display:flex;align-items:center;gap:5px;width:104px}
+#vPb .pbRow label em{font-style:normal;font-size:17px}
+#vPb .pbRow input{background:#ffffff99;color:#1a3aa8;box-shadow:inset 0 -2px 0 #9cc3e8;border-radius:8px 8px 2px 2px;font-size:19px;letter-spacing:.5px}
+#vPb .pbRow input:focus{box-shadow:inset 0 -3px 0 #19d3c5;background:#fff}
+#vPb .pbRow input:disabled{opacity:.5}
+#vPb .pbRev button{background:#ffffffaa;color:#1a3aa8;box-shadow:inset 0 0 0 1.5px #c9d7ef;font-size:14px}
+#vPb .pbRev button.ok{box-shadow:inset 0 0 0 2px #2fbf71}#vPb .pbRev button.ok i{color:#fff;background:#2fbf71;border-radius:50%;min-width:24px;height:24px;display:grid;place-items:center;font-size:12px;transform:rotate(-8deg)}
+#vPb .pbRev button.no{color:#b0b8cc}#vPb .pbRev button.no i{color:#e8283c;font-size:18px}
+#vPb .pbRev button.empty{opacity:.45}
+#pbGo{min-width:180px;font-size:20px}
+
 #vPb{--g:var(--teal)}
 #vPb .main{gap:12px;position:relative}
 .pbHead{display:flex;gap:12px;align-items:center;width:min(94vw,440px)}
@@ -1673,7 +1697,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
       <div class="pl" id="pbP0" style="--pc:var(--red)"><div><b>Joueur 1</b><small id="pbT0"></small></div><strong id="pbA">0</strong></div>
       <div class="pl" id="pbP1" style="--pc:var(--sun)"><div><b data-p1>Joueur 2</b><small id="pbT1"></small></div><strong id="pbB">0</strong></div>
     </div>
-    <div class="pbHead"><div class="pbLetter" id="pbL">?</div><div class="pbInfo"><b id="pbR">Manche 1</b><div class="lgTime"><u id="pbBar"></u></div></div></div>
+    <div class="pbHead"><div class="pbReel"><div class="pbLetter" id="pbL">?</div></div><div class="pbInfo"><b id="pbR">Manche 1</b><small>Un mot par catégorie, qui commence par cette lettre</small></div><div class="ring" id="pbRing"><b>120</b></div></div>
     <div class="pbList" id="pbList"></div>
     <div class="msg hi" id="pbM"></div>
     <div class="row"><button class="btn" id="pbGo">Stop !</button></div>
@@ -1774,7 +1798,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.6.6';
+const APP_VERSION='2.6.7';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -5915,7 +5939,8 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
     'Allemagne Algerie Bordeaux Belgique Bresil Canada Chine Dax Danemark Espagne Egypte France Finlande Grece Geneve Hongrie Inde Italie Irlande Japon Jordanie Kenya Lyon Luxembourg Maroc Marseille Mexique Nantes Norvege Oslo Oran Paris Portugal Quebec Rome Russie Suede Suisse Toulouse Tunisie Uruguay Ukraine Venise Vietnam Washington Yemen Zurich',
     'Avocat Architecte Boulanger Boucher Coiffeur Charpentier Dentiste Docteur Electricien Ecrivain Facteur Fleuriste Garagiste Guide Horloger Hotesse Infirmier Ingenieur Jardinier Journaliste Libraire Macon Medecin Notaire Opticien Patissier Plombier Pompier Policier Restaurateur Serveur Soudeur Tailleur Urbaniste Veterinaire Vendeur Yogi Zoologiste',
     'Aiguille Assiette Balai Bougie Ciseaux Couteau Chaise Eponge Echarpe Fourchette Flute Gant Guitare Horloge Hamac Impermeable Jumelles Journal Kayak Lampe Livre Marteau Miroir Nappe Ordinateur Oreiller Parapluie Peigne Quille Rateau Regle Stylo Sac Table Tasse Valise Verre Wok Yoyo'].map(s=>s.split(' '));
-  const LETTERS='ABCDEFGHIJLMNOPRSTV';
+  const LETTERS='ABCDEFGHIJLMNOPRSTV',ICONS=['👤','🐾','🍎','🌍','🧑‍🔧','🧸'];
+  let reelT=null;function reel(L){clearInterval(reelT);const el=$('pbL');let n=0;el.classList.add('rolling');reelT=setInterval(()=>{el.textContent=LETTERS[Math.floor(Math.random()*LETTERS.length)];if(++n>12){clearInterval(reelT);reelT=null;el.textContent=L;el.classList.remove('rolling');el.classList.remove('spin');void el.offsetWidth;el.classList.add('spin');sfx.play('merge',6)}},55)}
   const TIME=120;
   const norm=s=>String(s||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toUpperCase().replace(/[^A-Z]/g,'');
   let draft=['','','','','',''],tick=null,lastRound=-1,list=$('pbList');
@@ -5938,19 +5963,19 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
   function me(ctx,S){return ctx.online?ctx.me:ctx.ai?0:S.cur}
   function render(S,prev,ctx){
     const m=me(ctx,S),R=S.phase==='review';
-    if(S.round!==lastRound){lastRound=S.round;draft=['','','','','',''];$('pbL').classList.remove('spin');void $('pbL').offsetWidth;$('pbL').classList.add('spin');if(prev)sfx.play('start')}
-    $('pbL').textContent=S.letter;$('pbR').textContent='Manche '+S.round;$('pbA').textContent=S.sc[0];$('pbB').textContent=S.sc[1];
+    if(S.round!==lastRound){lastRound=S.round;draft=['','','','','',''];reel(S.letter);if(prev)sfx.play('start')}
+    if(!reelT)$('pbL').textContent=S.letter;$('pbR').textContent='Manche '+S.round;$('pbA').textContent=S.sc[0];$('pbB').textContent=S.sc[1];
     // écran de passage en local
     const cover=!ctx.online&&!ctx.ai&&S.phase==='write'&&S.cur===1&&!coverOk;
     $('pbCover').hidden=!cover;if(cover){$('pbCoverT').textContent='Passe le téléphone à '+NAMES[1]+' : même lettre, '+S.letter+' !';$('pbCoverB').textContent='Je suis '+NAMES[1]}
     if(R){const sc=score(S);
-      list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label>'+c+'</label><div class="pbRev">'+[0,1].map(p=>{const a=S.ans[p][i]||'',v=S.valid[p][i];return'<button data-p="'+p+'" data-i="'+i+'" class="'+(!a?'empty':v?'ok':'no')+'"><span>'+(a?a.toUpperCase():'—')+'</span><i>'+(a?(v?'+'+sc.per[p][i]:'✕'):'')+'</i></button>'}).join('')+'</div></div>').join('');
+      list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label><em>'+ICONS[i]+'</em>'+c+'</label><div class="pbRev">'+[0,1].map(p=>{const a=S.ans[p][i]||'',v=S.valid[p][i];return'<button data-p="'+p+'" data-i="'+i+'" class="'+(!a?'empty':v?'ok':'no')+'"><span>'+(a?a.toUpperCase():'—')+'</span><i>'+(a?(v?'+'+sc.per[p][i]:'✕'):'')+'</i></button>'}).join('')+'</div></div>').join('');
       $('pbT0').textContent='+'+sc.pts[0]+' cette manche';$('pbT1').textContent='+'+sc.pts[1]+' cette manche';
       $('pbM').textContent='Touche une réponse pour la refuser ou l\'accepter';$('pbGo').textContent='Manche suivante';$('pbGo').disabled=false;
       if(prev&&prev.phase!=='review')sfx.play('win');
     }else{
       const writing=!S.done[m]&&(ctx.online||ctx.ai||S.cur===m);
-      if(!list.querySelector('input')||prev&&prev.round!==S.round||!prev){list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label>'+c+'</label><input data-i="'+i+'" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>').join('');
+      if(!list.querySelector('input')||prev&&prev.round!==S.round||!prev){list.innerHTML=CATS.map((c,i)=>'<div class="pbRow"><label><em>'+ICONS[i]+'</em>'+c+'</label><input data-i="'+i+'" autocomplete="off" autocapitalize="characters" spellcheck="false"></div>').join('');
         list.querySelectorAll('input').forEach(inp=>{inp.value=draft[+inp.dataset.i];inp.addEventListener('input',()=>{draft[+inp.dataset.i]=inp.value})})}
       list.querySelectorAll('input').forEach(inp=>{inp.disabled=!writing;inp.placeholder=S.letter+'…'});
       [0,1].forEach(p=>$('pbT'+p).textContent=S.done[p]?'a fini':(ctx.online||ctx.ai||S.cur===p)?'écrit…':'');
@@ -5962,7 +5987,7 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
     }
     clearInterval(tick);
     if(!R){tick=setInterval(()=>{const s=ctx.state;if(!s||s.phase==='review'){clearInterval(tick);return}const t0=ctx.online||ctx.ai?s.t0:(s.cur===1?(s.t1||s.t0):s.t0),left=TIME-(Date.now()-t0)/1000;
-      $('pbBar').style.width=Math.max(0,left/TIME*100)+'%';if(left<=0){clearInterval(tick);const m2=me(ctx,s);if(!s.done[m2])doStop()}},250)}else $('pbBar').style.width='0%';
+      ringSet('pbRing',left/TIME,left);if(left<=0){clearInterval(tick);const m2=me(ctx,s);if(!s.done[m2])doStop()}},250)}else ringSet('pbRing',0,0);
   }
   let coverOk=false;
   const game=twoPlayer({key:'pb',fresh,render,ai,
