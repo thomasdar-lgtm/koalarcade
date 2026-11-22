@@ -1013,6 +1013,22 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 .pcSt i{background:radial-gradient(circle at 50% 60%,#0000001a,#00000008);box-shadow:inset 0 3px 6px #0004}
 .pcH svg{filter:drop-shadow(0 3px 2px #0009)}
 .pcDie{background:linear-gradient(145deg,#ffffff,#e3e7f5 60%,#c9cfe6);box-shadow:inset 0 -4px 0 #0001,0 6px 0 #8a97c7,0 10px 18px #0008}
+/* habillage arcade : bornes néon */
+#vKm .main,#vIv .main{background:radial-gradient(70% 40% at 50% 0%,var(--na,#4a86ff44),transparent 70%),radial-gradient(60% 30% at 50% 100%,var(--nb,#ffc93c22),transparent 70%),linear-gradient(180deg,#0a0820,#030312 75%)}
+#vIv{--na:#b26bff55;--nb:#ff6fb522}
+#vKm .snkWrap,#vIv .snkWrap,#vAh .snkWrap{padding:6px;background:linear-gradient(145deg,var(--n1,#4a86ff),var(--n2,#b26bff) 50%,var(--n3,#3ee6ff));box-shadow:0 0 26px color-mix(in srgb,var(--n1,#4a86ff) 55%,transparent),0 14px 30px #000c}
+#vKm .snkWrap canvas,#vIv .snkWrap canvas,#vAh .snkWrap canvas,#vTf .snkWrap canvas,#vKj .snkWrap canvas{border-radius:13px}
+#vIv{--n1:#b26bff;--n2:#ff6fb5;--n3:#5aa9ff}
+#vAh{--n1:#3ee6ff;--n2:#ff4d5e;--n3:#ffd23f}
+#vAh .main{background:radial-gradient(70% 40% at 50% 0%,#3ee6ff33,transparent 70%),linear-gradient(180deg,#06122e,#020814 75%)}
+#vKm .msg{color:#ffc93c;text-shadow:0 0 10px #ffc93c88}
+#vTf .main{background:radial-gradient(70% 40% at 50% 0%,#ff8a3d33,transparent 70%),repeating-linear-gradient(0deg,#ffffff06 0 1px,transparent 1px 26px),repeating-linear-gradient(90deg,#ffffff06 0 1px,transparent 1px 26px),linear-gradient(180deg,#2a1208,#120703 75%)}
+#vTf .snkWrap{padding:6px;background:linear-gradient(145deg,#c98a4a,#6b4423 50%,#a8763f);box-shadow:0 14px 30px #000c}
+#vKj .main{background:radial-gradient(70% 45% at 50% 0%,#5aa9ff44,transparent 70%),linear-gradient(180deg,#0b1c3a,#050b18 75%)}
+#vKj .snkWrap{padding:6px;background:linear-gradient(145deg,#8fd85a,#2f9e6b 50%,#4cc98a);box-shadow:0 0 24px #2fe39a44,0 14px 30px #000c}
+#vBs .main{background:radial-gradient(70% 45% at 50% 0%,#2ec4ff33,transparent 70%),linear-gradient(180deg,#061a3d,#020a18 75%)}
+#vBs .snkWrap{padding:6px;background:linear-gradient(145deg,#7ad7ff,#1a6fb8 50%,#c9a96a);box-shadow:0 0 24px #2ec4ff44,0 14px 30px #000c}
+#vBs .snkWrap canvas{border-radius:13px}
 </style>
 </head>
 <body>
@@ -1887,7 +1903,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.7.2';
+const APP_VERSION='2.7.3';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
