@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a3500"/><stop offset="1" stop-color="#1a0f02"/></linearGradient><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dfe4f7"/></linearGradient></defs>
+<rect width="160" height="160" rx="34" fill="url(#bg)"/>
+<rect x="24" y="22" width="112" height="50" rx="12" fill="#1a0f02" stroke="#ffb547" stroke-width="3"/><text x="80" y="60" font-family="sans-serif" font-weight="900" font-size="36" text-anchor="middle" fill="#ffb547" letter-spacing="3">742</text>
+<g font-family="sans-serif" font-weight="900" font-size="20" text-anchor="middle" fill="#1b2033">
+<g transform="translate(18 88)"><rect width="36" height="30" rx="7" fill="#ffd58a"/><text x="18" y="22">75</text></g>
+<g transform="translate(62 88)"><rect width="36" height="30" rx="7" fill="url(#t)"/><text x="18" y="22">8</text></g>
+<g transform="translate(106 88)"><rect width="36" height="30" rx="7" fill="url(#t)"/><text x="18" y="22">3</text></g>
+<g transform="translate(40 124)"><rect width="36" height="26" rx="7" fill="#ffb547"/><text x="18" y="20" fill="#1a0f02">×</text></g>
+<g transform="translate(84 124)"><rect width="36" height="26" rx="7" fill="#ffb547"/><text x="18" y="20" fill="#1a0f02">+</text></g></g></svg>

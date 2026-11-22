@@ -650,6 +650,23 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .lgRes .ok{color:#2fe39a}.lgRes .ko{color:#ff4d5e}
 .lgRes .best{display:flex;flex-wrap:wrap;gap:6px}
 .lgRes .best span{background:var(--deep);padding:4px 8px;border-radius:8px;font-weight:800;letter-spacing:1px}
+/* ---- le compte est bon ---- */
+#vCb{--g:var(--amber)}
+#vCb .main{gap:12px}
+#vCb .lgTop,#vCb .lgTime,.cbPl,.cbOps,.cbHist{width:min(94vw,440px)}
+.cbTarget{font-size:56px;font-weight:900;letter-spacing:4px;color:#ffb547;background:#1a0f02;border-radius:18px;padding:4px 26px;box-shadow:0 0 0 3px #ffb54755,inset 0 0 20px #ffb54733;font-variant-numeric:tabular-nums;text-shadow:0 0 14px #ffb54788}
+.cbPl{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cbPl button{height:56px;border-radius:12px;background:linear-gradient(180deg,#fff,#dfe4f7);color:#1b2033;font-size:24px;font-weight:900;box-shadow:0 4px 0 #8a97c7}
+.cbPl button.big{background:linear-gradient(180deg,#fff3dc,#ffd58a);box-shadow:0 4px 0 #c98a2a}
+.cbPl button.res{background:linear-gradient(180deg,#e6fff3,#9ff0c8);box-shadow:0 4px 0 #2fae74}
+.cbPl button.sel{transform:translateY(3px);box-shadow:0 1px 0 #8a97c7,0 0 0 3px var(--amber)}
+.cbPl button.near{outline:3px solid #2fe39a}
+.cbOps{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.cbOps button{height:50px;border-radius:12px;background:var(--plate);color:#fff;font-size:28px;font-weight:900;box-shadow:0 3px 0 #030a1f,0 0 0 2px var(--line)}
+.cbOps button.on{background:var(--amber);color:var(--night)}
+.cbHist{display:flex;flex-direction:column;gap:4px;min-height:20px;font-weight:800;color:var(--mut);text-align:center}
+.cbHist div b{color:#fff}
+#cbBtns[hidden],#cbOps[hidden],#cbPl[hidden]{display:none}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -843,6 +860,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vLg" style="--g:var(--volt)">
           <img class="art" src="img/motlong.svg" alt="" width="160" height="160">
           <b>Mot le plus long</b><span class="rec" id="hvLg"></span>
+        </button>
+        <button class="tile" data-go="vCb" style="--g:var(--amber)">
+          <img class="art" src="img/compte.svg" alt="" width="160" height="160">
+          <b>Compte est bon</b><span class="rec" id="hvCb"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -1408,6 +1429,23 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- LE COMPTE EST BON -->
+<section class="view" id="vCb">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/compte.svg" alt="" width="40" height="40"><h1>Le compte</h1>
+    <div class="chips"><div class="chip"><small>toi</small><b id="cbA">0</b></div><div class="chip"><small>koala</small><b id="cbK">0</b></div></div></header>
+  <div class="main">
+    <div class="lgTop"><span id="cbR">Manche 1 / 5</span><div class="seg" id="cbLv"><button data-l="0">Facile</button><button data-l="1">Moyen</button><button data-l="2">Difficile</button></div></div>
+    <div class="cbTarget" id="cbT">???</div>
+    <div class="lgTime" id="cbTime"><u id="cbBar"></u></div>
+    <div class="cbPl" id="cbPl"></div>
+    <div class="cbOps" id="cbOps"><button data-o="+">+</button><button data-o="-">−</button><button data-o="*">×</button><button data-o="/">÷</button></div>
+    <div class="cbHist" id="cbH"></div>
+    <div class="row" id="cbBtns"><button class="btn ghost" id="cbUndo">Annuler</button><button class="btn ghost" id="cbReset">Recommencer</button><button class="btn" id="cbOk">Valider</button></div>
+    <div class="lgRes" id="cbRes" hidden></div>
+    <div class="msg" id="cbM"></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1439,7 +1477,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.5.8';
+const APP_VERSION='2.5.9';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1722,6 +1760,7 @@ function refreshHome(){
   const mjb=store.get('mjBest',0);$('hvMj').textContent=mjb?'Record '+Math.floor(mjb/60)+':'+String(mjb%60).padStart(2,'0'):'Retire les tuiles par paires';
   const pxs=store.get('pxSolved',[]).length;$('hvPx').textContent=pxs?pxs+' image'+(pxs>1?'s':'')+' trouvée'+(pxs>1?'s':''):'Révèle l\'image cachée';
   const lgb=store.get('lgBest',0);$('hvLg').textContent=lgb?'Record '+lgb+' points':'9 lettres, un mot, 45 secondes';
+  const cbb=store.get('cbBest',0);$('hvCb').textContent=cbb?'Record '+cbb+' points':'6 plaques, 1 nombre à trouver';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5427,6 +5466,91 @@ refreshHome();
   enterHooks.vLg=()=>{if(!st)newGame();else drawUI()};
   leaveHooks.vLg=()=>{};
   if(location.hostname==='localhost')window.__lg={get:()=>st,auto,finish,pick:i=>{st.ans.push(i)}};
+})();
+
+/* ---------- LE COMPTE EST BON ---------- */
+(function(){
+  const ROUNDS=5,TIME=45;
+  let st=null,timer=null,lv=store.get('cbLevel',1);
+  function deal(){const bag=[];for(let i=1;i<=10;i++)bag.push(i,i);bag.push(25,50,75,100);const p=[];
+    const nBig=Math.random()<.5?1:Math.random()<.6?2:Math.random()<.5?0:3;const big=[25,50,75,100].sort(()=>Math.random()-.5).slice(0,nBig);const small=bag.filter(x=>x<=10).sort(()=>Math.random()-.5).slice(0,6-nBig);return big.concat(small)}
+  const apply=(a,o,b)=>o==='+'?a+b:o==='-'?(a>b?a-b:null):o==='*'?a*b:(b&&a%b===0?a/b:null);
+  const SYM={'+':'+','-':'−','*':'×','/':'÷'};
+  // solveur : meilleure approche (exacte si possible) avec le détail des calculs
+  function solve(nums,target){
+    let best={d:1e9,v:0,steps:[]};
+    // profondeur croissante : la première solution exacte trouvée est la plus courte
+    for(let D=0;D<=5;D++){const seen=new Set();let found=false;
+      const rec=(arr,steps)=>{
+        for(const v of arr){const d=Math.abs(v-target);if(d<best.d){best={d,v,steps:steps.slice()}}}
+        if(best.d===0){found=true;return true}
+        if(steps.length>=D||arr.length<2)return false;
+        const key=arr.slice().sort((a,b)=>a-b).join(',');if(seen.has(key))return false;seen.add(key);
+        for(let i=0;i<arr.length;i++)for(let j=0;j<arr.length;j++){if(i===j)continue;const a=arr[i],b=arr[j];
+          for(const o of['+','-','*','/']){if((o==='+'||o==='*')&&i>j)continue;if(o==='*'&&(a===1||b===1))continue;if(o==='/'&&b===1)continue;const r=apply(a,o,b);if(r==null||r===0)continue;
+            const rest=arr.filter((_,k)=>k!==i&&k!==j);rest.push(r);steps.push([a,o,b,r]);if(rec(rest,steps))return true;steps.pop()}}
+        return false};
+      rec(nums,[]);if(found)break}
+    return best;
+  }
+  function newGame(){st={round:1,a:0,k:0,phase:'play'};$('cbA').textContent=0;$('cbK').textContent=0;startRound()}
+  function startRound(){
+    const nums=deal();let target;do target=101+Math.floor(Math.random()*899);while(solve(nums,target).d>0&&Math.random()<.8);
+    Object.assign(st,{nums,target,pl:nums.map((v,i)=>({v,id:i,big:v>=25})),hist:[],sel:null,op:null,phase:'play',t0:Date.now()});
+    $('cbRes').hidden=true;$('cbM').textContent='';ui();clearInterval(timer);sfx.play('start');
+    // le nombre « défile » avant de s'afficher
+    let n=0;const roll=setInterval(()=>{$('cbT').textContent=101+Math.floor(Math.random()*899);if(++n>10){clearInterval(roll);$('cbT').textContent=st.target}},45);
+    timer=setInterval(()=>{const left=TIME-(Date.now()-st.t0)/1000;$('cbBar').style.width=Math.max(0,left/TIME*100)+'%';if(left<=0)finish()},100);
+  }
+  function ui(){
+    $('cbR').textContent='Manche '+st.round+' / '+ROUNDS;const play=st.phase==='play';$('cbPl').hidden=!play;$('cbOps').hidden=!play;$('cbBtns').hidden=!play;$('cbTime').hidden=!play;
+    const near=closest();
+    $('cbPl').innerHTML=st.pl.map(p=>'<button data-id="'+p.id+'" class="'+(p.big?'big':'')+(p.res?' res':'')+(st.sel===p.id?' sel':'')+(near&&near.id===p.id&&st.hist.length?' near':'')+'">'+p.v+'</button>').join('');
+    document.querySelectorAll('#cbOps button').forEach(b=>b.classList.toggle('on',b.dataset.o===st.op));
+    $('cbH').innerHTML=st.hist.map(h=>'<div>'+h.a+' '+SYM[h.o]+' '+h.b+' = <b>'+h.r+'</b></div>').join('');
+    document.querySelectorAll('#cbLv button').forEach(b=>b.classList.toggle('on',+b.dataset.l===lv));
+  }
+  function closest(){let b=null;for(const p of st.pl){if(!b||Math.abs(p.v-st.target)<Math.abs(b.v-st.target))b=p}return b}
+  function tapPl(id){
+    if(st.phase!=='play')return;const p=st.pl.find(x=>x.id===id);if(!p)return;
+    if(st.sel==null||st.op==null){st.sel=id;sfx.play('tick');ui();return}
+    if(st.sel===id){st.sel=null;st.op=null;ui();return}
+    const a=st.pl.find(x=>x.id===st.sel),r=apply(a.v,st.op,p.v);
+    if(r==null||r===0){$('cbM').textContent=st.op==='/'?'La division doit tomber juste':'Le résultat doit être positif';sfx.play('error');st.op=null;ui();return}
+    const nid=100+st.hist.length;st.hist.push({a:a.v,o:st.op,b:p.v,r,ids:[a,p],nid});
+    st.pl=st.pl.filter(x=>x!==a&&x!==p);st.pl.push({v:r,id:nid,res:true});st.sel=nid;st.op=null;$('cbM').textContent='';sfx.play('key');ui();
+    if(r===st.target){$('cbM').textContent='Le compte est bon !';sfx.play('win');setTimeout(finish,500)}
+  }
+  function finish(){
+    if(st.phase!=='play')return;clearInterval(timer);st.phase='res';
+    const mine=closest(),dm=Math.abs(mine.v-st.target),sol=solve(st.nums,st.target);
+    // Koala : trouve plus ou moins bien selon son niveau
+    const pExact=[.35,.65,.92][lv];let kd;if(sol.d===0&&Math.random()<pExact)kd=0;else kd=sol.d+[1+Math.floor(Math.random()*12),1+Math.floor(Math.random()*6),1+Math.floor(Math.random()*3)][lv];
+    const pts=d=>d===0?10:d<=5?7:d<=10?5:0;
+    const ref=Math.min(dm,kd);let pa=pts(dm),pk=pts(kd);if(dm>ref)pa=Math.min(pa,dm-ref>0?pa:0);if(kd>ref)pk=Math.min(pk,pk);
+    // seul le plus proche marque (les deux en cas d'égalité)
+    if(dm>kd)pa=0;if(kd>dm)pk=0;
+    st.a+=pa;st.k+=pk;$('cbA').textContent=st.a;$('cbK').textContent=st.k;
+    const last=st.round>=ROUNDS,kv=st.target+(kd&&Math.random()<.5?-kd:kd);
+    $('cbRes').innerHTML='<div class="card"><h4>Toi</h4><div class="w '+(dm===0?'ok':'')+'">'+mine.v+'<small>'+(dm===0?'le compte est bon':'à '+dm)+' · +'+pa+' pts</small></div></div>'+
+      '<div class="card"><h4>Koala</h4><div class="w">'+kv+'<small>'+(kd===0?'le compte est bon':'à '+kd)+' · +'+pk+' pts</small></div></div>'+
+      '<div class="card"><h4>'+(sol.d===0?'Une solution':'Au plus près ('+sol.v+')')+'</h4><div class="cbHist">'+sol.steps.map(([a,o,b,r])=>'<div>'+a+' '+SYM[o]+' '+b+' = <b>'+r+'</b></div>').join('')+'</div></div>'+
+      '<button class="btn" id="cbNext">'+(last?'Rejouer':'Manche suivante')+'</button>';
+    $('cbRes').hidden=false;
+    $('cbNext').addEventListener('click',()=>{if(last)return newGame();st.round++;startRound()});
+    if(last){const b=store.get('cbBest',0);if(st.a>b)store.set('cbBest',st.a);if(st.a>st.k)store.set('cbWins',store.get('cbWins',0)+1);$('cbM').textContent=(st.a>st.k?'Tu bats Koala ':st.a<st.k?'Koala gagne ':'Égalité ')+st.a+' à '+st.k+(st.a>b?' · nouveau record !':'');sfx.play(st.a>=st.k?'win':'lose')}
+    else{$('cbM').textContent='';if(dm!==0)sfx.play(pa?'eat':'error')}
+    ui();
+  }
+  $('cbPl').addEventListener('click',e=>{const b=e.target.closest('button');if(b)tapPl(+b.dataset.id)});
+  document.querySelectorAll('#cbOps button').forEach(b=>b.addEventListener('click',()=>{if(st.phase!=='play')return;if(st.sel==null){$('cbM').textContent='Choisis d\'abord une plaque';sfx.play('error');return}st.op=b.dataset.o;sfx.play('tick');ui()}));
+  $('cbUndo').addEventListener('click',()=>{if(st.phase!=='play'||!st.hist.length)return;const h=st.hist.pop();st.pl=st.pl.filter(x=>x.id!==h.nid);st.pl.push(...h.ids);st.pl.sort((a,b)=>a.id-b.id);st.sel=null;st.op=null;ui();sfx.play('tick')});
+  $('cbReset').addEventListener('click',()=>{if(st.phase!=='play')return;st.pl=st.nums.map((v,i)=>({v,id:i,big:v>=25}));st.hist=[];st.sel=null;st.op=null;ui()});
+  $('cbOk').addEventListener('click',finish);
+  document.querySelectorAll('#cbLv button').forEach(b=>b.addEventListener('click',()=>{lv=+b.dataset.l;store.set('cbLevel',lv);ui()}));
+  enterHooks.vCb=()=>{if(!st)newGame();else ui()};
+  leaveHooks.vCb=()=>{};
+  if(location.hostname==='localhost')window.__cb={get:()=>st,solve,tapPl,op:o=>{st.op=o},finish};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
