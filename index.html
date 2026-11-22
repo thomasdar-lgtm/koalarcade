@@ -1903,7 +1903,7 @@ img.av{background:radial-gradient(circle at 50% 40%,#ffffff,#c7cdea);padding:3px
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.7.3';
+const APP_VERSION='2.7.4';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -6431,6 +6431,7 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
   const W=360,H=600,MR=27,PR=15,GW=120,WIN=7,M=10;
   let scale=1,state='idle',raf=null,last=0,time=0,mode=store.get('ahMode','ai'),lv=store.get('ahLevel',1);
   let P,ms,sc,trail,flash,serve,goalT,goalBy,parts,sparks;
+  let sndT={},hits=[];const snd=(n,v)=>{const t=performance.now();if(t-(sndT[n]||0)<70)return;sndT[n]=t;sfx.play(n,v)};
   function rr(x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
   function size(){
     const w=Math.max(220,Math.min(window.innerWidth-32,420,(window.innerHeight-220)*W/H));scale=w/W;const dpr=window.devicePixelRatio||1;
@@ -6444,7 +6445,9 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
   function spark(x,y,c,n){for(let k=0;k<n;k++){const a=Math.random()*6.28,v=60+Math.random()*200;parts.push({x,y,vx:Math.cos(a)*v,vy:Math.sin(a)*v,t:0,c})}}
   function aiStep(dt){
     const m=ms[1],spd=[340,560,820][lv],react=[.35,.18,.06][lv];let tx,ty;
-    if(P.y<H/2+20&&(P.vy<120||P.y<m.y)){ // attaque : viser derrière le palet vers le but adverse
+    const pinned=P.y<H/2&&(P.x<M+PR+8||P.x>W-M-PR-8||P.y<M+PR+8)&&Math.hypot(P.vx,P.vy)<160;
+    if(pinned&&Math.hypot(m.x-P.x,m.y-P.y)<MR+PR+12){tx=m.x+(m.x-P.x)*1.5;ty=m.y+(m.y-P.y)*1.5}
+    else if(P.y<H/2+20&&(P.vy<120||P.y<m.y)){ // attaque : viser derrière le palet vers le but adverse
       const gx=W/2+(Math.random()-.5)*40,dx=P.x-gx,dy=P.y-(H+40),d=Math.hypot(dx,dy)||1;tx=P.x+dx/d*(MR+PR-4);ty=P.y+dy/d*(MR+PR-4);if(P.y<m.y-6){tx=P.x+(P.x<W/2?18:-18);ty=P.y-MR-PR}}
     else{tx=W/2+(P.x-W/2)*.55;ty=70+lv*6}
     m.aiT=(m.aiT||0)-dt;if(m.aiT<=0){m.aiT=react;m.ax=tx+(Math.random()-.5)*[40,18,6][lv];m.ay=ty}
@@ -6459,13 +6462,19 @@ window.ringSet=(id,f,sec)=>{const r=$(id);if(!r)return;f=Math.max(0,Math.min(1,f
     ms.forEach((m,i)=>{const ox=m.x,oy=m.y,dx=m.tx-m.x,dy=m.ty-m.y,d=Math.hypot(dx,dy),mx=2000*dt;if(d>mx){m.x+=dx/d*mx;m.y+=dy/d*mx}else{m.x=m.tx;m.y=m.ty}clampM(i,m);m.vx=(m.x-ox)/Math.max(dt,1/240);m.vy=(m.y-oy)/Math.max(dt,1/240)});
     // palet en sous-pas
     const n=4;for(let k=0;k<n;k++){const h=dt/n;P.x+=P.vx*h;P.y+=P.vy*h;
-      if(P.x<M+PR){P.x=M+PR;P.vx=Math.abs(P.vx)*.9;sfx.play('tick')}if(P.x>W-M-PR){P.x=W-M-PR;P.vx=-Math.abs(P.vx)*.9;sfx.play('tick')}
+      if(P.x<M+PR){P.x=M+PR;P.vx=Math.abs(P.vx)*.9;snd('tick')}if(P.x>W-M-PR){P.x=W-M-PR;P.vx=-Math.abs(P.vx)*.9;snd('tick')}
       const inGoal=Math.abs(P.x-W/2)<GW/2-PR*.3;
-      if(P.y<M+PR&&!inGoal){P.y=M+PR;P.vy=Math.abs(P.vy)*.9;sfx.play('tick')}if(P.y>H-M-PR&&!inGoal){P.y=H-M-PR;P.vy=-Math.abs(P.vy)*.9;sfx.play('tick')}
+      if(P.y<M+PR&&!inGoal){P.y=M+PR;P.vy=Math.abs(P.vy)*.9;snd('tick')}if(P.y>H-M-PR&&!inGoal){P.y=H-M-PR;P.vy=-Math.abs(P.vy)*.9;snd('tick')}
       if(P.y<-PR){goal(0);return}if(P.y>H+PR){goal(1);return}
       ms.forEach(m=>{const dx=P.x-m.x,dy=P.y-m.y,d=Math.hypot(dx,dy);if(d<MR+PR&&d>0){const nx=dx/d,ny=dy/d;P.x=m.x+nx*(MR+PR);P.y=m.y+ny*(MR+PR);
         const rvx=P.vx-m.vx,rvy=P.vy-m.vy,dot=rvx*nx+rvy*ny;if(dot<0){P.vx-=1.9*dot*nx;P.vy-=1.9*dot*ny;const s=Math.hypot(P.vx,P.vy);const mx=1500;if(s>mx){P.vx*=mx/s;P.vy*=mx/s}
-          sfx.play('key',Math.min(10,Math.hypot(rvx,rvy)/100));spark(P.x-nx*PR,P.y-ny*PR,'#fff',6);vibe(6)}}})}
+          snd('key',Math.min(10,Math.hypot(rvx,rvy)/100));spark(P.x-nx*PR,P.y-ny*PR,'#fff',6);vibe(6);hits.push(time)}
+        // palet coincé entre le maillet et la bande : c'est le maillet qui recule
+        const cx=Math.max(M+PR,Math.min(W-M-PR,P.x)),cy=Math.abs(P.x-W/2)<GW/2-PR*.3?P.y:Math.max(M+PR,Math.min(H-M-PR,P.y));
+        if(cx!==P.x||cy!==P.y){P.x=cx;P.y=cy;const ex=P.x-m.x,ey=P.y-m.y,e=Math.hypot(ex,ey)||1;if(e<MR+PR){m.x=P.x-ex/e*(MR+PR);m.y=P.y-ey/e*(MR+PR);m.tx=m.x;m.ty=m.y}}}})}
+    // trop de chocs d'affilée (palet bloqué) : on dégage le palet et Koala recule
+    hits=hits.filter(t=>time-t<.6);
+    if(hits.length>=6){hits=[];const ax=W/2-P.x,ay=H/2-P.y,al=Math.hypot(ax,ay)||1;P.vx=ax/al*380;P.vy=ay/al*380;if(mode==='ai'){const k=ms[1];k.aiT=.7;k.ax=W/2;k.ay=70}}
     P.vx*=Math.pow(.6,dt);P.vy*=Math.pow(.6,dt);
     // palet bloqué dans un coin : petite poussée
     if(Math.hypot(P.vx,P.vy)<4){P.stuck=(P.stuck||0)+dt;if(P.stuck>3){P.vx=(W/2-P.x)*.8;P.vy=(H/2-P.y)*.8;P.stuck=0}}else P.stuck=0;
