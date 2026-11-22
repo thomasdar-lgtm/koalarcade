@@ -604,6 +604,24 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #mjBoard .t.shake{animation:mjS .25s}
 @keyframes mjS{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
 #mjBoard.won{animation:pop .5s}
+/* ---- picross ---- */
+#vPx{--g:var(--teal)}
+#pxWrap{flex:none;padding:8px;border-radius:16px;background:var(--plate);box-shadow:0 0 0 2px var(--line),0 10px 26px #0008}
+#px{display:grid;gap:0;touch-action:none;user-select:none}
+#px .pq{display:flex;flex-direction:column;justify-content:flex-end;align-items:center;font-weight:800;color:#cfe0ff;font-size:calc(var(--cs)*.42);line-height:1.15;padding-bottom:3px}
+#px .pr{display:flex;justify-content:flex-end;align-items:center;gap:calc(var(--cs)*.22);font-weight:800;color:#cfe0ff;font-size:calc(var(--cs)*.42);padding-right:5px}
+#px .pq.ok,#px .pr.ok{color:#4a5a8a}
+#px .pq.hl,#px .pr.hl{background:#19d3c522;border-radius:6px}
+#px .pk{width:var(--cs);height:var(--cs);background:#eef2ff;border-right:1px solid #b6c0e0;border-bottom:1px solid #b6c0e0;position:relative}
+#px .pk.r5{border-right:2px solid #3a4a7a}#px .pk.b5{border-bottom:2px solid #3a4a7a}
+#px .pk.f{background:#1f2a55}
+#px .pk.x::after{content:'✕';position:absolute;inset:0;display:grid;place-items:center;color:#8a97c7;font-weight:900;font-size:calc(var(--cs)*.6)}
+#px .pk.e{background:#ffd6dc}#px .pk.e::after{color:#e8283c}
+#px .pk.hl{background:#d9f7f4}#px .pk.f.hl{background:#2a3870}
+#px.won .pk.f{background:var(--fc,#19d3c5);animation:pop .4s}
+#px.won .pk.x::after{content:''}
+#pxMode,#pxTool{flex:none}#pxMode{width:min(94vw,460px)}
+#pxTool button{min-width:96px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -789,6 +807,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vMj" style="--g:var(--felt)">
           <img class="art" src="img/mahjong.svg" alt="" width="160" height="160">
           <b>Mahjong</b><span class="rec" id="hvMj"></span>
+        </button>
+        <button class="tile" data-go="vPx" style="--g:var(--teal)">
+          <img class="art" src="img/picross.svg" alt="" width="160" height="160">
+          <b>Picross</b><span class="rec" id="hvPx"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -1324,6 +1346,18 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- PICROSS -->
+<section class="view" id="vPx">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/picross.svg" alt="" width="40" height="40"><h1>Picross</h1>
+    <div class="chips"><div class="chip"><small>erreurs</small><b id="pxE">0</b></div><div class="chip"><small>temps</small><b id="pxT">0:00</b></div></div></header>
+  <div class="main">
+    <div class="seg" id="pxMode"><button data-m="img">Images</button><button data-m="5">5×5</button><button data-m="10">10×10</button><button data-m="15">15×15</button></div>
+    <div id="pxWrap"><div id="px"></div></div>
+    <div class="msg" id="pxM">Les nombres indiquent les groupes de cases à noircir, dans l'ordre</div>
+    <div class="row"><div class="seg" id="pxTool"><button data-t="1" class="on">■ Remplir</button><button data-t="2">✕ Croix</button></div><button class="btn ghost" id="pxNew">Suivante</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1355,7 +1389,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.5.6';
+const APP_VERSION='2.5.7';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1636,6 +1670,7 @@ function refreshHome(){
   const bjb=store.get('bjBest',0);$('hvBj').textContent=bjb?'Record '+bjb:'Aligne 3 pierres précieuses';
   const bsb=store.get('bsBest',0);$('hvBs').textContent=bsb?'Record '+bsb:'Groupe 3 bulles de même couleur';
   const mjb=store.get('mjBest',0);$('hvMj').textContent=mjb?'Record '+Math.floor(mjb/60)+':'+String(mjb%60).padStart(2,'0'):'Retire les tuiles par paires';
+  const pxs=store.get('pxSolved',[]).length;$('hvPx').textContent=pxs?pxs+' image'+(pxs>1?'s':'')+' trouvée'+(pxs>1?'s':''):'Révèle l\'image cachée';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5194,6 +5229,90 @@ refreshHome();
   leaveHooks.vMj=()=>{clearInterval(tick);tick=null;if(T.length)save()};
   window.addEventListener('resize',()=>{if(current==='vMj')size()});
   if(location.hostname==='localhost')window.__mj={pairs:pairsAvail,tap,alive,get:()=>({done,n:alive().length,tm})};
+})();
+
+/* ---------- PICROSS ---------- */
+(function(){
+  const IMGS=[['Koala','.##....##.####..#################.##.###.########..###..###...######.....####....########.##########'],['Cœur','...........##....##.####..########################.########...######.....####.......##..............'],['Champignon','...####....##.####..####..###.###....#######..##############...#..#......####......####.......##....'],['Maison','....##.......####.....######...########.##########.#......#..#.##.#.#..#.##...#..#.##...#.##########'],['Poisson','.............###......#####..#.#.######.#########..#######....#####..#...###........................'],['Étoile','....##........##.......####...##########.########...######....######...###..###..##....##.##......##'],['Chat','#........###......#####.##.##############.##..##.##############.##.###.########...######.....####...'],['Arbre','....##.......####.....######...########...######...########.##########....##........##.......####...'],['Note','.....#####.....#...#.....#####.....#...#.....#...#.....#...#..####.###.#####.###.#####..#...###.....']];
+  const el=$('px');let G=null,tool=1,tick=null,drag=null;
+  const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  function clues(line){const o=[];let n=0;for(const v of line){if(v)n++;else if(n){o.push(n);n=0}}if(n)o.push(n);return o}
+  function lineSolve(cl,cur){const L=cur.length,c0=Array(L).fill(false),c1=Array(L).fill(false),memo=new Map();
+    function rec(i,k){const key=i*64+k;if(memo.has(key))return memo.get(key);let ok=false;
+      if(k===cl.length){ok=true;for(let j=i;j<L;j++)if(cur[j]===1){ok=false;break}if(ok)for(let j=i;j<L;j++)c0[j]=true;memo.set(key,ok);return ok}
+      const len=cl[k];if(i<L&&cur[i]!==1&&rec(i+1,k)){c0[i]=true;ok=true}
+      if(i+len<=L){let fit=true;for(let j=i;j<i+len;j++)if(cur[j]===0){fit=false;break}
+        if(fit&&(i+len===L||cur[i+len]!==1)){const nx=i+len===L?L:i+len+1;if(rec(nx,k+1)){ok=true;for(let j=i;j<i+len;j++)c1[j]=true;if(i+len<L)c0[i+len]=true}}}
+      memo.set(key,ok);return ok}
+    if(!rec(0,0))return null;return cur.map((v,j)=>v!==-1?v:c1[j]&&!c0[j]?1:c0[j]&&!c1[j]?0:-1)}
+  function solvable(sol){const n=sol.length,rc=sol.map(clues),cc=[...Array(n)].map((_,c)=>clues(sol.map(r=>r[c]))),g=sol.map(r=>r.map(()=>-1));let ch=true;
+    while(ch){ch=false;for(let r=0;r<n;r++){const x=lineSolve(rc[r],g[r]);if(!x)return false;x.forEach((v,c)=>{if(v!==g[r][c]){g[r][c]=v;ch=true}})}
+      for(let c=0;c<n;c++){const x=lineSolve(cc[c],g.map(r=>r[c]));if(!x)return false;x.forEach((v,r)=>{if(v!==g[r][c]){g[r][c]=v;ch=true}})}}
+    return g.every(r=>r.every(v=>v!==-1))}
+  function randomPuzzle(n){for(let k=0;k<60;k++){const s=[...Array(n)].map(()=>[...Array(n)].map(()=>Math.random()<.6?1:0));if(solvable(s))return s.map(r=>r.join('')).join('')}return null}
+  const solved=()=>store.get('pxSolved',[]);
+  function newPuzzle(mode){
+    let sol,name='',n,idx=-1;
+    if(mode==='img'){const s=solved();idx=IMGS.findIndex((_,i)=>!s.includes(i));if(idx<0)idx=Math.floor(Math.random()*IMGS.length);name=IMGS[idx][0];sol=IMGS[idx][1].replace(/#/g,'1').replace(/\./g,'0');n=10}
+    else{n=+mode;sol=randomPuzzle(n)}
+    G={mode,n,sol,name,idx,cells:Array(n*n).fill(0),err:0,t:0,done:false};save();build();startTimer();
+    $('pxM').textContent=mode==='img'?'Image '+(idx+1)+' / '+IMGS.length+' : à toi de la deviner !':'Les nombres indiquent les groupes de cases à noircir, dans l\'ordre';sfx.play('start');
+  }
+  const S=(r,c)=>G.sol[r*G.n+c]==='1';
+  const save=()=>store.set('pxState',G);
+  function startTimer(){clearInterval(tick);tick=setInterval(()=>{if(current!=='vPx'||document.hidden||!G||G.done)return;G.t++;$('pxT').textContent=fmt(G.t);if(G.t%5===0)save()},1000)}
+  let RC,CC,cs;
+  function build(){
+    const n=G.n;RC=[...Array(n)].map((_,r)=>clues([...Array(n)].map((_,c)=>S(r,c))));CC=[...Array(n)].map((_,c)=>clues([...Array(n)].map((_,r)=>S(r,c))));
+    const maxR=Math.max(...RC.map(x=>x.length||1)),maxC=Math.max(...CC.map(x=>x.length||1));
+    const W=Math.min(window.innerWidth-40,460),Hh=window.innerHeight-330;
+    cs=Math.floor(Math.min(W/(n+maxR*.62+.3),Hh/(n+maxC*.5+.3),40));
+    el.style.setProperty('--cs',cs+'px');el.style.gridTemplateColumns=Math.ceil(maxR*cs*.62)+'px repeat('+n+','+cs+'px)';el.style.gridTemplateRows=Math.ceil(maxC*cs*.5+4)+'px repeat('+n+','+cs+'px)';
+    let h='<div></div>';CC.forEach((cl,c)=>h+='<div class="pq" data-c="'+c+'">'+(cl.length?cl:[0]).map(v=>'<span>'+v+'</span>').join('')+'</div>');
+    for(let r=0;r<n;r++){h+='<div class="pr" data-r="'+r+'">'+(RC[r].length?RC[r]:[0]).map(v=>'<span>'+v+'</span>').join('')+'</div>';
+      for(let c=0;c<n;c++)h+='<div class="pk'+((c+1)%5===0&&c<n-1?' r5':'')+((r+1)%5===0&&r<n-1?' b5':'')+'" data-i="'+(r*n+c)+'"></div>'}
+    el.innerHTML=h;el.classList.toggle('won',G.done);el.style.setProperty('--fc',['#19d3c5','#ff6fb5','#ffc93c','#2fe39a','#5aa9ff','#b26bff','#ff8a3d'][(G.idx>=0?G.idx:G.n)%7]);render();
+    document.querySelectorAll('#pxMode button').forEach(b=>b.classList.toggle('on',b.dataset.m===G.mode));
+  }
+  function lineDone(cells){return cells.every(i=>G.cells[i]===1||!S(Math.floor(i/G.n),i%G.n)?(S(Math.floor(i/G.n),i%G.n)?G.cells[i]===1:true):false)}
+  function render(hl){
+    const n=G.n;el.querySelectorAll('.pk').forEach(d=>{const i=+d.dataset.i,v=G.cells[i];d.className='pk'+((i%n+1)%5===0&&i%n<n-1?' r5':'')+((Math.floor(i/n)+1)%5===0&&Math.floor(i/n)<n-1?' b5':'')+(v===1?' f':v===2?' x':v===3?' x e':'')+(hl&&(Math.floor(i/n)===hl[0]||i%n===hl[1])?' hl':'')});
+    for(let r=0;r<n;r++){const cells=[...Array(n)].map((_,c)=>r*n+c);el.querySelector('.pr[data-r="'+r+'"]').classList.toggle('ok',lineDone(cells));el.querySelector('.pr[data-r="'+r+'"]').classList.toggle('hl',!!hl&&hl[0]===r)}
+    for(let c=0;c<n;c++){const cells=[...Array(n)].map((_,r)=>r*n+c);el.querySelector('.pq[data-c="'+c+'"]').classList.toggle('ok',lineDone(cells));el.querySelector('.pq[data-c="'+c+'"]').classList.toggle('hl',!!hl&&hl[1]===c)}
+    $('pxE').textContent=G.err;$('pxT').textContent=fmt(G.t);
+  }
+  function autoCross(r,c){const n=G.n;[[...Array(n)].map((_,k)=>r*n+k),[...Array(n)].map((_,k)=>k*n+c)].forEach(cells=>{if(lineDone(cells))cells.forEach(i=>{if(G.cells[i]===0)G.cells[i]=2})})}
+  function act(i,mode){
+    if(G.done)return;const r=Math.floor(i/G.n),c=i%G.n,v=G.cells[i];
+    if(mode===1){if(v!==0)return;if(S(r,c)){G.cells[i]=1;sfx.play('key',2);autoCross(r,c)}else{G.cells[i]=3;G.err++;sfx.play('error');vibe(40);$('pxM').textContent='Raté : cette case reste vide'}}
+    else if(mode===2){if(v===0)G.cells[i]=2;else if(v===2)G.cells[i]=0;else return;sfx.play('tick')}
+    else if(mode===0){if(v===2)G.cells[i]=0;else return}
+    check();
+  }
+  function check(){
+    let ok=true;for(let i=0;i<G.n*G.n;i++)if(G.sol[i]==='1'&&G.cells[i]!==1){ok=false;break}
+    if(ok){G.done=true;clearInterval(tick);for(let i=0;i<G.n*G.n;i++)if(G.cells[i]!==1)G.cells[i]=2;el.classList.add('won');
+      if(G.mode==='img'){const s=solved();if(!s.includes(G.idx)){s.push(G.idx);store.set('pxSolved',s)}}
+      store.set('pxWins',store.get('pxWins',0)+1);
+      $('pxM').textContent=(G.name?'C\'était : '+G.name+' ! ':'Grille terminée ! ')+fmt(G.t)+(G.err?' · '+G.err+' erreur'+(G.err>1?'s':''):' · sans faute');sfx.play('win');vibe([40,30,40])}
+    save();
+  }
+  const cellAt=e=>{const t=document.elementFromPoint(e.clientX,e.clientY);return t&&t.closest?t.closest('#px .pk'):null};
+  el.addEventListener('pointerdown',e=>{const d=cellAt(e);if(!d||!G||G.done)return;e.preventDefault();const i=+d.dataset.i,v=G.cells[i];
+    const mode=tool===1?1:(v===2?0:2);drag={mode,start:i,axis:null,seen:new Set([i])};act(i,mode);render([Math.floor(i/G.n),i%G.n])});
+  el.addEventListener('pointermove',e=>{if(!drag)return;const d=cellAt(e);if(!d)return;let i=+d.dataset.i;const n=G.n,r0=Math.floor(drag.start/n),c0=drag.start%n,r=Math.floor(i/n),c=i%n;
+    if(!drag.axis&&(r!==r0||c!==c0))drag.axis=r!==r0&&c===c0?'v':'h';if(drag.axis==='h')i=r0*n+c;if(drag.axis==='v')i=r*n+c0;
+    // remplir toutes les cases entre le départ et ici
+    const a=drag.axis==='v'?[Math.min(r0,r),Math.max(r0,r)]:[Math.min(c0,c),Math.max(c0,c)];
+    for(let k=a[0];k<=a[1];k++){const j=drag.axis==='v'?k*n+c0:r0*n+k;if(!drag.seen.has(j)){drag.seen.add(j);act(j,drag.mode)}}render([Math.floor(i/n),i%n])});
+  ['pointerup','pointercancel'].forEach(ev=>window.addEventListener(ev,()=>{if(drag){drag=null;if(G)render()}}));
+  document.querySelectorAll('#pxTool button').forEach(b=>b.addEventListener('click',()=>{tool=+b.dataset.t;document.querySelectorAll('#pxTool button').forEach(x=>x.classList.toggle('on',x===b))}));
+  document.querySelectorAll('#pxMode button').forEach(b=>b.addEventListener('click',()=>{if(G&&!G.done&&G.cells.some(Boolean)&&G.mode!==b.dataset.m&&!confirm('Abandonner la grille en cours ?'))return;newPuzzle(b.dataset.m)}));
+  $('pxNew').addEventListener('click',()=>{if(G&&!G.done&&G.cells.some(Boolean)&&!confirm('Passer à une autre grille ?'))return;newPuzzle(G?G.mode:'img')});
+  enterHooks.vPx=()=>{if(!G){const s=store.get('pxState',null);if(s&&s.sol)G=s}if(!G){newPuzzle('img');return}build();startTimer()};
+  leaveHooks.vPx=()=>{clearInterval(tick);if(G)save()};
+  window.addEventListener('resize',()=>{if(current==='vPx'&&G)build()});
+  if(location.hostname==='localhost')window.__px={get:()=>G,act,solvable};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
