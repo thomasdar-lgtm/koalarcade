@@ -707,6 +707,20 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .pbCover{position:absolute;inset:0;background:var(--night);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;z-index:5;text-align:center;padding:20px}
 .pbCover p{font-size:22px;font-weight:900;margin:0}
 .pbCover[hidden]{display:none}
+/* ---- othello ---- */
+#vOt{--g:var(--felt)}
+.otk0{background:radial-gradient(circle at 35% 30%,#5a607a,#0b0d18)}
+.otk1{background:radial-gradient(circle at 35% 30%,#fff,#c9cfe3)}
+#ot{--w:min(94vw,calc(100vh - 340px),440px);width:var(--w);height:var(--w);flex:none;display:grid;grid-template-columns:repeat(8,1fr);gap:2px;padding:6px;border-radius:16px;background:#0d3f27;box-shadow:0 0 0 3px #6b4423,0 0 0 7px #8a5a33,0 12px 28px #000a}
+#ot .q{background:radial-gradient(circle at 50% 40%,#2a9a5e,#1d7a48);border-radius:4px;position:relative;cursor:pointer;perspective:300px}
+#ot .q.mv::after{content:'';position:absolute;left:38%;top:38%;width:24%;height:24%;border-radius:50%;background:#00000040}
+#ot .q.last{box-shadow:inset 0 0 0 2px #ffc93c}
+#ot .d{position:absolute;inset:9%;border-radius:50%;box-shadow:0 3px 4px #0007;transition:transform .35s}
+#ot .d.c0{background:radial-gradient(circle at 35% 30%,#5a607a,#0b0d18)}
+#ot .d.c1{background:radial-gradient(circle at 35% 30%,#fff,#c9cfe3)}
+#ot .d.new{animation:pop .3s}
+#ot .d.flip{animation:otF .4s}
+@keyframes otF{0%{transform:rotateY(0)}50%{transform:rotateY(90deg) scale(1.1)}100%{transform:rotateY(0)}}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -959,6 +973,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vPb" style="--g:var(--teal)">
           <img class="art" src="img/petitbac.svg" alt="" width="160" height="160">
           <b>Petit bac</b><span class="rec" id="hvPb"></span>
+        </button>
+        <button class="tile" data-go="vOt" style="--g:var(--felt)">
+          <img class="art" src="img/othello.svg" alt="" width="160" height="160">
+          <b>Othello</b><span class="rec" id="hvOt"></span>
         </button>
         <!-- fin duo -->
       </div>
@@ -1528,6 +1546,22 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- OTHELLO -->
+<section class="view" id="vOt">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/othello.svg" alt="" width="40" height="40"><h1>Othello</h1></header>
+  <div class="main">
+    <div class="mbar"><div class="seg" id="otMode"><button data-m="local">À deux ici</button><button data-m="ai">Contre l'IA</button><button data-m="online">En ligne</button></div></div>
+    <div class="netst" id="otNet" hidden></div>
+    <div class="players">
+      <div class="pl" id="otP0" style="--pc:#cfd6ee"><span class="tok otk0"></span><div><b>Joueur 1</b><small id="otT0"></small></div><strong id="otA">0</strong></div>
+      <div class="pl" id="otP1" style="--pc:#cfd6ee"><span class="tok otk1"></span><div><b data-p1>Joueur 2</b><small id="otT1"></small></div><strong id="otB">0</strong></div>
+    </div>
+    <div id="ot"></div>
+    <div class="msg hi" id="otM"></div>
+    <div class="row"><button class="btn" id="otNew">Nouvelle partie</button><button class="btn ghost" id="otRst">Scores à zéro</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1559,7 +1593,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.6.1';
+const APP_VERSION='2.6.2';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1845,6 +1879,7 @@ function refreshHome(){
   const cbb=store.get('cbBest',0);$('hvCb').textContent=cbb?'Record '+cbb+' points':'6 plaques, 1 nombre à trouver';
   const anb=store.get('anBest',0);$('hvAn').textContent=anb?'Record '+anb+' points':'Remets les lettres en ordre';
   $('hvPb').textContent='Une lettre, six catégories';
+  const ots=store.get('otScore',[0,0]);$('hvOt').textContent=ots[0]+ots[1]?ots[0]+' – '+ots[1]:'Encadre et retourne';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5760,6 +5795,64 @@ refreshHome();
   enterHooks.vPb=()=>{coverOk=false;lastRound=-1;game.enter()};
   leaveHooks.vPb=()=>{clearInterval(tick);game.leave()};
   if(location.hostname==='localhost')window.__pb={get:()=>ctx.state,draft:d=>{draft=d.slice()},stop:doStop,score};
+})();
+
+/* ---------- OTHELLO ---------- */
+(function(){
+  const el=$('ot'),D8=[[-1,-1],[-1,0],[-1,1],[0,-1],[0,1],[1,-1],[1,0],[1,1]];
+  const W=[100,-20,10,5,5,10,-20,100,-20,-50,-2,-2,-2,-2,-50,-20,10,-2,-1,-1,-1,-1,-2,10,5,-2,-1,-1,-1,-1,-2,5,5,-2,-1,-1,-1,-1,-2,5,10,-2,-1,-1,-1,-1,-2,10,-20,-50,-2,-2,-2,-2,-50,-20,100,-20,10,5,5,10,-20,100];
+  function fresh(prev){const b=Array(64).fill('.');b[27]=b[36]='1';b[28]=b[35]='0';const st=prev?1-prev.starter:0;return{b:b.join(''),turn:st,starter:st,over:false,win:-1,mv:prev?prev.mv+1:0,sc:prev?prev.sc:[0,0],last:-1,flips:[],pass:false}}
+  function flips(b,i,p){if(b[i]!=='.')return[];const me=String(p),op=String(1-p),r0=i>>3,c0=i&7,out=[];
+    for(const[dr,dc]of D8){let r=r0+dr,c=c0+dc;const line=[];while(r>=0&&r<8&&c>=0&&c<8&&b[r*8+c]===op){line.push(r*8+c);r+=dr;c+=dc}if(line.length&&r>=0&&r<8&&c>=0&&c<8&&b[r*8+c]===me)out.push(...line)}return out}
+  function moves(b,p){const m=[];for(let i=0;i<64;i++)if(b[i]==='.'&&flips(b,i,p).length)m.push(i);return m}
+  function count(b){let a=0,c=0;for(const x of b){if(x==='0')a++;else if(x==='1')c++}return[a,c]}
+  function applyMove(b,i,p){const f=flips(b,i,p);if(!f.length)return null;const a=b.split('');a[i]=String(p);f.forEach(k=>a[k]=String(p));return{b:a.join(''),f}}
+  function play(S,i,p){
+    if(S.over||S.turn!==p)return null;const r=applyMove(S.b,i,p);if(!r)return null;
+    S.b=r.b;S.last=i;S.flips=r.f;S.mv++;S.pass=false;
+    const o=1-p;if(moves(S.b,o).length)S.turn=o;else if(moves(S.b,p).length){S.turn=p;S.pass=true}else end(S);
+    return S;
+  }
+  function end(S){S.over=true;const[a,c]=count(S.b);S.win=a>c?0:c>a?1:-1;S.sc=S.sc.slice();if(S.win>=0)S.sc[S.win]++;S.starter=S.starter}
+  // ----- IA -----
+  function evalB(b,p){let s=0;const me=String(p),op=String(1-p);for(let i=0;i<64;i++){if(b[i]===me)s+=W[i];else if(b[i]===op)s-=W[i]}
+    const mm=moves(b,p).length,om=moves(b,1-p).length;s+=(mm-om)*6;const[a,c]=count(b);if(a+c>54)s+=((p?c-a:a-c))*8;return s}
+  function negamax(b,p,d,al,be){
+    const ms=moves(b,p);if(d===0||(!ms.length&&!moves(b,1-p).length)){if(!ms.length&&!moves(b,1-p).length){const[a,c]=count(b),diff=p?c-a:a-c;return diff>0?1e5+diff:diff<0?-1e5+diff:0}return evalB(b,p)}
+    if(!ms.length)return-negamax(b,1-p,d-1,-be,-al);
+    ms.sort((x,y)=>W[y]-W[x]);let best=-1e9;
+    for(const m of ms){const r=applyMove(b,m,p);const v=-negamax(r.b,1-p,d-1,-be,-al);if(v>best)best=v;if(v>al)al=v;if(al>=be)break}return best}
+  function aiMove(S,lv){const ms=moves(S.b,1);if(!ms.length)return-1;
+    if(lv===0){if(Math.random()<.5)return ms[Math.floor(Math.random()*ms.length)];return ms.sort((a,b)=>flips(S.b,b,1).length-flips(S.b,a,1).length)[0]}
+    const depth=lv===1?2:(count(S.b)[0]+count(S.b)[1]>48?6:4);let best=ms[0],bv=-1e9;
+    for(const m of ms.sort((x,y)=>W[y]-W[x])){const r=applyMove(S.b,m,1);const v=-negamax(r.b,0,depth-1,-1e9,1e9)+(lv===1?Math.random()*8:0);if(v>bv){bv=v;best=m}}return best}
+  function ai(S,ctx,lv){if(S.over||S.turn!==1)return null;const m=aiMove(S,lv);if(m<0)return null;return{fn:s=>play(s,m,1),delay:550}}
+  // ----- affichage -----
+  for(let i=0;i<64;i++){const q=document.createElement('div');q.className='q';q.dataset.i=i;el.appendChild(q)}
+  function render(S,prev,ctx){
+    const fresh_=prev&&prev.mv!==S.mv&&prev.b!==S.b,[a,c]=count(S.b),canPlay=!S.over&&ctx.mine(S.turn),ms=canPlay?moves(S.b,S.turn):[];
+    [...el.children].forEach((q,i)=>{const v=S.b[i];q.className='q'+(ms.includes(i)?' mv':'')+(i===S.last?' last':'');
+      if(v==='.'){q.innerHTML='';return}const cls='d c'+v+(fresh_&&i===S.last?' new':fresh_&&S.flips.includes(i)?' flip':'');
+      let d=q.firstChild;if(!d){d=document.createElement('i');q.appendChild(d)}d.className=cls});
+    $('otA').textContent=S.sc[0];$('otB').textContent=S.sc[1];
+    $('otT0').textContent=a+' pion'+(a>1?'s':'');$('otT1').textContent=c+' pion'+(c>1?'s':'');
+    [0,1].forEach(p=>$('otP'+p).classList.toggle('on',!S.over&&S.turn===p));
+    let m;if(S.over)m=S.win<0?'Égalité '+a+' à '+c+' !':((ctx.online||ctx.ai)&&S.win!==ctx.me?NAMES[S.win]+' gagne '+Math.max(a,c)+' à '+Math.min(a,c):(ctx.online||ctx.ai?'Gagné ':NAMES[S.win]+' gagne ')+Math.max(a,c)+' à '+Math.min(a,c)+' !');
+    else m=(S.pass?NAMES[1-S.turn]+' ne peut pas jouer, il passe. ':'')+(ctx.mine(S.turn)&&(ctx.online||ctx.ai)?'À toi de jouer':'Au tour de '+NAMES[S.turn]);
+    $('otM').textContent=m;
+    if(fresh_){if(S.over)sfx.play(S.win<0?'draw':((ctx.online||ctx.ai)&&S.win!==ctx.me?'lose':'win'));else sfx.play(S.flips.length>=4?'merge':'key',S.flips.length);vibe(8)}
+  }
+  const game=twoPlayer({key:'ot',fresh,render,ai,
+    loadLocal(){const s=store.get('otState',null);if(s&&s.b)return s;return{...fresh(null),sc:store.get('otScore',[0,0])}},
+    saveLocal(S){store.set('otScore',S.sc);store.set('otState',S)}});
+  const ctx=game.ctx;
+  el.addEventListener('click',e=>{const q=e.target.closest('.q');if(!q)return;const S=ctx.state;if(!S||S.over||!ctx.mine(S.turn))return;const i=+q.dataset.i;
+    if(!flips(S.b,i,S.turn).length){sfx.play('error');return}ctx.act(s=>play(s,i,s.turn))});
+  $('otNew').addEventListener('click',()=>{const S=ctx.state;if(S&&!S.over&&S.mv&&!confirm('Recommencer la partie ?'))return;ctx.act(s=>fresh(s))});
+  $('otRst').addEventListener('click',()=>{if(!confirm('Remettre les scores à zéro ?'))return;ctx.act(s=>{s.sc=[0,0];return s})});
+  enterHooks.vOt=()=>game.enter();
+  leaveHooks.vOt=()=>game.leave();
+  if(location.hostname==='localhost')window.__ot={get:()=>ctx.state,moves,aiMove,play:i=>ctx.act(s=>play(s,i,s.turn))};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
