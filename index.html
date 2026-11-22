@@ -667,6 +667,21 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 .cbHist{display:flex;flex-direction:column;gap:4px;min-height:20px;font-weight:800;color:var(--mut);text-align:center}
 .cbHist div b{color:#fff}
 #cbBtns[hidden],#cbOps[hidden],#cbPl[hidden]{display:none}
+/* ---- anagrammes ---- */
+#vAn{--g:var(--mint)}
+#vAn header h1{font-size:17px}
+#vAn .main{gap:14px}
+#vAn .lgTime{width:min(94vw,440px)}
+#vAn .lgTime u{background:linear-gradient(90deg,#2fe39a,#19d3c5)}
+.anInfo{display:flex;justify-content:space-between;width:min(94vw,440px);font-weight:900;color:var(--mut)}
+.anAns b.f{background:var(--mint);box-shadow:0 3px 0 #13804a}
+.anAns b.h{background:#ffc93c;color:var(--night);box-shadow:0 3px 0 #c48f00}
+.anAns.ok b{animation:pop .35s;background:#2fe39a;color:var(--night)}
+.anAns.ko{animation:mjS .3s}
+.anDone{width:min(94vw,440px);display:flex;flex-wrap:wrap;gap:6px;justify-content:center}
+.anDone span{background:var(--plate);padding:5px 9px;border-radius:9px;font-weight:800;letter-spacing:1px;box-shadow:0 0 0 2px var(--line)}
+.anDone span.miss{color:#ff8a9a}
+#anDone[hidden],#anBtns[hidden],#anGo[hidden]{display:none}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -864,6 +879,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vCb" style="--g:var(--amber)">
           <img class="art" src="img/compte.svg" alt="" width="160" height="160">
           <b>Compte est bon</b><span class="rec" id="hvCb"></span>
+        </button>
+        <button class="tile" data-go="vAn" style="--g:var(--mint)">
+          <img class="art" src="img/anagrammes.svg" alt="" width="160" height="160">
+          <b>Anagrammes</b><span class="rec" id="hvAn"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -1446,6 +1465,22 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- ANAGRAMMES -->
+<section class="view" id="vAn">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/anagrammes.svg" alt="" width="40" height="40"><h1>Anagrammes</h1>
+    <div class="chips"><div class="chip"><small>score</small><b id="anS">0</b></div><div class="chip"><small>record</small><b id="anB">0</b></div></div></header>
+  <div class="main">
+    <div class="lgTime" id="anTime"><u id="anBar"></u></div>
+    <div class="anInfo"><span id="anN">Mot 1</span><span id="anSec">90 s</span></div>
+    <div class="lgAns anAns" id="anAns"></div>
+    <div class="lgLetters anL" id="anL"></div>
+    <div class="row" id="anBtns"><button class="btn ghost" id="anMix">Mélanger</button><button class="btn ghost" id="anHint">Indice</button><button class="btn ghost" id="anSkip">Passer</button></div>
+    <div class="msg" id="anM">Touche les lettres dans l'ordre pour retrouver le mot</div>
+    <div class="anDone" id="anDone" hidden></div>
+    <button class="btn" id="anGo">Commencer</button>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1477,7 +1512,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.5.9';
+const APP_VERSION='2.6.0';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1761,6 +1796,7 @@ function refreshHome(){
   const pxs=store.get('pxSolved',[]).length;$('hvPx').textContent=pxs?pxs+' image'+(pxs>1?'s':'')+' trouvée'+(pxs>1?'s':''):'Révèle l\'image cachée';
   const lgb=store.get('lgBest',0);$('hvLg').textContent=lgb?'Record '+lgb+' points':'9 lettres, un mot, 45 secondes';
   const cbb=store.get('cbBest',0);$('hvCb').textContent=cbb?'Record '+cbb+' points':'6 plaques, 1 nombre à trouver';
+  const anb=store.get('anBest',0);$('hvAn').textContent=anb?'Record '+anb+' points':'Remets les lettres en ordre';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5551,6 +5587,53 @@ refreshHome();
   enterHooks.vCb=()=>{if(!st)newGame();else ui()};
   leaveHooks.vCb=()=>{};
   if(location.hostname==='localhost')window.__cb={get:()=>st,solve,tapPl,op:o=>{st.op=o},finish};
+})();
+
+/* ---------- ANAGRAMMES ---------- */
+(function(){
+  const TIME=90;
+  const POOL=(()=>{const s=new Set();const add=w=>{w=String(w).toUpperCase();if(/^[A-Z]{5,9}$/.test(w))s.add(w)};
+    const arr=x=>Array.isArray(x)?x:String(x).split(/[\s,]+/);arr(MOTS_SOLUTIONS).forEach(add);arr(MOTS_PENDU).forEach(add);if(typeof CROISES!=='undefined')CROISES.forEach(x=>add(x.w));
+    const by={};s.forEach(w=>(by[w.length]=by[w.length]||[]).push(w));return by})();
+  let st=null,timer=null;
+  function shuffleW(w){let a;let k=0;do{a=[...w].sort(()=>Math.random()-.5).join('')}while(a===w&&++k<20);return a}
+  function pickWord(){const n=st.found.length,len=Math.min(9,5+Math.floor(n/3));let L=len;while(!POOL[L]||!POOL[L].length)L--;
+    let w,k=0;do w=POOL[L][Math.floor(Math.random()*POOL[L].length)];while(st.used.has(w)&&++k<50);st.used.add(w);return w}
+  function nextWord(){st.word=pickWord();st.letters=[...shuffleW(st.word)];st.ans=[];st.hint=0;render()}
+  function start(){st={score:0,found:[],missed:[],used:new Set(),t0:Date.now(),bonus:0,on:true};$('anS').textContent=0;$('anDone').hidden=true;$('anGo').hidden=true;$('anBtns').hidden=false;$('anM').textContent='Touche les lettres dans l\'ordre pour retrouver le mot';
+    loadDico().catch(()=>{});nextWord();sfx.play('start');clearInterval(timer);
+    timer=setInterval(()=>{const left=TIME+st.bonus-(Date.now()-st.t0)/1000;$('anBar').style.width=Math.max(0,Math.min(100,left/TIME*100))+'%';$('anSec').textContent=Math.max(0,Math.ceil(left))+' s';
+      if(left<=5&&left>0&&Math.abs(left-Math.round(left))<.06)sfx.play('tick');if(left<=0)end()},100)}
+  function render(){
+    if(!st)return;const used=new Set(st.ans);
+    $('anL').innerHTML=st.letters.map((c,i)=>'<b data-i="'+i+'" class="'+('AEIOUY'.includes(c)?'v':'')+(used.has(i)?' used':'')+'">'+c+'</b>').join('');
+    $('anAns').innerHTML=st.letters.map((_,i)=>{const k=st.ans[i];return'<b class="'+(k!=null?(i<st.hint?'h':'f'):'')+'">'+(k!=null?st.letters[k]:'')+'</b>'}).join('');
+    $('anN').textContent='Mot '+(st.found.length+st.missed.length+1)+' · '+st.word.length+' lettres';
+  }
+  function check(){
+    const w=st.ans.map(i=>st.letters[i]).join('');if(w.length<st.word.length)return;
+    const ok=w===st.word||(window.DICO&&DICO.all.has(w));
+    if(ok){const p=Math.max(1,w.length*10-st.hint*15);st.score+=p;st.found.push(w);st.bonus+=3;$('anS').textContent=st.score;$('anM').textContent='Bravo ! +'+p+' (+3 s)';$('anAns').classList.add('ok');sfx.play('win');vibe(15);
+      setTimeout(()=>{$('anAns').classList.remove('ok');if(st.on)nextWord()},450)}
+    else{$('anAns').classList.remove('ko');void $('anAns').offsetWidth;$('anAns').classList.add('ko');sfx.play('error');$('anM').textContent='Ce n\'est pas ça…';setTimeout(()=>{if(!st.on)return;st.ans=st.ans.slice(0,st.hint);render()},350)}
+  }
+  function end(){if(!st||!st.on)return;st.on=false;clearInterval(timer);st.missed.push(st.word);
+    const b=store.get('anBest',0);if(st.score>b){store.set('anBest',st.score);$('anB').textContent=st.score}
+    $('anM').textContent='Temps écoulé ! '+st.score+' points, '+st.found.length+' mot'+(st.found.length>1?'s':'')+' trouvé'+(st.found.length>1?'s':'')+(st.score>b?' · nouveau record !':'');
+    $('anDone').innerHTML=st.found.map(w=>'<span>'+w+'</span>').join('')+st.missed.map(w=>'<span class="miss">'+w+'</span>').join('');$('anDone').hidden=false;
+    $('anBtns').hidden=true;$('anGo').hidden=false;$('anGo').textContent='Rejouer';$('anL').innerHTML='';$('anAns').innerHTML='';sfx.play(st.score>b?'win':'lose')}
+  $('anL').addEventListener('click',e=>{const b=e.target.closest('b');if(!b||!st||!st.on)return;const i=+b.dataset.i;if(st.ans.includes(i))return;st.ans.push(i);sfx.play('key');render();check()});
+  $('anAns').addEventListener('click',()=>{if(!st||!st.on||st.ans.length<=st.hint)return;st.ans.pop();sfx.play('tick');render()});
+  $('anMix').addEventListener('click',()=>{if(!st||!st.on)return;const keep=st.ans.map(i=>st.letters[i]);const rest=st.letters.filter((_,i)=>!st.ans.includes(i)).sort(()=>Math.random()-.5);st.letters=keep.concat(rest);st.ans=keep.map((_,i)=>i);sfx.play('tick');render()});
+  $('anHint').addEventListener('click',()=>{if(!st||!st.on||st.hint>=st.word.length-1)return;
+    // on place la bonne lettre suivante
+    st.ans=st.ans.slice(0,st.hint);const need=st.word[st.hint];const i=st.letters.findIndex((c,k)=>c===need&&!st.ans.includes(k));st.ans.push(i);st.hint++;sfx.play('merge',4);$('anM').textContent='Indice : '+need+' (−15 pts sur ce mot)';render()});
+  $('anSkip').addEventListener('click',()=>{if(!st||!st.on)return;st.missed.push(st.word);st.t0-=5000;$('anM').textContent='C\'était '+st.word+' (−5 s)';sfx.play('error');nextWord()});
+  $('anGo').addEventListener('click',start);
+  document.addEventListener('keydown',e=>{if(current!=='vAn'||!st||!st.on)return;if(e.key==='Backspace'){$('anAns').click();return}const c=e.key.toUpperCase();if(!/^[A-Z]$/.test(c))return;const i=st.letters.findIndex((x,k)=>x===c&&!st.ans.includes(k));if(i>=0){st.ans.push(i);sfx.play('key');render();check()}});
+  enterHooks.vAn=()=>{$('anB').textContent=store.get('anBest',0);if(!st){$('anBtns').hidden=true;$('anBar').style.width='100%'}};
+  leaveHooks.vAn=()=>{if(st&&st.on)end()};
+  if(location.hostname==='localhost')window.__an={get:()=>st,start,pool:POOL};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
