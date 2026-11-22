@@ -590,6 +590,20 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 /* ---- bulles ---- */
 #vBs{--g:var(--ocean)}
 #bsCv{display:block;touch-action:none}
+/* ---- mahjong ---- */
+#vMj{--g:var(--felt)}
+#mjBoard{position:relative;flex:none;border-radius:18px;background:radial-gradient(circle at 50% 40%,#1f7a4c,#0d3f27);box-shadow:0 0 0 2px var(--line),0 10px 26px #0008,inset 0 0 40px #0006}
+#mjBoard .t{position:absolute;width:var(--tw);height:var(--th);border-radius:calc(var(--tw)*.14);background:linear-gradient(135deg,#d9c9a3,#a8916a);cursor:pointer;transition:transform .12s,opacity .25s;box-shadow:0 2px 4px #0005}
+#mjBoard .t i{position:absolute;left:0;top:0;width:calc(100% - var(--ed));height:calc(100% - var(--ed));border-radius:calc(var(--tw)*.13);background:linear-gradient(160deg,#fffdf6,#efe6cf);box-shadow:inset 0 0 0 1px #c9b98f;display:grid;place-items:center}
+#mjBoard .t svg{width:86%;height:86%}
+#mjBoard .t.blk i::after{content:'';position:absolute;inset:0;border-radius:inherit;background:#0b1a1022}
+#mjBoard .t.sel i{background:linear-gradient(160deg,#fff6b0,#ffd23f);box-shadow:inset 0 0 0 2px #e0a800}
+#mjBoard .t.hint i{animation:mjH .6s ease-in-out infinite alternate}
+@keyframes mjH{to{background:linear-gradient(160deg,#c8ffe0,#5ce0a0)}}
+#mjBoard .t.gone{opacity:0;transform:scale(.6) translateY(-10px);pointer-events:none}
+#mjBoard .t.shake{animation:mjS .25s}
+@keyframes mjS{25%{transform:translateX(-4px)}75%{transform:translateX(4px)}}
+#mjBoard.won{animation:pop .5s}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -771,6 +785,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vBs" style="--g:var(--ocean)">
           <img class="art" src="img/bulles.svg" alt="" width="160" height="160">
           <b>Bulles</b><span class="rec" id="hvBs"></span>
+        </button>
+        <button class="tile" data-go="vMj" style="--g:var(--felt)">
+          <img class="art" src="img/mahjong.svg" alt="" width="160" height="160">
+          <b>Mahjong</b><span class="rec" id="hvMj"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -1295,6 +1313,17 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- MAHJONG -->
+<section class="view" id="vMj">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/mahjong.svg" alt="" width="40" height="40"><h1>Mahjong</h1>
+    <div class="chips"><div class="chip"><small>paires</small><b id="mjP">40</b></div><div class="chip"><small>temps</small><b id="mjT">0:00</b></div></div></header>
+  <div class="main">
+    <div id="mjBoard"></div>
+    <div class="msg" id="mjM">Touche deux tuiles identiques et libres (rien dessus, un côté libre)</div>
+    <div class="row"><button class="btn ghost" id="mjHint">Indice</button><button class="btn ghost" id="mjUndo">Annuler</button><button class="btn ghost" id="mjMix">Mélanger</button><button class="btn" id="mjNew">Nouvelle</button></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1326,7 +1355,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.5.5';
+const APP_VERSION='2.5.6';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1606,6 +1635,7 @@ function refreshHome(){
   const tfb=store.get('tfBest',0);$('hvTf').textContent=tfb?'Record '+tfb+' fruits':'Tranche, évite les bombes';
   const bjb=store.get('bjBest',0);$('hvBj').textContent=bjb?'Record '+bjb:'Aligne 3 pierres précieuses';
   const bsb=store.get('bsBest',0);$('hvBs').textContent=bsb?'Record '+bsb:'Groupe 3 bulles de même couleur';
+  const mjb=store.get('mjBest',0);$('hvMj').textContent=mjb?'Record '+Math.floor(mjb/60)+':'+String(mjb%60).padStart(2,'0'):'Retire les tuiles par paires';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5074,6 +5104,96 @@ refreshHome();
   leaveHooks.vBs=()=>{pause();stopLoop()};
   window.addEventListener('resize',()=>{if(current==='vBs')size()});
   if(location.hostname==='localhost')window.__bs={get:()=>({state,score,level,misses,n:grid.flat().filter(v=>v!=null).length,shot:!!shot,cur}),shoot:a=>{aim=a;fire()},grid:()=>grid,pos};
+})();
+
+/* ---------- MAHJONG ---------- */
+(function(){
+  // disposition portrait : 80 tuiles (x, y en tuiles, z = étage)
+  const LAYOUT=(()=>{const L=[];
+    const rows0=[[1,5],[0,6],[0,6],[0,6],[0,6],[0,6],[0,6],[1,5]];rows0.forEach(([a,b],y)=>{for(let x=a;x<=b;x++)L.push({x,y,z:0})});
+    for(let y=2;y<=5;y++)for(let x=1;x<=5;x++)L.push({x,y,z:1});
+    for(let y=3;y<=4;y++)for(let x=2;x<=4;x++)L.push({x,y,z:2});
+    L.push({x:2.5,y:3.5,z:3},{x:3.5,y:3.5,z:3});return L})();
+  const NUM='一二三四五六七八九';
+  // 34 faces : ronds 1-9, bambous 1-9, caractères 1-9, vents, dragons
+  const FACES=[];for(let i=1;i<=9;i++)FACES.push('d'+i);for(let i=1;i<=9;i++)FACES.push('b'+i);for(let i=1;i<=9;i++)FACES.push('c'+i);['東','南','西','北'].forEach(w=>FACES.push('w'+w));FACES.push('r中','g發','x白');
+  const DOTP={1:[[50,50]],2:[[50,28],[50,72]],3:[[28,24],[50,50],[72,76]],4:[[30,30],[70,30],[30,70],[70,70]],5:[[30,28],[70,28],[50,50],[30,72],[70,72]],6:[[32,24],[68,24],[32,50],[68,50],[32,76],[68,76]],
+    7:[[26,20],[50,30],[74,40],[32,62],[68,62],[32,82],[68,82]],8:[[32,17],[68,17],[32,39],[68,39],[32,61],[68,61],[32,83],[68,83]],9:[[24,22],[50,22],[76,22],[24,50],[50,50],[76,50],[24,78],[50,78],[76,78]]};
+  const svgCache={};
+  function faceSVG(f){
+    if(svgCache[f])return svgCache[f];let s='<svg viewBox="0 0 100 130">';const k=f[0],v=f.slice(1);
+    if(k==='d'){const n=+v,r=n===1?26:n<=4?15:n<=6?12:10.5;DOTP[n].forEach(([x,y],i)=>{const col=n===1?'#c4102e':['#1a4fc4','#178a52','#c4102e'][i%3];
+      s+='<circle cx="'+x+'" cy="'+(y*1.3)+'" r="'+r+'" fill="'+col+'"/><circle cx="'+x+'" cy="'+(y*1.3)+'" r="'+r*.55+'" fill="#fff" opacity=".9"/><circle cx="'+x+'" cy="'+(y*1.3)+'" r="'+r*.3+'" fill="'+col+'"/>'})}
+    else if(k==='b'){const n=+v;if(n===1){s+='<rect x="42" y="18" width="16" height="94" rx="7" fill="#178a52"/><rect x="42" y="58" width="16" height="6" fill="#0d5a33"/><circle cx="50" cy="22" r="10" fill="#c4102e"/>'}
+      else{const pos=[];const cols=n<=3?n:n<=6?3:n===7?3:n===8?4:3,rowsN=Math.ceil(n/cols);let i=0;for(let r=0;r<rowsN;r++)for(let c=0;c<cols&&i<n;c++,i++)pos.push([c,r,cols,rowsN]);
+        pos.forEach(([c,r,C,Rr],i)=>{const w=72/C,h=104/Rr,x=14+c*w+w/2,y=13+r*h+h/2,col=(n===7&&i===0)||(n===9&&c===1)||(n===5&&i===2)?'#c4102e':'#178a52';
+          s+='<rect x="'+(x-5.5)+'" y="'+(y-h*.42)+'" width="11" height="'+h*.84+'" rx="5" fill="'+col+'"/><rect x="'+(x-5.5)+'" y="'+(y-1.5)+'" width="11" height="3" fill="#0006"/>'})}}
+    else if(k==='c'){s+='<text x="50" y="58" font-size="46" text-anchor="middle" font-weight="900" fill="#1b2033" font-family="serif">'+NUM[+v-1]+'</text><text x="50" y="114" font-size="44" text-anchor="middle" font-weight="900" fill="#c4102e" font-family="serif">萬</text>'}
+    else if(k==='w'){s+='<text x="50" y="86" font-size="66" text-anchor="middle" font-weight="900" fill="#1a2c6e" font-family="serif">'+v+'</text>'}
+    else if(k==='r'){s+='<text x="50" y="88" font-size="70" text-anchor="middle" font-weight="900" fill="#c4102e" font-family="serif">中</text>'}
+    else if(k==='g'){s+='<text x="50" y="88" font-size="66" text-anchor="middle" font-weight="900" fill="#178a52" font-family="serif">發</text>'}
+    else s+='<rect x="18" y="20" width="64" height="90" rx="6" fill="none" stroke="#1a4fc4" stroke-width="7"/><rect x="29" y="31" width="42" height="68" rx="3" fill="none" stroke="#1a4fc4" stroke-width="3"/>';
+    return svgCache[f]=s+'</svg>';
+  }
+  const board=$('mjBoard');let T=[],sel=null,hist=[],tm=0,tick=null,done=false,tw=48,th=62,ed=5,hintT=null;
+  const fmt=t=>Math.floor(t/60)+':'+String(t%60).padStart(2,'0');
+  const alive=()=>T.filter(t=>!t.gone);
+  function freeIn(t,set){
+    for(const o of set){if(o===t)continue;if(o.z===t.z+1&&Math.abs(o.x-t.x)<1&&Math.abs(o.y-t.y)<1)return false}
+    let L=false,R=false;for(const o of set){if(o===t||o.z!==t.z||Math.abs(o.y-t.y)>=1)continue;if(Math.abs(o.x-(t.x-1))<.6)L=true;if(Math.abs(o.x-(t.x+1))<.6)R=true}
+    return!(L&&R);
+  }
+  // attribution garantie soluble : on retire des paires libres au hasard et on leur donne la même face
+  function assign(tiles){
+    for(let attempt=0;attempt<200;attempt++){
+      const pool=tiles.slice(),pairs=[];let ok=true;
+      while(pool.length){const fr=pool.filter(t=>freeIn(t,pool));if(fr.length<2){ok=false;break}
+        const a=fr.splice(Math.floor(Math.random()*fr.length),1)[0],b=fr[Math.floor(Math.random()*fr.length)];pairs.push([a,b]);pool.splice(pool.indexOf(a),1);pool.splice(pool.indexOf(b),1)}
+      if(!ok)continue;
+      const faces=FACES.slice().sort(()=>Math.random()-.5);while(faces.length<pairs.length)faces.push(FACES[Math.floor(Math.random()*FACES.length)]);faces.sort(()=>Math.random()-.5);
+      pairs.forEach(([a,b],i)=>{a.f=faces[i];b.f=faces[i]});return true}
+    return false;
+  }
+  function size(){
+    const W=Math.min(window.innerWidth-24,460),Hh=window.innerHeight-260;
+    tw=Math.floor(Math.min((W-20)/7.3,(Hh-20)/(8*1.32+.3)));th=Math.round(tw*1.32);ed=Math.max(3,Math.round(tw*.1));
+    board.style.setProperty('--tw',tw+'px');board.style.setProperty('--th',th+'px');board.style.setProperty('--ed',ed+'px');
+    board.style.width=(7*tw+ed*4+16)+'px';board.style.height=(8*th+ed*4+16)+'px';
+    T.forEach(place);
+  }
+  function place(t){t.el.style.left=(8+ed*3+t.x*(tw-ed)+ (t.x*ed) - t.z*ed)+'px';t.el.style.top=(8+ed*3+t.y*(th-ed)+(t.y*ed)-t.z*ed)+'px';t.el.style.zIndex=t.z*100+Math.round(t.y*2)*0+Math.round(t.x*2)}
+  function build(){
+    board.innerHTML='';T.forEach(t=>{const d=document.createElement('div');d.className='t'+(t.gone?' gone':'');d.innerHTML='<i>'+faceSVG(t.f)+'</i>';d.addEventListener('click',()=>tap(t));t.el=d;board.appendChild(d)});size();refresh();
+  }
+  function refresh(){const a=alive();T.forEach(t=>{if(t.gone)return;t.el.classList.toggle('blk',!freeIn(t,a));t.el.classList.toggle('sel',t===sel)});$('mjP').textContent=a.length/2;}
+  function pairsAvail(){const a=alive(),fr=a.filter(t=>freeIn(t,a)),m={};for(const t of fr){if(m[t.f])return[m[t.f],t];m[t.f]=t}return null}
+  function clearHint(){clearTimeout(hintT);T.forEach(t=>t.el&&t.el.classList.remove('hint'))}
+  function tap(t){
+    if(done||t.gone)return;clearHint();
+    if(!freeIn(t,alive())){t.el.classList.remove('shake');void t.el.offsetWidth;t.el.classList.add('shake');sfx.play('error');$('mjM').textContent='Cette tuile est bloquée';return}
+    if(!sel){sel=t;sfx.play('tick');refresh();return}
+    if(sel===t){sel=null;refresh();return}
+    if(sel.f===t.f){sel.gone=t.gone=true;sel.el.classList.add('gone');t.el.classList.add('gone');hist.push([sel,t]);sel=null;sfx.play('eat');vibe(10);startTimer();
+      refresh();save();
+      if(!alive().length)return win();
+      if(!pairsAvail()){$('mjM').textContent='Plus aucune paire possible : touche « Mélanger »';sfx.play('lose')}else $('mjM').textContent='Bien joué !';
+      return}
+    sel=t;sfx.play('tick');refresh();
+  }
+  function win(){done=true;clearInterval(tick);board.classList.add('won');const b=store.get('mjBest',0);store.set('mjWins',store.get('mjWins',0)+1);
+    if(!b||tm<b){store.set('mjBest',tm);$('mjM').textContent='Gagné en '+fmt(tm)+' : nouveau record !'}else $('mjM').textContent='Gagné en '+fmt(tm)+' (record '+fmt(b)+')';sfx.play('win');vibe([40,30,40]);save()}
+  function startTimer(){if(tick)return;tick=setInterval(()=>{if(current!=='vMj'||document.hidden||done)return;tm++;$('mjT').textContent=fmt(tm);if(tm%5===0)save()},1000)}
+  function newGame(){T=LAYOUT.map(p=>({...p,gone:false}));assign(T);sel=null;hist=[];tm=0;done=false;clearInterval(tick);tick=null;$('mjT').textContent='0:00';board.classList.remove('won');build();$('mjM').textContent='Touche deux tuiles identiques et libres (rien dessus, un côté libre)';save();sfx.play('start')}
+  function save(){store.set('mjState',{t:T.map(t=>[t.x,t.y,t.z,t.f,t.gone?1:0]),tm,done,h:hist.map(([a,b])=>[T.indexOf(a),T.indexOf(b)])})}
+  function load(){const s=store.get('mjState',null);if(!s||!s.t)return false;T=s.t.map(([x,y,z,f,g])=>({x,y,z,f,gone:!!g}));tm=s.tm||0;done=!!s.done;hist=(s.h||[]).map(([a,b])=>[T[a],T[b]]);$('mjT').textContent=fmt(tm);build();return true}
+  $('mjHint').addEventListener('click',()=>{if(done)return;clearHint();const p=pairsAvail();if(!p){$('mjM').textContent='Aucune paire : mélange les tuiles';return}p.forEach(t=>t.el.classList.add('hint'));tm+=15;$('mjT').textContent=fmt(tm);$('mjM').textContent='Indice (+15 s)';hintT=setTimeout(clearHint,2500)});
+  $('mjUndo').addEventListener('click',()=>{if(done||!hist.length)return;const[a,b]=hist.pop();a.gone=b.gone=false;a.el.classList.remove('gone');b.el.classList.remove('gone');sel=null;refresh();save();sfx.play('tick')});
+  $('mjMix').addEventListener('click',()=>{if(done)return;const a=alive();if(!assign(a)){$('mjM').textContent='Impossible de mélanger';return}T.forEach(t=>{if(!t.gone)t.el.querySelector('i').innerHTML=faceSVG(t.f)});hist=[];sel=null;tm+=30;$('mjT').textContent=fmt(tm);refresh();save();$('mjM').textContent='Tuiles mélangées (+30 s)';sfx.play('merge',6)});
+  $('mjNew').addEventListener('click',()=>{if(!done&&hist.length&&!confirm('Abandonner la partie en cours ?'))return;newGame()});
+  enterHooks.vMj=()=>{if(!T.length&&!load())newGame();else size();if(hist.length&&!done){tick=null;startTimer()}};
+  leaveHooks.vMj=()=>{clearInterval(tick);tick=null;if(T.length)save()};
+  window.addEventListener('resize',()=>{if(current==='vMj')size()});
+  if(location.hostname==='localhost')window.__mj={pairs:pairsAvail,tap,alive,get:()=>({done,n:alive().length,tm})};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */
