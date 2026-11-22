@@ -622,6 +622,34 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 #px.won .pk.x::after{content:''}
 #pxMode,#pxTool{flex:none}#pxMode{width:min(94vw,460px)}
 #pxTool button{min-width:96px}
+/* ---- mot le plus long ---- */
+#vLg{--g:var(--volt)}
+#vLg .main{gap:12px}
+.lgTop{display:flex;align-items:center;gap:10px;width:min(94vw,440px)}
+.lgTop span{font-weight:900;color:var(--mut);white-space:nowrap}
+.lgTop .seg{flex:1}.lgTop .seg button{font-size:12px}
+.lgLetters,.lgAns{display:flex;gap:5px;justify-content:center;width:min(94vw,440px)}
+.lgLetters b,.lgAns b{flex:1;max-width:44px;aspect-ratio:1/1.15;border-radius:10px;display:grid;place-items:center;font-weight:900;font-size:clamp(18px,6vw,26px);transition:transform .15s,opacity .15s}
+.lgLetters b{background:linear-gradient(180deg,#fff,#dfe4f7);color:#1b2033;box-shadow:0 4px 0 #8a97c7;cursor:pointer}
+.lgLetters b:empty{background:var(--deep);box-shadow:inset 0 0 0 2px var(--line)}
+.lgLetters b.v{background:linear-gradient(180deg,#ffe6f3,#ffb3d8)}
+.lgLetters b.used{opacity:.25;transform:scale(.9)}
+.lgLetters b.new{animation:pop .3s}
+.lgAns b{background:var(--deep);box-shadow:inset 0 0 0 2px var(--line);color:#fff}
+.lgAns b.f{background:var(--volt);color:var(--night);box-shadow:0 3px 0 #6a2ec4}
+.lgDraw,.lgThink,.lgRes{display:flex;flex-direction:column;align-items:center;gap:12px;width:min(94vw,440px)}
+.lgDraw[hidden],.lgThink[hidden],.lgRes[hidden]{display:none}
+.lgDraw p{margin:0;color:var(--mut);font-weight:700}
+.lgDraw .btn{min-width:140px}
+.lgTime{width:100%;height:12px;border-radius:7px;background:var(--deep);overflow:hidden;box-shadow:inset 0 0 0 2px var(--line)}
+.lgTime u{display:block;height:100%;width:100%;background:linear-gradient(90deg,#ff6fb5,#b26bff);border-radius:7px}
+.lgRes .card{width:100%;background:var(--plate);border-radius:16px;padding:12px 14px;box-shadow:0 0 0 2px var(--line)}
+.lgRes .card h4{margin:0 0 6px;font-size:13px;color:var(--mut)}
+.lgRes .w{font-size:22px;font-weight:900;letter-spacing:2px}
+.lgRes .w small{font-size:14px;letter-spacing:0;margin-left:8px;color:var(--mut)}
+.lgRes .ok{color:#2fe39a}.lgRes .ko{color:#ff4d5e}
+.lgRes .best{display:flex;flex-wrap:wrap;gap:6px}
+.lgRes .best span{background:var(--deep);padding:4px 8px;border-radius:8px;font-weight:800;letter-spacing:1px}
 /* ---- en ligne ---- */
 .netst{width:min(94vw,430px);text-align:center;font-weight:700;font-size:13px;color:var(--mut);margin-top:-6px}
 .netst.on{color:var(--mint)}
@@ -811,6 +839,10 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
         <button class="tile" data-go="vPx" style="--g:var(--teal)">
           <img class="art" src="img/picross.svg" alt="" width="160" height="160">
           <b>Picross</b><span class="rec" id="hvPx"></span>
+        </button>
+        <button class="tile" data-go="vLg" style="--g:var(--volt)">
+          <img class="art" src="img/motlong.svg" alt="" width="160" height="160">
+          <b>Mot le plus long</b><span class="rec" id="hvLg"></span>
         </button>
         <!-- fin solo -->
       </div>
@@ -1358,6 +1390,24 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
   </div>
 </section>
 
+<!-- MOT LE PLUS LONG -->
+<section class="view" id="vLg">
+  <header><button class="back" aria-label="Retour"><svg style="transform:rotate(180deg)"><use href="#arrow"/></svg></button><img class="hlogo" src="img/motlong.svg" alt="" width="40" height="40"><h1>Mot long</h1>
+    <div class="chips"><div class="chip"><small>toi</small><b id="lgA">0</b></div><div class="chip"><small>koala</small><b id="lgK">0</b></div></div></header>
+  <div class="main">
+    <div class="lgTop"><span id="lgR">Manche 1 / 5</span><div class="seg" id="lgLv"><button data-l="0">Facile</button><button data-l="1">Moyen</button><button data-l="2">Difficile</button></div></div>
+    <div class="lgLetters" id="lgL"></div>
+    <div id="lgDraw" class="lgDraw"><p>Choisis tes 9 lettres</p><div class="row"><button class="btn" id="lgV">Voyelle</button><button class="btn" id="lgC">Consonne</button></div><button class="btn ghost" id="lgAuto">Tirage au hasard</button></div>
+    <div id="lgThink" class="lgThink" hidden>
+      <div class="lgTime"><u id="lgBar"></u></div>
+      <div class="lgAns" id="lgAns"></div>
+      <div class="row"><button class="btn ghost" id="lgBk">⌫</button><button class="btn ghost" id="lgClr">Vider</button><button class="btn" id="lgOk">Valider</button></div>
+    </div>
+    <div id="lgRes" class="lgRes" hidden></div>
+    <div class="msg" id="lgM"></div>
+  </div>
+</section>
+
 <!-- DUEL REFLEXES -->
 <section class="view" id="vDuel">
   <div class="duel">
@@ -1389,7 +1439,7 @@ header h1{font-weight:900;font-size:22px;flex:1;letter-spacing:-.01em;min-width:
 <script src="croises.js"></script>
 <script>
 'use strict';
-const APP_VERSION='2.5.7';
+const APP_VERSION='2.5.8';
 document.getElementById('ver').textContent='Koalarcade v'+APP_VERSION;
 document.getElementById('mVer').textContent='Version installée : v'+APP_VERSION;
 
@@ -1671,6 +1721,7 @@ function refreshHome(){
   const bsb=store.get('bsBest',0);$('hvBs').textContent=bsb?'Record '+bsb:'Groupe 3 bulles de même couleur';
   const mjb=store.get('mjBest',0);$('hvMj').textContent=mjb?'Record '+Math.floor(mjb/60)+':'+String(mjb%60).padStart(2,'0'):'Retire les tuiles par paires';
   const pxs=store.get('pxSolved',[]).length;$('hvPx').textContent=pxs?pxs+' image'+(pxs>1?'s':'')+' trouvée'+(pxs>1?'s':''):'Révèle l\'image cachée';
+  const lgb=store.get('lgBest',0);$('hvLg').textContent=lgb?'Record '+lgb+' points':'9 lettres, un mot, 45 secondes';
   $('hDuel').innerHTML=(d[0]||d[1])?duo(d[0],d[1]):'Le plus rapide gagne';
 }
 refreshHome();
@@ -5313,6 +5364,69 @@ refreshHome();
   leaveHooks.vPx=()=>{clearInterval(tick);if(G)save()};
   window.addEventListener('resize',()=>{if(current==='vPx'&&G)build()});
   if(location.hostname==='localhost')window.__px={get:()=>G,act,solvable};
+})();
+
+/* ---------- DICTIONNAIRE (chargé à la demande, partagé) ---------- */
+(function(){
+  let p=null;
+  window.loadDico=()=>{if(p)return p;p=new Promise((ok,ko)=>{const fin=()=>{const by={},all=new Set();for(const k in window.DICO_TXT){by[k]=window.DICO_TXT[k].split(' ');by[k].forEach(w=>all.add(w))}window.DICO={by,all};ok(window.DICO)};
+    if(window.DICO_TXT)return fin();const s=document.createElement('script');s.src='dico.js';s.onload=fin;s.onerror=()=>{p=null;ko(new Error('dico'))};document.head.appendChild(s)});return p};
+  // mots formables avec ces lettres, du plus long au plus court
+  window.dicoFind=(letters,max)=>{const cnt={};for(const c of letters)cnt[c]=(cnt[c]||0)+1;const out=[];
+    for(let L=Math.min(9,letters.length);L>=2&&out.length<(max||9999);L--){for(const w of window.DICO.by[L]||[]){const k={};let ok=true;for(const c of w){k[c]=(k[c]||0)+1;if(k[c]>(cnt[c]||0)){ok=false;break}}if(ok)out.push(w)}}return out};
+})();
+/* ---------- LE MOT LE PLUS LONG ---------- */
+(function(){
+  const VOY={E:15,A:9,I:8,U:6,O:6,Y:1},CON={S:8,N:7,R:7,T:7,L:5,D:4,C:4,M:3,P:3,G:2,B:2,F:2,H:2,V:2,J:1,Q:1,X:1,Z:1,K:1,W:1};
+  const ROUNDS=5,TIME=45;
+  let st=null,timer=null,lv=store.get('lgLevel',1);
+  const bag=o=>{const a=[];for(const k in o)for(let i=0;i<o[k];i++)a.push(k);return a[Math.floor(Math.random()*a.length)]};
+  const isV=c=>'AEIOUY'.includes(c);
+  const pts=w=>w.length===9?18:w.length;
+  function newGame(){st={round:1,a:0,k:0,letters:[],ans:[],phase:'draw'};drawUI();$('lgA').textContent=0;$('lgK').textContent=0;$('lgM').textContent='';loadDico().catch(()=>$('lgM').textContent='Dictionnaire indisponible hors ligne pour l\'instant')}
+  function addLetter(v){if(st.phase!=='draw'||st.letters.length>=9)return;
+    const nv=st.letters.filter(isV).length,nc=st.letters.length-nv;
+    if(v&&nv>=6){$('lgM').textContent='6 voyelles maximum';sfx.play('error');return}if(!v&&nc>=7){$('lgM').textContent='7 consonnes maximum';sfx.play('error');return}
+    st.letters.push(v?bag(VOY):bag(CON));sfx.play('key');$('lgM').textContent='';renderLetters(true);if(st.letters.length===9)startThink()}
+  function auto(){while(st.letters.length<9){const nv=st.letters.filter(isV).length,need=9-st.letters.length;const v=nv<3&&need<=3-nv?true:Math.random()<.42&&nv<5;st.letters.push(v?bag(VOY):bag(CON))}sfx.play('merge',4);renderLetters(true);startThink()}
+  function renderLetters(anim){
+    const used=new Set(st.ans);$('lgL').innerHTML=[...Array(9)].map((_,i)=>{const c=st.letters[i]||'';return'<b data-i="'+i+'" class="'+(c&&isV(c)?'v':'')+(used.has(i)?' used':'')+(anim&&i===st.letters.length-1?' new':'')+'">'+c+'</b>'}).join('');
+    $('lgAns').innerHTML=[...Array(9)].map((_,i)=>{const k=st.ans[i];return'<b class="'+(k!=null?'f':'')+'">'+(k!=null?st.letters[k]:'')+'</b>'}).join('');
+  }
+  function drawUI(){$('lgR').textContent='Manche '+st.round+' / '+ROUNDS;$('lgDraw').hidden=st.phase!=='draw';$('lgThink').hidden=st.phase!=='think';$('lgRes').hidden=st.phase!=='res';renderLetters();
+    document.querySelectorAll('#lgLv button').forEach(b=>b.classList.toggle('on',+b.dataset.l===lv))}
+  function startThink(){st.phase='think';st.ans=[];st.t0=Date.now();drawUI();sfx.play('start');clearInterval(timer);
+    timer=setInterval(()=>{const left=TIME-(Date.now()-st.t0)/1000;$('lgBar').style.width=Math.max(0,left/TIME*100)+'%';if(left<=5&&left>0&&Math.abs(left-Math.round(left))<.06)sfx.play('tick');if(left<=0)finish()},100)}
+  async function finish(){
+    if(st.phase!=='think')return;clearInterval(timer);st.phase='res';
+    const D=await loadDico().catch(()=>null);
+    const word=st.ans.map(i=>st.letters[i]).join(''),ok=D&&word.length>=2&&D.all.has(word),best=D?dicoFind(st.letters):[];
+    const max=best.length?best[0].length:0,top=best.filter(w=>w.length===max).slice(0,8);
+    // Koala trouve un mot selon son niveau
+    const target=Math.max(2,max-[2+Math.floor(Math.random()*2),Math.floor(Math.random()*2)+ (Math.random()<.5?1:0),Math.random()<.75?0:1][lv]);
+    const kw=best.filter(w=>w.length===Math.min(target,max));const kword=kw.length?kw[Math.floor(Math.random()*kw.length)]:'';
+    const pa=ok?pts(word):0,pk=kword?pts(kword):0;st.a+=pa;st.k+=pk;$('lgA').textContent=st.a;$('lgK').textContent=st.k;
+    const last=st.round>=ROUNDS;
+    $('lgRes').innerHTML='<div class="card"><h4>Ton mot</h4><div class="w '+(ok?'ok':'ko')+'">'+(word||'—')+'<small>'+(ok?'+'+pa+' pt'+(pa>1?'s':''):word?'pas dans le dictionnaire':'aucun mot')+'</small></div></div>'+
+      '<div class="card"><h4>Koala</h4><div class="w">'+(kword||'—')+'<small>+'+pk+' pts</small></div></div>'+
+      '<div class="card"><h4>Meilleur'+(top.length>1?'s':'')+' mot'+(top.length>1?'s':'')+' possible'+(top.length>1?'s':'')+' ('+max+' lettres)</h4><div class="best">'+top.map(w=>'<span>'+w+'</span>').join('')+'</div></div>'+
+      '<button class="btn" id="lgNext">'+(last?'Rejouer':'Manche suivante')+'</button>';
+    $('lgNext').addEventListener('click',()=>{if(last)return newGame();st.round++;st.letters=[];st.ans=[];st.phase='draw';$('lgM').textContent='';drawUI()});
+    if(last){const b=store.get('lgBest',0);if(st.a>b)store.set('lgBest',st.a);store.set('lgGames',store.get('lgGames',0)+1);if(st.a>st.k)store.set('lgWins',store.get('lgWins',0)+1);
+      $('lgM').textContent=(st.a>st.k?'Tu bats Koala ':st.a<st.k?'Koala gagne ':'Égalité ')+st.a+' à '+st.k+(st.a>b?' · nouveau record !':'');sfx.play(st.a>=st.k?'win':'lose')}
+    else{$('lgM').textContent='';sfx.play(ok?(pa>=pk?'win':'eat'):'error')}
+    drawUI();
+  }
+  $('lgV').addEventListener('click',()=>addLetter(true));$('lgC').addEventListener('click',()=>addLetter(false));$('lgAuto').addEventListener('click',()=>{if(st.phase==='draw')auto()});
+  $('lgL').addEventListener('click',e=>{const b=e.target.closest('b');if(!b||st.phase!=='think')return;const i=+b.dataset.i;if(st.ans.includes(i)||!st.letters[i])return;st.ans.push(i);sfx.play('key');renderLetters()});
+  $('lgAns').addEventListener('click',()=>{if(st.phase!=='think'||!st.ans.length)return;st.ans.pop();sfx.play('tick');renderLetters()});
+  $('lgBk').addEventListener('click',()=>{if(st.phase!=='think')return;st.ans.pop();sfx.play('tick');renderLetters()});
+  $('lgClr').addEventListener('click',()=>{if(st.phase!=='think')return;st.ans=[];renderLetters()});
+  $('lgOk').addEventListener('click',()=>{if(st.phase!=='think')return;if(st.ans.length<2){$('lgM').textContent='Choisis au moins 2 lettres';sfx.play('error');return}finish()});
+  document.querySelectorAll('#lgLv button').forEach(b=>b.addEventListener('click',()=>{lv=+b.dataset.l;store.set('lgLevel',lv);drawUI()}));
+  enterHooks.vLg=()=>{if(!st)newGame();else drawUI()};
+  leaveHooks.vLg=()=>{};
+  if(location.hostname==='localhost')window.__lg={get:()=>st,auto,finish,pick:i=>{st.ans.push(i)}};
 })();
 
 /* ---------- DUEL REFLEXES ---------- */

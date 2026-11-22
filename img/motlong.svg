@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160"><defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4a1f8a"/><stop offset="1" stop-color="#1b0b40"/></linearGradient><linearGradient id="t" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff"/><stop offset="1" stop-color="#dfe4f7"/></linearGradient></defs>
+<rect width="160" height="160" rx="34" fill="url(#bg)"/>
+<g font-family="sans-serif" font-weight="900" font-size="24" text-anchor="middle" fill="#1b2033">
+<g transform="translate(14 32)"><rect width="30" height="34" rx="7" fill="url(#t)"/><text x="15" y="25">K</text></g>
+<g transform="translate(48 32)"><rect width="30" height="34" rx="7" fill="#ffb3d8"/><text x="15" y="25">O</text></g>
+<g transform="translate(82 32)"><rect width="30" height="34" rx="7" fill="url(#t)"/><text x="15" y="25">L</text></g>
+<g transform="translate(116 32)"><rect width="30" height="34" rx="7" fill="#ffb3d8"/><text x="15" y="25">A</text></g></g>
+<g transform="translate(16 92)"><rect width="128" height="40" rx="10" fill="#b26bff"/><text x="64" y="29" font-family="sans-serif" font-weight="900" font-size="24" text-anchor="middle" fill="#fff" letter-spacing="3">9 = 18</text></g></svg>
